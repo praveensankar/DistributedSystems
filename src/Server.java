@@ -22,7 +22,7 @@ public class Server implements ServerInterface{
             {
                 server[i]=new Server();
                 ServerInterface stub = (ServerInterface) UnicastRemoteObject.exportObject(server[i], 0);
-                registry.bind("server"+Integer.toString(i), stub);
+                registry.bind("server"+Integer.toString(i+1), stub);
             }
         }
         catch(Exception e)
