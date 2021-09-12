@@ -1,34 +1,59 @@
-import java.rmi.registry.Registry;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 
-public class Server implements ServerInterface{
+public class Server implements ServerInterface {
+
+    // choosing arraylist as the waitlist might be higher than ten.
+    // private ArrayList<Client> waitList = new ArrayList<>();
+    //
+    // /**
+    //  * Local methods
+    //  */
+    //
+    // public int getWaitListSize() {
+    //   return waitList.size();
+    // }
+    //
+    //
+    // public void addToWaitList(Client client) {
+    //   waitList.add(client);
+    // }
+    //
+    // private Client removeFromWaitList() {
+    //   return waitList.remove(0);
+    // }
+
+    /**
+     * Remote methods
+     */
     public String sayHello() {
         return "Hello, world!";
     }
 
-    public int add(int a, int b)
-    {
+    public int add(int a, int b) {
         return a+b;
     }
 
-    public static void main(String[] args)
-    {
-        try{
-            Server[] server = new Server[5];
-            Registry registry = LocateRegistry.getRegistry();
-            for(int i=0; i<5; i++)
-            {
-                server[i]=new Server();
-                ServerInterface stub = (ServerInterface) UnicastRemoteObject.exportObject(server[i], 0);
-                registry.bind("server"+Integer.toString(i), stub);
-            }
-        }
-        catch(Exception e)
-        {
-            System.err.println("Server exception: " + e.toString());
-            e.printStackTrace();
-        }
+    public int getTimesPlayed(String musicID) {
+      // TODO
+      return 0;
+    }
+
+    public int getTimesPlayedByUser(String musicID, String userID) {
+      // TODO
+      return 0;
+    }
+
+    public String[] getTopThreeMusicByUser(String userID) {
+      // TODO
+      return null;
+    }
+
+    public String getTopArtistByMusicGenre(String userID, String genre) {
+      // TODO
+      return null;
+    }
+
+    void readCSVfile() {
+
     }
 }
