@@ -1,13 +1,13 @@
-M1, A1, Rock, U1, 5
-M2, A2, Hip-hop, U2, 1
-M3, A3, Rock, U3, 1
-M4, A4, Pop, U4, 2
-M1, A1, Rock, U2, 5
-M2, A2, Hip-hop, U3, 1
-M3, A3, Rock, U4, 1
-M4, A4, Pop, U1, 2
-M5, A5, Rock, U1, 5
-M6, A6, Hip-hop, U2, 1
-M7, A7, Rock, U3, 1
-M8, A8, Pop, U4, 2
-M9, A8, A4, Pop, U4, 2
+M1,A1,Rock,U1,5
+M2,A2,Hip-hop,U2,1
+M3,A3,Rock,U3,1
+M4,A4,Pop,U4,2
+M1,A1,Rock,U2,5
+M2,A2,Hip-hop,U3,1
+M3,A3,Rock,U4,1
+M4,A4,Pop,U1,2
+M5,A5,Rock,U1,5
+M6,A6,Hip-hop,U2,1
+M7,A7,Rock,U3,1
+M8,A8,Pop,U4,2
+M9,A8,A4,Pop,U4,2
