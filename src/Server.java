@@ -54,7 +54,7 @@ public class Server implements ServerInterface {
 
           // maybe could be replaced with an abstract class and functions to decrease
           // code duplication
-          if (musicID.equals(record[0])) {
+          if (record[0].equals(musicID)) {
             count += Integer.parseInt(record[record.length - 1]);
           }
         }
@@ -62,7 +62,7 @@ public class Server implements ServerInterface {
       } catch(IOException e) {
         e.printStackTrace();
       } catch(NumberFormatException e) {
-        System.out.println("Logical error: Something went wrong with parsing!\n");
+        System.err.println("Logical error: Something went wrong with parsing!\n");
         e.printStackTrace();
       }
 
@@ -70,7 +70,24 @@ public class Server implements ServerInterface {
     }
 
     public int getTimesPlayedByUser(String musicID, String userID) {
-      // TODO
+      try {
+        BufferedReader br = getReader();
+        String line, delimiter = ",";
+
+        while ((line = br.readLine()) != null) {
+          String[] record = line.split(delimiter);
+
+          if (record[0].equals(musicID) && record[record.length - 2].equals(userID)) {
+            return Integer.parseInt(record[record.length - 1]);
+          }
+        }
+      } catch(IOException e) {
+        e.printStackTrace();
+      } catch(NumberFormatException e) {
+        System.err.println("Logical error: Something went wrong with the parsing!");
+        e.printStackTrace();
+      }
+
       return 0;
     }
 
@@ -137,5 +154,11 @@ public class Server implements ServerInterface {
       System.out.println("M9: " + s.getTimesPlayed("M9"));
       System.out.println("M1: " + s.getTimesPlayed("M1"));
       System.out.println("M14: " + s.getTimesPlayed("M14"));
+
+      System.out.println("\nTimes played by user:");
+      System.out.println("M1 and U1: " + s.getTimesPlayedByUser("M1", "U1"));
+      System.out.println("M1 and U2: " + s.getTimesPlayedByUser("M1", "U2"));
+      System.out.println("M1 and U3: " + s.getTimesPlayedByUser("M1", "U3"));
+      System.out.println("M10 and U4: " + s.getTimesPlayedByUser("M10", "U4"));
     }
 }
