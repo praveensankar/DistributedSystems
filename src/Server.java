@@ -43,7 +43,29 @@ public class Server implements ServerInterface {
     public int getTimesPlayed(String musicID) {
       // TODO
       int count = 0;
-      
+
+      try {
+
+        BufferedReader br = getReader();
+        String line, delimiter = ",";
+
+        while ((line = br.readLine()) != null) {
+          String[] record = line.split(delimiter);
+
+          // maybe could be replaced with an abstract class and functions to decrease
+          // code duplication
+          if (musicID.equals(record[0])) {
+            count += Integer.parseInt(record[record.length - 1]);
+          }
+        }
+
+      } catch(IOException e) {
+        e.printStackTrace();
+      } catch(NumberFormatException e) {
+        System.out.println("Logical error: Something went wrong with parsing!\n");
+        e.printStackTrace();
+      }
+
       return count;
     }
 
@@ -65,7 +87,7 @@ public class Server implements ServerInterface {
     // easy, does not account for several artists right now.
     // Trying with buffered reader. Faster than scanner according to google
     // https://www.javatpoint.com/how-to-read-csv-file-in-java
-    static void readCSVfile() {
+    void readCSVfile() {
 
       String line = "";
       String splitBy = ",";
@@ -106,6 +128,14 @@ public class Server implements ServerInterface {
     }
 
     public static void main(String[] args) {
-      readCSVfile();
+
+      Server s = new Server();
+
+      s.readCSVfile();
+
+      System.out.println("\nTimes played:");
+      System.out.println("M9: " + s.getTimesPlayed("M9"));
+      System.out.println("M1: " + s.getTimesPlayed("M1"));
+      System.out.println("M14: " + s.getTimesPlayed("M14"));
     }
 }
