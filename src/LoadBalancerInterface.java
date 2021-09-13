@@ -5,7 +5,7 @@ public interface LoadBalancerInterface extends Remote{
 
     // fetches the server stub from the rmi registry
     // zoneId: zone id of the client
-    // return stub (ServerInterface)
-    ServerInterface fetchServer(int zoneId) throws RemoteException;
+    // return LoadBalancerResponse (ServerInterface, communication delay)
+    LoadBalancerResponse fetchServer(int zoneId) throws RemoteException;
 
 }

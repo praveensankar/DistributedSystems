@@ -165,8 +165,8 @@ public class LoadBalancer implements LoadBalancerInterface {
 
     // fetches the server stub from the rmi registry
     // zoneId: zone id of the client
-    // return stub (ServerInterface)
-    public ServerInterface fetchServer(int zoneId) {
+    // return LoadBalancerResponse (ServerInterface, communication delay)
+    public LoadBalancerResponse fetchServer(int zoneId) {
 
         int serverId = this.getServerIdBasedOnLoad(zoneId);
         String serverName = getServerName(serverId);
@@ -184,13 +184,29 @@ public class LoadBalancer implements LoadBalancerInterface {
             System.out.println("server : "+serverId+"\t number of requests sent : " +
                     numberofRequestsSent + "\t waiting list : "+ numberOfRequestsInTheWaitingList);
 
-            return stub;
+            return constructResponse(stub, serverId, zoneId);
+            // return stub;
 
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());
             e.printStackTrace();
             return null;
         }
+    }
+
+    // constructs response from load balancer needed for the client
+    // calculates the communication delay from client to server
+    //      80 ms if both client and server is in same zone
+    //      170 ms if both client and server is in different zone
+    public LoadBalancerResponse constructResponse(ServerInterface stub, int serverId, int clientZoneId)
+    {
+        int communicationDelay = 80;
+        if(serverId!=clientZoneId)
+        {
+            communicationDelay = 170;
+        }
+        LoadBalancerResponse response = new LoadBalancerResponse(communicationDelay, stub);
+        return response;
     }
 
     public static void main(String[] args) {
@@ -206,4 +222,6 @@ public class LoadBalancer implements LoadBalancerInterface {
         }
     }
 }
+
+
 
