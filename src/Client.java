@@ -34,8 +34,8 @@ public class Client {
                     sResponse = getTimesPlayed(task.argument1);
                 }
 
-                File output = createOutputFile("output.txt");
-                writeFile("output.txt", sResponse);
+                File output = createOutputFile("naive_server.txt");
+                writeFile("naive_server.txt", sResponse);
             }
 
 
