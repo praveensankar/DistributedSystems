@@ -11,7 +11,7 @@ class ServerSimulator {
           for(int i=0; i<5; i++) {
               server[i] = new Server();
               ServerInterface stub = (ServerInterface) UnicastRemoteObject.exportObject(server[i], 0);
-              registry.bind("server" + Integer.toString(i), stub);
+              registry.bind("server" + Integer.toString(i + 1), stub);
           }
       } catch(Exception e) {
           System.err.println("Server exception: " + e.toString());

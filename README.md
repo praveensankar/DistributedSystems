@@ -1,14 +1,14 @@
 instructions to execute
 
 1) compile the files
-    javac LoadBalancer.java LoadBalancer.java Server.java ServerInterface.java Client.java
-2) start the registy
+    javac LoadBalancer.java LoadBalancer.java Server.java ServerInterface.java Client.java LoadBalancerResponse.java
+3) start the registy
     rmiregistry
-3) start the server
+5) start the server
     java Server
-4) start the load balancer
+7) start the load balancer
     java LoadBalancer
-5) start the client
+9) start the client
     java Client
 
 
