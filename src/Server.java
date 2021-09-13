@@ -25,8 +25,8 @@ public class Server implements ServerInterface {
     //   return waitList.remove(0);
     // }
 
-    private BufferedReader getReader() throws IOException {
-      return new BufferedReader(new FileReader("../data/dummydataset.csv"));
+    private BufferedReader newReader() throws IOException {
+      return new BufferedReader(new FileReader("../data/dataset.csv"));
     }
 
     /**
@@ -46,7 +46,7 @@ public class Server implements ServerInterface {
 
       try {
 
-        BufferedReader br = getReader();
+        BufferedReader br = newReader();
         String line, delimiter = ",";
 
         while ((line = br.readLine()) != null) {
@@ -69,16 +69,21 @@ public class Server implements ServerInterface {
       return count;
     }
 
+    // Question: is there several records for same musicID and userID??
+    // If so, this needs to be modified. Have now modified it. But not sure if necessary.
+    // If this is the case, then the top three will be more complicated
     public int getTimesPlayedByUser(String musicID, String userID) {
+      int count = 0;
       try {
-        BufferedReader br = getReader();
+        BufferedReader br = newReader();
         String line, delimiter = ",";
 
         while ((line = br.readLine()) != null) {
           String[] record = line.split(delimiter);
 
           if (record[0].equals(musicID) && record[record.length - 2].equals(userID)) {
-            return Integer.parseInt(record[record.length - 1]);
+            // return Integer.parseInt(record[record.length - 1]);
+            count += Integer.parseInt(record[record.length - 1]);
           }
         }
       } catch(IOException e) {
@@ -88,17 +93,99 @@ public class Server implements ServerInterface {
         e.printStackTrace();
       }
 
-      return 0;
+      return count;
     }
 
+    // Here I am assuming that there is only one record per song for a specific user.
     public String[] getTopThreeMusicByUser(String userID) {
-      // TODO
-      return null;
+      String[] top3 = new String[3];
+      int[] count = new int[3];
+
+      try {
+        BufferedReader br = newReader();
+        String line, delimiter = ",";
+
+        while ((line = br.readLine()) != null) {
+          String[] record = line.split(delimiter);
+          String user = record[record.length - 2];
+          int timesPlayed = Integer.parseInt(record[record.length - 1]);
+
+          if (user.equals(userID) && timesPlayed > count[2]) {
+
+            int i = 1;
+            while (i >= 0 && timesPlayed > count[i]) {
+              count[i + 1] = count[i];
+              top3[i + 1] = top3[i--];
+            }
+
+            count[i + 1] = timesPlayed;
+            top3[i + 1] = record[0];
+
+            // // can also write a simple sort function (e.g. insertion sort)
+            // // if same or under second
+            // if (timesPlayed <= count[1]) {
+            //   count[2] = timesPlayed;
+            //   top3[2] = record[0];
+            // // if same or under first
+            // } else if (timesPlayed <= count[0]) {
+            //   // move the second place to third place
+            //   count[2] = count[1];
+            //   top3[2] = top3[1];
+            //   // place it at second place
+            //   count[1] = timesPlayed;
+            //   top3[1] = record[0];
+            // // if over first
+            // } else {
+            //   // move second to third
+            //   count[2] = count[1];
+            //   top3[2] = top3[1];
+            //   // move first to second
+            //   count[1] = count[0];
+            //   top3[1] = top3[0];
+            //   // place it at first place
+            //   count[0] = timesPlayed;
+            //   top3[0] = record[0];
+            // }
+
+          }
+
+        }
+      } catch(IOException e) {
+        e.printStackTrace();
+      } catch(NumberFormatException e) {
+        System.err.println("Logical error: Something went wrong with the parsing!\n");
+        e.printStackTrace();
+      }
+
+      return top3;
     }
 
-    public String getTopArtistByMusicGenre(String userID, String genre) {
-      // TODO
-      return null;
+    public String[] getTopArtistsByMusicGenre(String userID, String genre) {
+      String[] top3 = new String[3];
+      int count[] = new int[3];
+
+      try {
+        BufferedReader br = newReader();
+        String line, delimiter = ",";
+
+        while ((line = br.readLine()) != null) {
+          String[] record = line.split(delimiter);
+          String user = record[record.length - 2];
+          String g = record[record.length - 3];
+
+          if (user.equals(userID) && g.equals(genre)) {
+            // TODO
+          }
+        }
+
+      } catch(IOException e) {
+        e.printStackTrace();
+      } catch (NumberFormatException e) {
+        System.err.println("Logical error: Something went wrong with the parsing!\n");
+        e.printStackTrace();
+      }
+
+      return top3;
     }
 
     // easy, does not account for several artists right now.
@@ -148,17 +235,53 @@ public class Server implements ServerInterface {
 
       Server s = new Server();
 
-      s.readCSVfile();
+      // s.readCSVfile();
 
-      System.out.println("\nTimes played:");
+      System.out.println("\nDummy dataset");
+
+      // Dummy dataset
+      System.out.println("\nTimes played");
       System.out.println("M9: " + s.getTimesPlayed("M9"));
       System.out.println("M1: " + s.getTimesPlayed("M1"));
       System.out.println("M14: " + s.getTimesPlayed("M14"));
 
-      System.out.println("\nTimes played by user:");
+      System.out.println("\nTimes played by user");
       System.out.println("M1 and U1: " + s.getTimesPlayedByUser("M1", "U1"));
       System.out.println("M1 and U2: " + s.getTimesPlayedByUser("M1", "U2"));
       System.out.println("M1 and U3: " + s.getTimesPlayedByUser("M1", "U3"));
       System.out.println("M10 and U4: " + s.getTimesPlayedByUser("M10", "U4"));
+
+      System.out.println("\nTop 3 music");
+      String user = "U2";
+      String[] top3 = s.getTopThreeMusicByUser(user);
+      System.out.print(user + ": ");
+
+      for (String m : top3)
+        System.out.print(m + " ");
+
+      System.out.println("\n\nReal dataset");
+
+
+      // Real dataset
+      System.out.println("\nTimes played");
+      System.out.println("MZnK007OYs: " + s.getTimesPlayed("MZnK007OYs"));
+      System.out.println("MK3r9RF0Fz: " + s.getTimesPlayed("MK3r9RF0Fz"));
+      System.out.println("Mnni7iWPl2: " + s.getTimesPlayed("Mnni7iWPl2"));
+
+      System.out.println("\nTimes played by user");
+      System.out.println("MZnK007OYs and UQ9lO8EhXd: " + s.getTimesPlayedByUser("MZnK007OYs", "UQ9lO8EhXd"));
+      System.out.println("MZnK007OYs and Uo59ASIkor: " + s.getTimesPlayedByUser("MZnK007OYs", "Uo59ASIkor"));
+      System.out.println("MK3r9RF0Fz and U1hn1abhsA: " + s.getTimesPlayedByUser("MK3r9RF0Fz", "U1hn1abhsA"));
+      System.out.println("MeD0M4CGzg and Url3aJX8dX: " + s.getTimesPlayedByUser("MeD0M4CGzg", "Url3aJX8dX"));
+
+      System.out.println("\nTop 3 music");
+      user = "U5etSKm4EW";
+      top3 = s.getTopThreeMusicByUser(user);
+      System.out.println(user + ": ");
+
+      for (String m : top3)
+        System.out.println(m + ": " + s.getTimesPlayedByUser(m, user));
+
+      System.out.println("");
     }
 }

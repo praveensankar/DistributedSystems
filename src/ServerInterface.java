@@ -7,5 +7,5 @@ public interface ServerInterface extends Remote {
     int getTimesPlayed(String musicID) throws RemoteException;
     int getTimesPlayedByUser(String musicID, String userID) throws RemoteException;
     String[] getTopThreeMusicByUser(String userID) throws RemoteException;
-    String getTopArtistByMusicGenre(String userID, String genre) throws RemoteException;
+    String[] getTopArtistsByMusicGenre(String userID, String genre) throws RemoteException;
 }
