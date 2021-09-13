@@ -2,46 +2,84 @@ import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 public class Server implements ServerInterface {
 
-    // choosing arraylist as the waitlist might be higher than ten.
-    // private ArrayList<Client> waitList = new ArrayList<>();
-    //
-    // /**
-    //  * Local methods
-    //  */
-    //
-    // public int getWaitListSize() {
-    //   return waitList.size();
-    // }
-    //
-    //
-    // public void addToWaitList(Client client) {
-    //   waitList.add(client);
-    // }
-    //
-    // private Client removeFromWaitList() {
-    //   return waitList.remove(0);
-    // }
+  // class Worker implements Runnable {
+  //   public void run() {
+  //
+  //   }
+  // }
 
-    private BufferedReader newReader() throws IOException {
-      return new BufferedReader(new FileReader("../data/dataset.csv"));
+  // Maybe Executor Service?? Create two services, with one thread each
+
+  private ExecutorService waitListExecutor = Executors.newSingleThreadExecutor();
+  private ExecutorService queryExecutor = Executors.newSingleThreadExecutor();
+
+  // How should I shut them down?
+
+  // choosing arraylist as the waitlist might be higher than ten.
+  private ArrayList<Integer> waitList = new ArrayList<>();
+
+  /**
+   * Local methods
+   */
+
+  // using synchronized here as these methods will not be called on excessively.
+  public synchronized int getWaitListSize() {
+    Future<Integer> future = waitListExecutor.submit(() -> {
+      return waitList.size();
+    });
+
+    try {
+      // blocking call
+      return future.get();
+    } catch(InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      return -1;
     }
+  }
 
-    /**
-     * Remote methods
-     */
-    public String sayHello() {
-      return "Hello, world!";
+  public synchronized void sendRequest(int client) {
+    waitListExecutor.submit(() -> {
+      waitList.add(client);
+    });
+  }
+
+  private synchronized int removeFromWaitList() {
+    Future<Integer> future = queryExecutor.submit(() -> {
+      return waitList.remove(0);
+    });
+
+    try {
+      return future.get();
+    } catch(InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      return -1;
     }
+  }
 
-    public int add(int a, int b) {
-      return a+b;
-    }
+  private BufferedReader newReader() throws IOException {
+    return new BufferedReader(new FileReader("../data/dataset.csv"));
+  }
 
-    public int getTimesPlayed(String musicID) {
-      // TODO
+  /**
+   * Remote methods
+   */
+  public String sayHello() {
+    return "Hello, world!";
+  }
+
+  public int add(int a, int b) {
+    return a+b;
+  }
+
+  public int getTimesPlayed(String musicID) {
+    Future<Integer> future = queryExecutor.submit(() -> {
       int count = 0;
 
       try {
@@ -55,6 +93,7 @@ public class Server implements ServerInterface {
           // maybe could be replaced with an abstract class and functions to decrease
           // code duplication
           if (record[0].equals(musicID)) {
+            // return Integer.parseInt(record[record.length - 1]);
             count += Integer.parseInt(record[record.length - 1]);
           }
         }
@@ -67,12 +106,22 @@ public class Server implements ServerInterface {
       }
 
       return count;
+    });
+
+    try {
+      return future.get();
+    } catch(InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      return -1;
     }
 
-    // Question: is there several records for same musicID and userID??
-    // If so, this needs to be modified. Have now modified it. But not sure if necessary.
-    // If this is the case, then the top three will be more complicated
-    public int getTimesPlayedByUser(String musicID, String userID) {
+  }
+
+  // Question: is there several records for same musicID and userID??
+  // If so, this needs to be modified. Have now modified it. But not sure if necessary.
+  // If this is the case, then the top three will be more complicated
+  public int getTimesPlayedByUser(String musicID, String userID) {
+    Future<Integer> future = queryExecutor.submit(() -> {
       int count = 0;
       try {
         BufferedReader br = newReader();
@@ -94,10 +143,19 @@ public class Server implements ServerInterface {
       }
 
       return count;
-    }
+    });
 
-    // Here I am assuming that there is only one record per song for a specific user.
-    public String[] getTopThreeMusicByUser(String userID) {
+    try {
+      return future.get();
+    } catch(InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      return -1;
+    }
+  }
+
+  // Here I am assuming that there is only one record per song for a specific user.
+  public String[] getTopThreeMusicByUser(String userID) {
+    Future<String[]> future = queryExecutor.submit(() -> {
       String[] top3 = new String[3];
       int[] count = new int[3];
 
@@ -148,7 +206,6 @@ public class Server implements ServerInterface {
             // }
 
           }
-
         }
       } catch(IOException e) {
         e.printStackTrace();
@@ -158,130 +215,139 @@ public class Server implements ServerInterface {
       }
 
       return top3;
+    });
+
+    try {
+      return future.get();
+    } catch(InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      return new String[3];
     }
 
-    public String[] getTopArtistsByMusicGenre(String userID, String genre) {
-      String[] top3 = new String[3];
-      int count[] = new int[3];
+  }
 
-      try {
-        BufferedReader br = newReader();
-        String line, delimiter = ",";
+  public String[] getTopArtistsByMusicGenre(String userID, String genre) {
+    String[] top3 = new String[3];
+    int count[] = new int[3];
 
-        while ((line = br.readLine()) != null) {
-          String[] record = line.split(delimiter);
-          String user = record[record.length - 2];
-          String g = record[record.length - 3];
+    try {
+      BufferedReader br = newReader();
+      String line, delimiter = ",";
 
-          if (user.equals(userID) && g.equals(genre)) {
-            // TODO
-          }
+      while ((line = br.readLine()) != null) {
+        String[] record = line.split(delimiter);
+        String user = record[record.length - 2];
+        String g = record[record.length - 3];
+
+        if (user.equals(userID) && g.equals(genre)) {
+          // TODO
         }
-
-      } catch(IOException e) {
-        e.printStackTrace();
-      } catch (NumberFormatException e) {
-        System.err.println("Logical error: Something went wrong with the parsing!\n");
-        e.printStackTrace();
       }
 
-      return top3;
+    } catch(IOException e) {
+      e.printStackTrace();
+    } catch (NumberFormatException e) {
+      System.err.println("Logical error: Something went wrong with the parsing!\n");
+      e.printStackTrace();
     }
 
-    // easy, does not account for several artists right now.
-    // Trying with buffered reader. Faster than scanner according to google
-    // https://www.javatpoint.com/how-to-read-csv-file-in-java
-    void readCSVfile() {
+    return top3;
+  }
 
-      String line = "";
-      String splitBy = ",";
+  // easy, does not account for several artists right now.
+  // Trying with buffered reader. Faster than scanner according to google
+  // https://www.javatpoint.com/how-to-read-csv-file-in-java
+  void readCSVfile() {
 
-      try {
-        BufferedReader br = new BufferedReader(new FileReader("../data/dummydataset.csv"));
+    String line = "";
+    String splitBy = ",";
 
-        while ((line = br.readLine()) != null) {
-          String[] record = line.split(splitBy);
-          // 0 1 2 3 4
-          // M A G U T
-          // 0 1 2 3 4 5
-          // M A A G U T
-          String[] columnNames = {"MusicID", "ArtistID", "Genre", "UserID", "Times played"};
+    try {
+      BufferedReader br = new BufferedReader(new FileReader("../data/dummydataset.csv"));
 
-          // getting the number of artists by using mod "number of columns"
-          int numOfArtists = (record.length % 5) + 1;
+      while ((line = br.readLine()) != null) {
+        String[] record = line.split(splitBy);
+        // 0 1 2 3 4
+        // M A G U T
+        // 0 1 2 3 4 5
+        // M A A G U T
+        String[] columnNames = {"MusicID", "ArtistID", "Genre", "UserID", "Times played"};
 
-          System.out.print(columnNames[0] + ": " + record[0] + "\t");
+        // getting the number of artists by using mod "number of columns"
+        int numOfArtists = (record.length % 5) + 1;
 
-          System.out.print(columnNames[1] + ": ");
-          for (int i = 1; i <= numOfArtists; i++)
-            System.out.print(record[i] + " ");
+        System.out.print(columnNames[0] + ": " + record[0] + "\t");
 
-          System.out.print("\t");
+        System.out.print(columnNames[1] + ": ");
+        for (int i = 1; i <= numOfArtists; i++)
+          System.out.print(record[i] + " ");
 
-          for (int i = 2; i < columnNames.length; i++)
-            System.out.print(columnNames[i] + ": " + record[i + numOfArtists - 1] + "\t");
+        System.out.print("\t");
 
-          System.out.println("");
-        }
+        for (int i = 2; i < columnNames.length; i++)
+          System.out.print(columnNames[i] + ": " + record[i + numOfArtists - 1] + "\t");
 
-
-      } catch(IOException e) {
-          e.printStackTrace();
+        System.out.println("");
       }
 
+
+    } catch(IOException e) {
+        e.printStackTrace();
     }
 
-    public static void main(String[] args) {
+  }
 
-      Server s = new Server();
+  public static void main(String[] args) {
 
-      // s.readCSVfile();
+    Server s = new Server();
 
-      System.out.println("\nDummy dataset");
+    // s.readCSVfile();
 
-      // Dummy dataset
-      System.out.println("\nTimes played");
-      System.out.println("M9: " + s.getTimesPlayed("M9"));
-      System.out.println("M1: " + s.getTimesPlayed("M1"));
-      System.out.println("M14: " + s.getTimesPlayed("M14"));
+    System.out.println("\nDummy dataset");
 
-      System.out.println("\nTimes played by user");
-      System.out.println("M1 and U1: " + s.getTimesPlayedByUser("M1", "U1"));
-      System.out.println("M1 and U2: " + s.getTimesPlayedByUser("M1", "U2"));
-      System.out.println("M1 and U3: " + s.getTimesPlayedByUser("M1", "U3"));
-      System.out.println("M10 and U4: " + s.getTimesPlayedByUser("M10", "U4"));
+    // Dummy dataset
+    System.out.println("\nTimes played");
+    System.out.println("M9: " + s.getTimesPlayed("M9"));
+    System.out.println("M1: " + s.getTimesPlayed("M1"));
+    System.out.println("M14: " + s.getTimesPlayed("M14"));
 
-      System.out.println("\nTop 3 music");
-      String user = "U2";
-      String[] top3 = s.getTopThreeMusicByUser(user);
-      System.out.print(user + ": ");
+    System.out.println("\nTimes played by user");
+    System.out.println("M1 and U1: " + s.getTimesPlayedByUser("M1", "U1"));
+    System.out.println("M1 and U2: " + s.getTimesPlayedByUser("M1", "U2"));
+    System.out.println("M1 and U3: " + s.getTimesPlayedByUser("M1", "U3"));
+    System.out.println("M10 and U4: " + s.getTimesPlayedByUser("M10", "U4"));
 
-      for (String m : top3)
-        System.out.print(m + " ");
+    System.out.println("\nTop 3 music");
+    String user = "U2";
+    String[] top3 = s.getTopThreeMusicByUser(user);
+    System.out.print(user + ": ");
 
-      System.out.println("\n\nReal dataset");
+    for (String m : top3)
+      System.out.print(m + " ");
+
+    System.out.println("\n\nReal dataset");
 
 
-      // Real dataset
-      System.out.println("\nTimes played");
-      System.out.println("MZnK007OYs: " + s.getTimesPlayed("MZnK007OYs"));
-      System.out.println("MK3r9RF0Fz: " + s.getTimesPlayed("MK3r9RF0Fz"));
-      System.out.println("Mnni7iWPl2: " + s.getTimesPlayed("Mnni7iWPl2"));
+    // Real dataset
+    System.out.println("\nTimes played");
+    System.out.println("MZnK007OYs: " + s.getTimesPlayed("MZnK007OYs"));
+    System.out.println("MK3r9RF0Fz: " + s.getTimesPlayed("MK3r9RF0Fz"));
+    System.out.println("Mnni7iWPl2: " + s.getTimesPlayed("Mnni7iWPl2"));
 
-      System.out.println("\nTimes played by user");
-      System.out.println("MZnK007OYs and UQ9lO8EhXd: " + s.getTimesPlayedByUser("MZnK007OYs", "UQ9lO8EhXd"));
-      System.out.println("MZnK007OYs and Uo59ASIkor: " + s.getTimesPlayedByUser("MZnK007OYs", "Uo59ASIkor"));
-      System.out.println("MK3r9RF0Fz and U1hn1abhsA: " + s.getTimesPlayedByUser("MK3r9RF0Fz", "U1hn1abhsA"));
-      System.out.println("MeD0M4CGzg and Url3aJX8dX: " + s.getTimesPlayedByUser("MeD0M4CGzg", "Url3aJX8dX"));
+    System.out.println("\nTimes played by user");
+    System.out.println("MZnK007OYs and UQ9lO8EhXd: " + s.getTimesPlayedByUser("MZnK007OYs", "UQ9lO8EhXd"));
+    System.out.println("MZnK007OYs and Uo59ASIkor: " + s.getTimesPlayedByUser("MZnK007OYs", "Uo59ASIkor"));
+    System.out.println("MK3r9RF0Fz and U1hn1abhsA: " + s.getTimesPlayedByUser("MK3r9RF0Fz", "U1hn1abhsA"));
+    System.out.println("MeD0M4CGzg and Url3aJX8dX: " + s.getTimesPlayedByUser("MeD0M4CGzg", "Url3aJX8dX"));
 
-      System.out.println("\nTop 3 music");
-      user = "U5etSKm4EW";
-      top3 = s.getTopThreeMusicByUser(user);
-      System.out.println(user + ": ");
+    System.out.println("\nTop 3 music");
+    user = "U5etSKm4EW";
+    top3 = s.getTopThreeMusicByUser(user);
+    System.out.println(user + ": ");
 
-      for (String m : top3)
-        System.out.println(m + ": " + s.getTimesPlayedByUser(m, user));
+    for (String m : top3)
+      System.out.println(m + ": " + s.getTimesPlayedByUser(m, user));
 
-      System.out.println("");
-    }
+    System.out.println("");
+  }
 }
