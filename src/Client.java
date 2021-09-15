@@ -25,20 +25,25 @@ public class Client {
                 // System.out.println(n1 + "+" + n2 + "=" + server.add(n1, n2));
 
                 //Unsure about this:
+                //ServerInterface sstub = (ServerInterface) registry.lookup(server);
                 File output = createOutputFile("naive_server.txt");
-                // ServerInterface sstub = (ServerInterface) registry.lookup(server);
+                String fileContent;
                 if(task.methodName.equals("getTimesPlayedByUser")){
                     int sResponse = server.getTimesPlayedByUser(task.argument1, task.argument2);
-                    writeFile("naive_server.txt", "" + sResponse);
+                    fileContent = "Music " + task.argument1 + " was played " + sResponse + " times by user "+ task.argument2 +". (turnaround time: (..) ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
+                    writeFile("naive_server.txt", fileContent);
                 }else if(task.methodName.equals("getTopThreeMusicByUser")){
                     String[] sResponse = server.getTopThreeMusicByUser(task.argument1);
-                    writeFile("naive_server.txt", sResponse.toString());
+                    fileContent = "Top three musics for user "+ task.argument1 +" were " + sResponse[0] + ", " + sResponse[1] + ", "+ sResponse[2] + ". (turnaround time: (..) ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
+                    writeFile("naive_server.txt", fileContent);
                 }else if(task.methodName.equals("getTopArtistsByUserGenre")){
                     String[] sResponse = server.getTopArtistsByMusicGenre(task.argument1, task.argument2);
-                    writeFile("naive_server.txt", sResponse.toString());
+                    fileContent = "Top three musics for genre "+ task.argument2 + " and user "+ task.argument1 +" were " + sResponse[0] + ", " + sResponse[1] + ", "+ sResponse[2] + ". (turnaround time: (..) ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
+                    writeFile("naive_server.txt", fileContent);
                 }else if(task.methodName.equals("getTimesPlayed")){
                     int sResponse = server.getTimesPlayed(task.argument1);
-                    writeFile("naive_server.txt", "" + sResponse);
+                    fileContent = "Music " + task.argument1 + " was played " + sResponse + " times. (turnaround time: (..) ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
+                    writeFile("naive_server.txt", fileContent);
                 }
 
             }
