@@ -6,6 +6,5 @@ killall java LoadBalancer
 
 javac *.java
 
-rmiregistry &
-java ServerSimulator &
-java LoadBalancer
+rmiregistry
+

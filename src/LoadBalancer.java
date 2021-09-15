@@ -52,7 +52,6 @@ public class LoadBalancer implements LoadBalancerInterface {
     public int getServerRequestCount(int serverId)
     {   Integer id = Integer.valueOf(serverId);
      Integer count =  this.serverRequests.get(id);
-     System.out.println(serverId + " : " + count);
      return Integer.parseInt(count.toString());
     }
 
@@ -172,7 +171,7 @@ public class LoadBalancer implements LoadBalancerInterface {
     public LoadBalancerResponse fetchServer(int zoneId) {
 
         int serverId = this.getServerIdBasedOnLoad(zoneId);
-        System.out.println("serverId: " + serverId);
+
         String serverName = getServerName(serverId);
         try {
             Registry registry = LocateRegistry.getRegistry();
@@ -185,7 +184,8 @@ public class LoadBalancer implements LoadBalancerInterface {
                 this.updateWaitingList(serverId);
             }
             int numberOfRequestsInTheWaitingList = this.getServerWaitingListFromCache(serverId);
-            System.out.println("server : "+serverId+"\t number of requests sent : " +
+            System.out.println("client zone id : "+zoneId+"\t server zone id : "+serverId+
+                    "number of requests sent : " +
                     numberofRequestsSent + "\t waiting list : "+ numberOfRequestsInTheWaitingList);
 
             return constructResponse(stub, serverId, zoneId);
@@ -209,6 +209,7 @@ public class LoadBalancer implements LoadBalancerInterface {
         {
             communicationDelay = 170;
         }
+        System.out.println("communication delay : " + communicationDelay);
         LoadBalancerResponse response = new LoadBalancerResponse(communicationDelay, stub);
         return response;
     }
