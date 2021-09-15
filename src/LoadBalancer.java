@@ -67,15 +67,19 @@ public class LoadBalancer implements LoadBalancerInterface {
     // fetches the waiting list of requests for a particular server from the server and updates the local cache
     // serverId : id of the server (1,2,3,4,5)
     // return none
-    public void updateWaitingList(int serverId)
+    public void updateWaitingList(ServerInterface server, int serverId)
     {
         // Todo: Once the function call is created in the interface, call the appropriate function
-        // int count = server.getWaitingList();
+        try {
+          int count = server.getWaitListSize();
+          this.serverWaitingLists.put(Integer.valueOf(serverId),Integer.valueOf(count));
+        } catch(Exception e) {
+          e.printStackTrace();
+        }
 
         // Todo: Remove this following line once the server interface has the function ready
-        Random rand = new Random();
-        int count = rand.nextInt(20);
-        this.serverWaitingLists.put(Integer.valueOf(serverId),Integer.valueOf(count));
+        // Random rand = new Random();
+        // int count = rand.nextInt(20);
     }
 
     // checks the load of  the server
@@ -181,7 +185,7 @@ public class LoadBalancer implements LoadBalancerInterface {
             int numberofRequestsSent = this.getServerRequestCount(serverId);
             if(numberofRequestsSent%10 == 0)
             {
-                this.updateWaitingList(serverId);
+                this.updateWaitingList(stub, serverId);
             }
             int numberOfRequestsInTheWaitingList = this.getServerWaitingListFromCache(serverId);
             System.out.println("client zone id : "+zoneId+"\t server zone id : "+serverId+
