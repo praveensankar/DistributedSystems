@@ -40,6 +40,7 @@ public class Client {
 
                 //Unsure about this:
                 //ServerInterface sstub = (ServerInterface) registry.lookup(server);
+                System.out.println("Loadbalancer response:"+response.communicationDelay);
                 File output = createOutputFile("naive_server.txt");
                 String fileContent;
                 //For each method we start the timer for the turnaround time, then send the request, then we end the timer, save the turnaround time for average calculation and print the result into the file
@@ -48,7 +49,7 @@ public class Client {
                     int sResponse = server.getTimesPlayedByUser(task.argument1, task.argument2);
                     // /1000000 from nanoseconds to Milliseconds
                     long turnaround = (System.nanoTime() - startTime) / 1000000;
-                    sumGetTimesPlayedByUser[0] += turnaround;
+                    sumGetTimesPlayedByUser[0] = sumGetTimesPlayedByUser[0] + turnaround + response.communicationDelay;
                     counterGetTimesPlayedByUser += 1;
                     //System.out.println(turnaround);
                     fileContent = "Music " + task.argument1 + " was played " + sResponse + " times by user "+ task.argument2 +". (turnaround time: " + turnaround + " ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
@@ -57,7 +58,7 @@ public class Client {
                     long startTime = System.nanoTime();
                     String[] sResponse = server.getTopThreeMusicByUser(task.argument1);
                     long turnaround = (System.nanoTime() - startTime) / 1000000;
-                    sumGetTopThreeMusicByUser[0] += turnaround;
+                    sumGetTopThreeMusicByUser[0] = sumGetTopThreeMusicByUser[0] + turnaround + response.communicationDelay;
                     counterGetTopThreeMusicByUser += 1;
                     fileContent = "Top three musics for user "+ task.argument1 +" were " + sResponse[0] + ", " + sResponse[1] + ", "+ sResponse[2] + ". (turnaround time: " + turnaround + " ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
                     writeFile("naive_server.txt", fileContent);
@@ -65,7 +66,7 @@ public class Client {
                     long startTime = System.nanoTime();
                     String[] sResponse = server.getTopArtistsByMusicGenre(task.argument1, task.argument2);
                     long turnaround = (System.nanoTime() - startTime) / 1000000;
-                    sumGetTopArtistsByUserGenre[0] += turnaround;
+                    sumGetTopArtistsByUserGenre[0] = sumGetTopArtistsByUserGenre[0] + turnaround + response.communicationDelay;
                     counterGetTopArtistsByUserGenre += 1;
                     fileContent = "Top three musics for genre "+ task.argument2 + " and user "+ task.argument1 +" were " + sResponse[0] + ", " + sResponse[1] + ", "+ sResponse[2] + ". (turnaround time: " + turnaround + " ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
                     writeFile("naive_server.txt", fileContent);
@@ -73,7 +74,7 @@ public class Client {
                     long startTime = System.nanoTime();
                     int sResponse = server.getTimesPlayed(task.argument1);
                     long turnaround = (System.nanoTime() - startTime) / 1000000;
-                    sumGetTimesPlayed[0] += turnaround;
+                    sumGetTimesPlayed[0] = sumGetTimesPlayed[0] + turnaround + response.communicationDelay;
                     counterGetTimesPlayed += 1;
                     fileContent = "Music " + task.argument1 + " was played " + sResponse + " times. (turnaround time:" + turnaround + " ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
                     writeFile("naive_server.txt", fileContent);
