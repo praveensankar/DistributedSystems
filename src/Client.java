@@ -10,6 +10,19 @@ public class Client {
     public static void main(String[] args) {
         try {
             List<InputTask> input = createInputTasksFromFile("naive_input.txt");
+            //Counter for calculating the average times
+            int counterGetTimesPlayed = 0;
+            int counterGetTimesPlayedByUser = 0;
+            int counterGetTopThreeMusicByUser = 0;
+            int counterGetTopArtistsByUserGenre = 0;
+
+            //array to store the sums of each time by method
+            //[0] = turnaround, [1] = execution, [2] = waiting
+            long[] sumGetTimesPlayed = new long[3];
+            long[] sumGetTimesPlayedByUser = new long[3];
+            long[] sumGetTopThreeMusicByUser = new long[3];
+            long[] sumGetTopArtistsByUserGenre = new long[3];
+
             //Iterates over the list of input tasks and sends a request for each task in the list
             for(InputTask task:input){
 
@@ -25,23 +38,57 @@ public class Client {
                 // System.out.println(n1 + "+" + n2 + "=" + server.add(n1, n2));
 
                 //Unsure about this:
+                //ServerInterface sstub = (ServerInterface) registry.lookup(server);
                 File output = createOutputFile("naive_server.txt");
-                // ServerInterface sstub = (ServerInterface) registry.lookup(server);
+                String fileContent;
+                //For each method we start the timer for the turnaround time, then send the request, then we end the timer, save the turnaround time for average calculation and print the result into the file
                 if(task.methodName.equals("getTimesPlayedByUser")){
+                    long startTime = System.nanoTime();
                     int sResponse = server.getTimesPlayedByUser(task.argument1, task.argument2);
-                    writeFile("naive_server.txt", "" + sResponse);
+                    // /1000000 from nanoseconds to Milliseconds
+                    long turnaround = (System.nanoTime() - startTime) / 1000000;
+                    sumGetTimesPlayedByUser[0] += turnaround;
+                    counterGetTimesPlayedByUser += 1;
+                    //System.out.println(turnaround);
+                    fileContent = "Music " + task.argument1 + " was played " + sResponse + " times by user "+ task.argument2 +". (turnaround time: " + turnaround + " ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
+                    writeFile("naive_server.txt", fileContent);
                 }else if(task.methodName.equals("getTopThreeMusicByUser")){
+                    long startTime = System.nanoTime();
                     String[] sResponse = server.getTopThreeMusicByUser(task.argument1);
-                    writeFile("naive_server.txt", sResponse.toString());
+                    long turnaround = (System.nanoTime() - startTime) / 1000000;
+                    sumGetTopThreeMusicByUser[0] += turnaround;
+                    counterGetTopThreeMusicByUser += 1;
+                    fileContent = "Top three musics for user "+ task.argument1 +" were " + sResponse[0] + ", " + sResponse[1] + ", "+ sResponse[2] + ". (turnaround time: " + turnaround + " ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
+                    writeFile("naive_server.txt", fileContent);
                 }else if(task.methodName.equals("getTopArtistsByUserGenre")){
+                    long startTime = System.nanoTime();
                     String[] sResponse = server.getTopArtistsByMusicGenre(task.argument1, task.argument2);
-                    writeFile("naive_server.txt", sResponse.toString());
+                    long turnaround = (System.nanoTime() - startTime) / 1000000;
+                    sumGetTopArtistsByUserGenre[0] += turnaround;
+                    counterGetTopArtistsByUserGenre += 1;
+                    fileContent = "Top three musics for genre "+ task.argument2 + " and user "+ task.argument1 +" were " + sResponse[0] + ", " + sResponse[1] + ", "+ sResponse[2] + ". (turnaround time: " + turnaround + " ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
+                    writeFile("naive_server.txt", fileContent);
                 }else if(task.methodName.equals("getTimesPlayed")){
+                    long startTime = System.nanoTime();
                     int sResponse = server.getTimesPlayed(task.argument1);
-                    writeFile("naive_server.txt", "" + sResponse);
+                    long turnaround = (System.nanoTime() - startTime) / 1000000;
+                    sumGetTimesPlayed[0] += turnaround;
+                    counterGetTimesPlayed += 1;
+                    fileContent = "Music " + task.argument1 + " was played " + sResponse + " times. (turnaround time:" + turnaround + " ms, execution time: (..)) ms, waiting time: (..)) ms, processed by Server " + server + ")";
+                    writeFile("naive_server.txt", fileContent);
                 }
 
             }
+
+            long averageTurnaroundGetTimesPlayed = sumGetTimesPlayed[0] / counterGetTimesPlayed;
+            long averageTurnaroundGetTimesPlayedByUser = sumGetTimesPlayedByUser[0] / counterGetTimesPlayedByUser;
+            long averageTurnaroundGetTopThreeMusicByUser = sumGetTopThreeMusicByUser[0] / counterGetTopThreeMusicByUser;
+            long averageTurnaroungGetTopArtistsByUserGenre = sumGetTopArtistsByUserGenre[0] / counterGetTopArtistsByUserGenre;
+
+            writeFile("naive_server.txt", "Average time for getTimesPlayed (turnaround time: " + averageTurnaroundGetTimesPlayed +" ms, execution time: (..)) ms, waiting time: (..)) ms)");
+            writeFile("naive_server.txt", "Average time for getTimesPlayedByUser (turnaround time: "+ averageTurnaroundGetTimesPlayedByUser +" ms, execution time: (..)) ms, waiting time: (..)) ms)");
+            writeFile("naive_server.txt", "Average time for getTopThreeMusicByUser (turnaround time: " + averageTurnaroundGetTopThreeMusicByUser + " ms, execution time: (..)) ms, waiting time: (..)) ms)");
+            writeFile("naive_server.txt", "Average time for GetTopArtistsByUserGenre (turnaround time:  " + averageTurnaroungGetTopArtistsByUserGenre +"ms, execution time: (..)) ms, waiting time: (..)) ms)");
 
 
         } catch (Exception e) {
