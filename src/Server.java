@@ -2,7 +2,9 @@ import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -16,31 +18,54 @@ public class Server implements ServerInterface {
   // }
 
   // Maybe Executor Service?? Create two services, with one thread each
-
-  private ExecutorService waitListExecutor = Executors.newSingleThreadExecutor();
-  private ExecutorService queryExecutor = Executors.newSingleThreadExecutor();
+  //
+  // private ThreadPoolExecutor waitListExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+  // private ThreadPoolExecutor queryExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+  // private ExecutorService waitListExecutor = Executors.newSingleThreadExecutor();
+  // private ExecutorService queryExecutor = Executors.newSingleThreadExecutor();
+  private ThreadPoolExecutor waitListExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+  private ThreadPoolExecutor queryExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 
   // How should I shut them down?
 
   // choosing arraylist as the waitlist might be higher than ten.
   private ArrayList<Integer> waitList = new ArrayList<>();
+  // This can be updated on the main thread
+  private AtomicInteger counter = new AtomicInteger(0);
+
+
 
   /**
    * Local methods
    */
 
+  public void shutDownServer() {
+    System.out.println("Shutting down pools");
+    waitListExecutor.shutdownNow();
+    queryExecutor.shutdownNow();
+    // waitListExecutor.awaitTermination();
+    // queryExecutor.awaitTermination();
+  }
+
   // using synchronized here as these methods will not be called on excessively.
   public synchronized int getWaitListSize() {
+    // increment here
     Future<Integer> future = waitListExecutor.submit(() -> {
-      return waitList.size();
+      // return waitList.size();
+      // ThreadPoolExecutor t = (ThreadPoolExecutor) queryExecutor;
+      return queryExecutor.getQueue().size();
+      // return -1;
+      // return counter.get();
     });
 
     try {
       // blocking call
+      // decrement counter
       return future.get();
     } catch(InterruptedException | ExecutionException e) {
       e.printStackTrace();
       return -1;
+      // decrement
     }
   }
 

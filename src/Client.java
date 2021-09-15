@@ -1,5 +1,6 @@
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,12 @@ public class Client {
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());
             e.printStackTrace();
+        } finally {
+          // ServerSimulator.done();
+          // Registry registry = LocateRegistry.getRegistry();
+          //
+          // for (int i = 1; i <= 5; i++)
+          //   UnicastRemoteObject.unexportObject(registry.lookup("server" + i), false);
         }
     }
     //Reads the input file and creates for each line a new InputTask Object by using method createInputTask

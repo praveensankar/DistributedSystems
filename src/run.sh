@@ -6,6 +6,11 @@ killall java LoadBalancer
 
 javac *.java
 
-rmiregistry &
-java ServerSimulator &
+gnome-terminal rmiregistry
+gnome-terminal java ServerSimulator
 java LoadBalancer
+# java Client
+
+# killall rmiregistry
+# killall java ServerSimulator
+# killall java LoadBalancer
