@@ -5,12 +5,13 @@ import java.io.Serializable;
 // contains the actual server stub
 public class LoadBalancerResponse implements Serializable {
 
-    public int communicationDelay;
-    public ServerInterface serverStub;
+  private static final long serialVersionUID = 2L;
 
-    public LoadBalancerResponse(int delay, ServerInterface serverStub)
-    {
-        this.communicationDelay = delay;
-        this.serverStub = serverStub;
-    }
+  public int communicationDelay;
+  public ServerInterface serverStub;
+
+  public LoadBalancerResponse(int delay, ServerInterface serverStub) {
+    this.communicationDelay = delay;
+    this.serverStub = serverStub;
+  }
 }
