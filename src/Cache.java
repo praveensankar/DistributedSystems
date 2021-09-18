@@ -77,16 +77,17 @@ public class Cache {
     }
 
     private int musicIdCapacity = 3;
-    private int userIdCapacity = 10;
+    private int userIdCapacity = 100;
 
     // musicProfiles hash map is used to contain music Profile object as key and it stores the number of times it played as value
     private LinkedHashMap<MusicProfile, Integer> musicProfiles;
     private Queue<UserProfile> userProfiles;
     public int count;
-    public Cache()
+    public Cache(int musicIdCapacity)
     {
-        // initializes the MusicProfiles and UserProfiles as Queue with the given capacity
-        // queue should handle removing the old entries if it gets overflowed
+        // if it is client cache then pass 250
+        // it if is server cache then pass 100
+        this.musicIdCapacity = musicIdCapacity;
         this.musicProfiles = new LinkedHashMap<MusicProfile, Integer>(this.musicIdCapacity) {
             protected boolean removeEldestEntry(Map.Entry<MusicProfile, Integer> eldest) {
                 return size() > musicIdCapacity;
@@ -261,7 +262,7 @@ public class Cache {
     }
     public static void main(String[] args)
     {
-        Cache cache =  new Cache();
+        Cache cache =  new Cache(100);
         cache.addTestData();
       int timesPlayed = cache.getTimesPlayedFromCache("music1", cache.musicProfiles);
         System.out.println("timesPlayed: "+timesPlayed);
