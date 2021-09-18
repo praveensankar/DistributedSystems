@@ -1,13 +1,28 @@
-// I think the rmi will marshall and then unmarshall the task when it is sent
-// between client and server
+import java.rmi.RemoteException;
+import java.io.Serializable;
 
-abstract class Task<T> {
+// An object must be serializable for it to be sent over RMI.
+// RMI will then be able to marshall and unmarshall the object.
+// It's class must also be public.
 
-  private long serverID;
+public abstract class Task<T> implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+
+  private int zoneID;
+  private int serverID;
   private long timeRequested;
   private long timeStarted;
   private long timeFinished;
   protected T result;
+
+  Task(int zoneID) {
+    this.zoneID = zoneID;
+  }
+
+  public boolean sameZone() {
+    return zoneID == serverID;
+  }
 
   public void setResult(T r) {
     result = r;
@@ -29,8 +44,12 @@ abstract class Task<T> {
     timeFinished = time;
   }
 
+  public int getZoneID() {
+    return zoneID;
+  }
+
   public double getWaitTime() {
-    return (timeStarted - timeFinished) / 1000000.0;
+    return (timeStarted - timeRequested) / 1000000.0;
   }
 
   public double getTurnaroundTime() {
@@ -40,6 +59,8 @@ abstract class Task<T> {
   public double getExecutionTime() {
     return (timeFinished - timeStarted) / 1000000.0;
   }
+
+  public abstract Task<T> execute(ServerInterface server) throws RemoteException;
 
   @Override
   public String toString() {
