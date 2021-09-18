@@ -18,9 +18,17 @@ public class Repository {
   // For this to work I assume that cache is returning null when not found.
   public Task<?> execute(Task<?> t, ServerInterface server) throws RemoteException {
     Task<?> task = null;
-
+    long timeStarted = System.nanoTime();
     if (cache != null) {
       task = t.execute(cache);
+      if(task == null)
+      {
+        task = t.execute(server);
+      }
+      long timeEnded = System.nanoTime();
+      task.setTimeStarted(timeStarted);
+      task.setTimeFinished(timeEnded);
+      return task;
     }
 
     if (task == null) {

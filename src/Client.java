@@ -83,6 +83,7 @@ public class Client {
         // Task<?> t = task.execute(server);
         Task<?> t = repository.execute(task, server);
 
+
         // Making sure that adding to shared list is thread safe
         synchronized (tasks) {
           tasks.add(t);

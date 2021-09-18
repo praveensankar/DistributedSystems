@@ -1,5 +1,5 @@
 import java.rmi.RemoteException;
-
+import java.util.*;
 
 public class TopArtistsByMusicGenreTask extends Task<String[]> {
 
@@ -26,7 +26,11 @@ public class TopArtistsByMusicGenreTask extends Task<String[]> {
   @Override
   public Task<String[]> execute(Cache cache) {
     // TODO: call the correct method in cache here
-    return null;
+    ArrayList<String> timesPlayed = cache.getTopArtistsByUserGenreInCache(this.userID, this.genre);
+    if(timesPlayed==null)
+      return null;
+    super.setResult(timesPlayed.toArray(new String[0]));
+    return this;
   }
 
   @Override
