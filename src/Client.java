@@ -107,6 +107,8 @@ public class Client {
 
         LoadBalancerResponse response = lbstub.fetchServer(task.getZoneID());
         ServerInterface server = response.serverStub;
+       // System.out.println("server id : "+server.getServerId());
+        task.setServerID(server.getServerId());
         executeTask(task, server);
       }
 

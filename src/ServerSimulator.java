@@ -15,7 +15,7 @@ class ServerSimulator {
       try {
         Registry registry = LocateRegistry.getRegistry();
           for(int i=0; i<5; i++) {
-              server[i] = new Server();
+              server[i] = new Server(i+1);
               stubs[i] = (ServerInterface) UnicastRemoteObject.exportObject(server[i], 0);
               registry.bind("server" + (i + 1), stubs[i]);
           }

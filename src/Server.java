@@ -16,7 +16,17 @@ public class Server implements ServerInterface {
   private ThreadPoolExecutor queryExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 
   // How should I shut them down? Maybe when client is finished
+  private int serverId;
 
+  public Server(int id)
+  {
+    this.serverId = id;
+  }
+
+  public int getServerId()
+  {
+    return this.serverId;
+  }
 
   /**
    * Local methods

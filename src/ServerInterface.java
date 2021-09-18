@@ -7,4 +7,5 @@ public interface ServerInterface extends Remote {
   public TimesPlayedByUserTask getTimesPlayedByUser(TimesPlayedByUserTask task) throws RemoteException;
   public TopThreeMusicByUserTask getTopThreeMusicByUser(TopThreeMusicByUserTask task) throws RemoteException;
   public TopArtistsByMusicGenreTask getTopArtistsByMusicGenre(TopArtistsByMusicGenreTask task) throws RemoteException;
+  public int getServerId() throws java.rmi.RemoteException;
 }
