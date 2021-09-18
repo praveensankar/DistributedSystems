@@ -20,7 +20,8 @@ public class Cache {
     }
 
     class UserProfile{
-        /* MusicProfile contains userId and for each userId it stores the map of "genre"
+
+        /* UserProfile contains userId and for each userId it stores the map of "genre"
         for each genre it stores the map of music profiles , times played (for 3 music profiles)
 
         To test the code:
@@ -28,18 +29,11 @@ public class Cache {
         MusicProfile musicprofile = new MusicProfile("music1", "artist1");
         UserProfile userProfile = new UserProfile();
         userProfile.userId="1234";
-        userProfile.musicProfile.put("rock", musicProfile);
+        userProfile.musicProfileMap.put("rock", musicProfile);
         HashMap<MusicProfile, Integer> musicProfileMap = new HashMap<MusicProfile, Integer>(10);
         musicProfileMap.put(musicprofile, 10);
         userProfile.musicProfileMap.put("rock",musicProfileMap);
 
-
-        for (MusicProfile mp: musicProfile.keySet())
-        {
-            String musicId = mp.musicId;
-            String artistId = mp.artistId;
-            System.out.println(musicId+artistId);
-        }
 
         HashMap<MusicProfile, Integer> musicProfileMap = userProfile.musicProfileMap.get("rock");
         for (MusicProfile mp: musicProfileMap.keySet())
@@ -62,14 +56,16 @@ public class Cache {
 
     private int musicIdCapacity = 10;
     private int userIdCapacity = 10;
-    private Queue<MusicProfile> musicProfiles;
+
+    // musicProfiles hash map is used to contain music Profile object as key and it stores the number of times it played as value
+    private LinkedHashMap<MusicProfile, Integer> musicProfiles;
     private Queue<UserProfile> userProfiles;
 
     public Cache()
     {
         // initializes the MusicProfiles and UserProfiles as Queue with the given capacity
         // queue should handle removing the old entries if it gets overflowed
-        this.musicProfiles = new ArrayDeque<MusicProfile>(this.musicIdCapacity);
+        this.musicProfiles = new LinkedHashMap<MusicProfile, Integer>(this.musicIdCapacity);
         this.userProfiles = new ArrayDeque<UserProfile>(this.userIdCapacity);
     }
 
@@ -78,8 +74,8 @@ public class Cache {
     public void Handle()
     {
 
-        this.musicProfiles.add(new MusicProfile("music1", "artist1"));
-        this.musicProfiles.add(new MusicProfile("music2", "artist2"));
+        this.musicProfiles.put(new MusicProfile("music1", "artist1"), 10);
+        this.musicProfiles.put(new MusicProfile("music2", "artist2"), 20);
         this.userProfiles.add(new UserProfile("user1"));
 
         for(UserProfile u:userProfiles){
