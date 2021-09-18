@@ -231,7 +231,7 @@ public class Cache {
         }
         }
 
-    public void Handle()
+    public void addTestData()
     {
 
         this.addMusicToMusicProfile("music1", "artist1", 10);
@@ -262,15 +262,15 @@ public class Cache {
     public static void main(String[] args)
     {
         Cache cache =  new Cache();
-        // cache.Handle();
-      int timesPlayed = getTimesPlayedFromCache("music1", musicProfiles);
+        cache.addTestData();
+      int timesPlayed = cache.getTimesPlayedFromCache("music1", cache.musicProfiles);
         System.out.println("timesPlayed: "+timesPlayed);
 
-        int timesPlayedByUser = getTimesPlayedByUserFromCache("music1", "user1", userProfiles);
+        int timesPlayedByUser = cache.getTimesPlayedByUserFromCache("music1", "user1", cache.userProfiles);
         System.out.println("timesPlayedByUser: "+timesPlayedByUser);
 
 
-        ArrayList<String> topArtists = getTopArtistsByUserGenreInCache("user1", "rock", userProfiles);
+        ArrayList<String> topArtists = cache.getTopArtistsByUserGenreInCache("user1", "rock", cache.userProfiles);
         System.out.println("Top Artists:" + topArtists);
     }
 
