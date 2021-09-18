@@ -30,6 +30,9 @@ public class Client {
 
 	static List<Task<?>> tasks = new ArrayList<>();
 
+  // Will run the naive implementation
+  static Repository repository = new Repository(null);
+
   public static void main(String[] args) {
 
     String inputFile = "../input/" + (args.length > 0 ? args[0] : "naive_input.txt");
@@ -77,7 +80,8 @@ public class Client {
 
       try {
         // Blocking
-        Task<?> t = task.execute(server);
+        // Task<?> t = task.execute(server);
+        Task<?> t = repository.execute(task, server);
 
         // Making sure that adding to shared list is thread safe
         synchronized (tasks) {

@@ -5,7 +5,6 @@ public class TopArtistsByMusicGenreTask extends Task<String[]> {
 
   private static final long serialVersionUID = 14L;
 
-
   String userID;
   String genre;
 
@@ -22,6 +21,12 @@ public class TopArtistsByMusicGenreTask extends Task<String[]> {
 
   public String getGenre() {
     return genre;
+  }
+
+  @Override
+  public Task<String[]> execute(Cache cache) {
+    // TODO: call the correct method in cache here
+    return null;
   }
 
   @Override

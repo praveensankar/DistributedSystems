@@ -60,6 +60,7 @@ public abstract class Task<T> implements Serializable {
     return (timeFinished - timeStarted) / 1000000.0;
   }
 
+  public abstract Task<T> execute(Cache cache);
   public abstract Task<T> execute(ServerInterface server) throws RemoteException;
 
   @Override

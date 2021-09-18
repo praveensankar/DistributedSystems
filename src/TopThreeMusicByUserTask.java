@@ -18,6 +18,12 @@ public class TopThreeMusicByUserTask extends Task<String[]> {
   }
 
   @Override
+  public Task<String[]> execute(Cache cache) {
+    // TODO: call the correct method in cache here
+    return null;
+  }
+
+  @Override
   public Task<String[]> execute(ServerInterface server) throws RemoteException {
     return server.getTopThreeMusicByUser(this);
   }

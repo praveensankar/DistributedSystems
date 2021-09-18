@@ -7,4 +7,3 @@ killall java LoadBalancer
 javac *.java
 
 rmiregistry
-
