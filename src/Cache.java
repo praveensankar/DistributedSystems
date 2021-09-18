@@ -2,8 +2,13 @@ import java.util.*;
 public class Cache {
 
 
-
     public static class MusicProfile{
+        /* MusicProfile stores the music Id and artist Id
+
+        To test the code:
+
+        MusicProfile profile1 = new MusicProfile("music1", "artist1");
+         */
         String musicId;
         String artistId;
 
@@ -14,47 +19,94 @@ public class Cache {
         }
     }
 
-    // music Profile linked hash map is used to store the cache of the music profile
-    // parameters:
-    // MusicProfile Class Object
-    // timesPlayed
-
     class UserProfile{
+        /* MusicProfile contains userId and for each userId it stores the map of "genre"
+        for each genre it stores the map of music profiles , times played (for 3 music profiles)
+
+        To test the code:
+
+        MusicProfile musicprofile = new MusicProfile("music1", "artist1");
+        UserProfile userProfile = new UserProfile();
+        userProfile.userId="1234";
+        userProfile.musicProfile.put("rock", musicProfile);
+        HashMap<MusicProfile, Integer> musicProfileMap = new HashMap<MusicProfile, Integer>(10);
+        musicProfileMap.put(musicprofile, 10);
+        userProfile.musicProfileMap.put("rock",musicProfileMap);
+
+
+        for (MusicProfile mp: musicProfile.keySet())
+        {
+            String musicId = mp.musicId;
+            String artistId = mp.artistId;
+            System.out.println(musicId+artistId);
+        }
+
+        HashMap<MusicProfile, Integer> musicProfileMap = userProfile.musicProfileMap.get("rock");
+        for (MusicProfile mp: musicProfileMap.keySet())
+        {
+            String musicId = mp.musicId;
+            String artistId = mp.artistId;
+            System.out.println(musicId+artistId);
+        }
+
+         */
         String userId;
-        HashMap<String, HashMap<MusicProfile, Integer>> musicProfile = new HashMap<String, HashMap<MusicProfile, Integer>>(3);
+        HashMap<String, HashMap<MusicProfile, Integer>> musicProfileMap = new HashMap<String, HashMap<MusicProfile, Integer>>(3);
+
+        public UserProfile(String userId)
+        {
+            // this constructor takes only userId
+            this.userId = userId;
+        }
     }
 
-    // I am using hash map for to represent the music profile
-    // concucurrent hash map or synchronized hash maps are not needed since only one thread will be executing the tasks
-    // at the same time in the server ( another thread which runs
+    private int musicIdCapacity = 10;
+    private int userIdCapacity = 10;
+    private Queue<MusicProfile> musicProfiles;
+    private Queue<UserProfile> userProfiles;
+
+    public Cache()
+    {
+        // initializes the MusicProfiles and UserProfiles as Queue with the given capacity
+        // queue should handle removing the old entries if it gets overflowed
+        this.musicProfiles = new ArrayDeque<MusicProfile>(this.musicIdCapacity);
+        this.userProfiles = new ArrayDeque<UserProfile>(this.userIdCapacity);
+    }
+
+
 
     public void Handle()
     {
 
-        MusicProfile profile1 = new MusicProfile("music1", "artist1");
-        MusicProfile profile2 = new MusicProfile("music2", "artist2");
+        this.musicProfiles.add(new MusicProfile("music1", "artist1"));
+        this.musicProfiles.add(new MusicProfile("music2", "artist2"));
+        this.userProfiles.add(new UserProfile("user1"));
 
-        HashMap<MusicProfile, Integer> musicProfile = new HashMap<MusicProfile, Integer>(10);
-        musicProfile.put(profile1, 10);
-        musicProfile.put(profile2, 20);
-
-        for (MusicProfile mp: musicProfile.keySet())
-        {
-            String musicId = mp.musicId;
-            String artistId = mp.artistId;
-            System.out.println(musicId+artistId);
+        for(UserProfile u:userProfiles){
+            String userId = u.userId;
+            if(userId.equals("user1"))
+            {
+                MusicProfile profile1 = new MusicProfile("music1", "artist1");
+                HashMap<MusicProfile, Integer> musicProfile = new HashMap<MusicProfile, Integer>(10);
+                musicProfile.put(profile1, 10);
+                u.musicProfileMap.put("rock",musicProfile);
+            }
         }
 
-        UserProfile userProfile1 = new UserProfile();
-        userProfile1.userId="1234";
-        userProfile1.musicProfile.put("rock", musicProfile);
-        musicProfile = userProfile1.musicProfile.get("rock");
-        for (MusicProfile mp: musicProfile.keySet())
-        {
-            String musicId = mp.musicId;
-            String artistId = mp.artistId;
-            System.out.println(musicId+artistId);
+        for(UserProfile u:userProfiles){
+            String userId = u.userId;
+            if(userId.equals("user1"))
+            {
+                HashMap<MusicProfile, Integer> musicProfile = u.musicProfileMap.get("rock");
+                for (MusicProfile mp: musicProfile.keySet())
+                {
+                    String musicId = mp.musicId;
+                    String artistId = mp.artistId;
+                    System.out.println("music id : "+musicId+"\t artist id : "+artistId);
+                }
+            }
         }
+
 
 
     }
