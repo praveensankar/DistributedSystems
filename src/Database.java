@@ -174,8 +174,33 @@ class Database {
 
   }
 
+  // Returns a music profile only with the first artists
+  public MusicProfile getMusicProfile(String musicID) {
+
+    try {
+
+      BufferedReader br = newReader();
+      String line, delimiter = ",";
+
+      while ((line = br.readLine()) != null) {
+        String[] record = line.split(delimiter);
+
+        if (record[0].equals(musicID)) {
+          return new MusicProfile(musicID, record[1]);
+        }
+      }
+
+      br.close();
+
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+
+    return null;
+  }
+
   // Performing a simple insertion sort for each entry
-  private static String[] getTop3(HashMap<String, Integer> map) {
+  private String[] getTop3(HashMap<String, Integer> map) {
 
     String[] top3 = new String[3];
     int[] count = new int[3];
@@ -266,6 +291,10 @@ class Database {
       db.executeQuery(t);
       System.out.println(t.toString());
     }
+
+    System.out.println("\nMusicProfile");
+    MusicProfile mp = db.getMusicProfile("M11");
+    System.out.println(mp.toString());
 
   }
 
