@@ -6,8 +6,8 @@ import java.io.IOException;
 
 class Database {
 
-  // String datafile = "../data/dataset.csv";
-  String datafile = "../data/dummydataset.csv";
+  String datafile = "../data/dataset.csv";
+  // String datafile = "../data/dummydataset.csv";
 
   // public Database(String datafile) {
   //   this.datafile = datafile;

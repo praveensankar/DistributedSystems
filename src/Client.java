@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 import java.util.function.Supplier;
 
 public class Client {
+  // pass the flags in the following order : -s -c
+  // -s - to denote that server is added with cache
+  // -c - to enable the cache in the client side
 
   // Implementation decision:
   // Using a cached thread pool. It will create new threads as new tasks come in
@@ -36,13 +39,36 @@ public class Client {
 //  static Repository repository = new Repository(null);
 
   static Cache cache = new Cache(250);
-  static ClientRepository repository = new ClientRepository(cache);
+  static ClientRepository repository;
 
   public static void main(String[] args) {
 
-    String inputFile = "../input/" + (args.length > 0 ? args[0] : "naive_input.txt");
-    String outputFile = "../output/" + (args.length > 1 ? args[1] : "naive_output.txt");
-
+    String inputFile = "../input/" +  "naive_input.txt";
+    String outputFile = "../output/" +  "naive_output.txt";
+    if(args.length==2){
+      if(args[0].equals("-s") && args[1].equals("-c")) {
+        // server cache status should have been retrieved without passing it as a flag
+        // but due to time constraint we are using this hack
+      repository = new ClientRepository(cache);
+      System.out.println("client cache is and server cache both enabled");
+       inputFile = "../input/" +  "cached_input.txt";
+       outputFile = "../output/" +  "server_client_cache.txt";
+    }}if(args.length==1)
+    {
+      if(args[0].equals("-s"))
+      {
+        System.out.println("only server cache is enabled");
+        inputFile = "../input/" +  "cached_input.txt";
+        outputFile = "../output/" +  "server_cache.txt";
+        repository = new ClientRepository(null);
+      }
+    }
+    if(args.length==0)
+    {
+      inputFile = "../input/" +  "naive_input.txt";
+      outputFile = "../output/" +  "naive_output.txt";
+      repository = new ClientRepository(null);
+    }
     System.out.println("\nSending the requests to server...");
     executeCommands(inputFile);
     System.out.println("...All requests have been sent to server!\n");
