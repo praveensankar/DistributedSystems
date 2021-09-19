@@ -9,6 +9,13 @@ class Database {
   String datafile = "../data/dataset.csv";
   // String datafile = "../data/dummydataset.csv";
 
+  int musicIndex = 0;
+  int artistIndex = 1;
+  int genreIndex = 2;
+  int userIndex = 3;
+  int countIndex = 4;
+
+
   // public Database(String datafile) {
   //   this.datafile = datafile;
   // }
@@ -30,8 +37,8 @@ class Database {
       while ((line = br.readLine()) != null) {
         String[] record = line.split(delimiter);
 
-        if (record[0].equals(task.getMusicID()))
-          count += Integer.parseInt(record[record.length - 1]);
+        if (record[musicIndex].equals(task.getMusicID()))
+          count += Integer.parseInt(record[countIndex]);
       }
 
       br.close();
@@ -59,13 +66,13 @@ class Database {
       while ((line = br.readLine()) != null) {
 
         String[] record = line.split(delimiter);
-        String genre = record[record.length - 3];
-        String artistId = record[record.length - 4];
+        String genre = record[genreIndex];
+        String artistId = record[artistIndex];
 
-        if (record[0].equals(task.getMusicID()) &&
-            record[record.length - 2].equals(task.getUserID())) {
+        if (record[musicIndex].equals(task.getMusicID()) &&
+            record[userIndex].equals(task.getUserID())) {
 
-          count += Integer.parseInt(record[record.length - 1]);
+          count += Integer.parseInt(record[countIndex]);
 
         }
       }
@@ -95,12 +102,12 @@ class Database {
 
       while ((line = br.readLine()) != null) {
         String[] record = line.split(delimiter);
-        String user = record[record.length - 2];
+        String user = record[userIndex];
 
         if (user.equals(task.getUserID())) {
 
-          String musicID = record[0];
-          int timesPlayed = Integer.parseInt(record[record.length - 1]);
+          String musicID = record[musicIndex];
+          int timesPlayed = Integer.parseInt(record[countIndex]);
           int artistCount = musicToCount.getOrDefault(musicID, 0);
 
           musicToCount.put(musicID, artistCount + timesPlayed);
@@ -136,8 +143,8 @@ class Database {
 
       while ((line = br.readLine()) != null) {
         String[] record = line.split(delimiter);
-        String user = record[record.length - 2];
-        String genre = record[record.length - 3];
+        String user = record[userIndex];
+        String genre = record[genreIndex];
 
         if (user.equals(task.getUserID()) && genre.equals(task.getGenre())) {
 
@@ -145,16 +152,11 @@ class Database {
           int numOfArtists = (record.length % 5) + 1;
 
           // Getting the count of listens
-          int timesPlayed = Integer.parseInt(record[record.length - 1]);
+          int timesPlayed = Integer.parseInt(record[countIndex]);
+          String artistID = record[artistIndex];
+          int artistCount = artistToCount.getOrDefault(artistID, 0);
 
-          // Adding the count to the existing count
-          for (int i = 1; i <= numOfArtists; i++) {
-
-            String artistID = record[i];
-            int artistCount = artistToCount.getOrDefault(artistID, 0);
-            artistToCount.put(artistID,  timesPlayed + artistCount);
-
-          }
+          artistToCount.put(artistID, timesPlayed + artistCount);
         }
       }
 
@@ -185,7 +187,7 @@ class Database {
       while ((line = br.readLine()) != null) {
         String[] record = line.split(delimiter);
 
-        if (record[0].equals(musicID)) {
+        if (record[musicIndex].equals(musicID)) {
           return new MusicProfile(musicID, record[1]);
         }
       }
