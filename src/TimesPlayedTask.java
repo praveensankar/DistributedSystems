@@ -24,12 +24,14 @@ public class TimesPlayedTask extends Task<Integer> {
     if(timesPlayed==0)
       return null;
     super.setResult(timesPlayed);
+    System.out.println("getTimesPlayed for "+this.getMusicID()+" is answered from client cache. result : "+timesPlayed);
     return this;
   }
 
   @Override
   public Task<Integer> execute(ServerInterface server) throws RemoteException {
     return server.getTimesPlayed(this);
+
   }
 
   @Override

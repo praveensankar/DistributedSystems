@@ -5,7 +5,6 @@ public class Cache {
         /* MusicProfile stores the music Id and artist Id
 
         To test the code:
-
         MusicProfile profile1 = new MusicProfile("music1", "artist1");
          */
         String musicId;
@@ -209,7 +208,7 @@ public class Cache {
             }
         }
         if(userIdExistFlag == false) {
-            System.out.println(userId + " doesnt exist");
+            System.out.println(userId + " doesnt exist in the cache. so it's added in the cache");
             // step 1.B : User doesn't exist
             // step 1.B.a : check the capacity
             int userProfileQueueSize = this.count;
@@ -281,12 +280,12 @@ public class Cache {
         LinkedHashMap<MusicProfile, Integer> cacheMap = this.musicProfiles;
         for (MusicProfile mp: cacheMap.keySet())
         {
-            System.out.println("mp.musicId: " + mp.musicId);
+           // System.out.println("mp.musicId: " + mp.musicId);
             if(mp.musicId.equals(musicId)){
-                System.out.println("mp: " + mp);
+                // System.out.println("mp: " + mp);
                 if(cacheMap.containsKey(mp)){
                     res = cacheMap.get(mp);
-                    System.out.println("res: " + res);
+                    // System.out.println("res: " + res);
                     return res;
                 }
             }
@@ -308,12 +307,11 @@ public class Cache {
                     for(MusicProfile mp : favMusic.keySet()){
                         if(mp.musicId.equals(musicId)){
                             res = favMusic.get(mp);
-                            System.out.println("res: " + res);
+                          //  System.out.println("res: " + res);
                             return res;
                         }
                     }
                 }
-
             }
         }
         return res;
@@ -329,11 +327,11 @@ public class Cache {
            if(u.userId.equals(userId)){
                if(u.musicProfileMap.containsKey(genre)){
                    HashMap<MusicProfile, Integer> favMusic = u.musicProfileMap.get(genre);
-                   System.out.println("favMusic: "+favMusic);
+                  // System.out.println("favMusic: "+favMusic);
                    for(MusicProfile mp : favMusic.keySet()){
                        res.add(mp.artistId);
-                       System.out.println(mp.artistId);
-                       System.out.println("res: " + res);
+                      // System.out.println(mp.artistId);
+                    //   System.out.println("res: " + res);
                        return res;
                    }
 

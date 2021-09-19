@@ -31,7 +31,10 @@ public class Client {
 	static List<Task<?>> tasks = new ArrayList<>();
 
   // Will run the naive implementation
-  static Repository repository = new Repository(null);
+//  static Repository repository = new Repository(null);
+
+ static Cache cache = new Cache(250);
+  static Repository repository = new Repository(cache);
 
   public static void main(String[] args) {
 
