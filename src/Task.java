@@ -27,7 +27,7 @@ public abstract class Task<T> implements Serializable {
   public void setResult(T r) {
     result = r;
   }
-  
+
   public T getResult() {
     return result;
   }
@@ -64,8 +64,8 @@ public abstract class Task<T> implements Serializable {
     return (timeFinished - timeStarted); // / 1000000.0;
   }
 
-  public abstract Task<T> execute(Cache cache);
-  public abstract Task<T> execute(ServerInterface server) throws RemoteException;
+  // public abstract Task<T> execute(Cache cache);
+  // public abstract Task<T> execute(ServerInterface server) throws RemoteException;
 
   @Override
   public String toString() {

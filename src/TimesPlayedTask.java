@@ -16,22 +16,22 @@ public class TimesPlayedTask extends Task<Integer> {
     return musicID;
   }
 
-  @Override
-  public TimesPlayedTask execute(Cache cache) {
-    // TODO: call the correct method in cache here
+  // @Override
+  // public TimesPlayedTask execute(Cache cache) {
+  //   // TODO: call the correct method in cache here
+  //
+  //   int timesPlayed = cache.getTimesPlayedFromCache(this.musicID);
+  //   if(timesPlayed==0)
+  //     return null;
+  //   super.setResult(timesPlayed);
+  //   System.out.println("getTimesPlayed for "+this.getMusicID()+" is answered from client cache. result : "+timesPlayed);
+  //   return this;
+  // }
 
-    int timesPlayed = cache.getTimesPlayedFromCache(this.musicID);
-    if(timesPlayed==0)
-      return null;
-    super.setResult(timesPlayed);
-    System.out.println("getTimesPlayed for "+this.getMusicID()+" is answered from client cache. result : "+timesPlayed);
-    return this;
-  }
-
-  @Override
-  public TimesPlayedTask execute(ServerInterface server) throws RemoteException {
-    return server.executeQuery(this);
-  }
+  // @Override
+  // public TimesPlayedTask execute(ServerInterface server) throws RemoteException {
+  //   return server.executeQuery(this);
+  // }
 
   @Override
   public String toString() {

@@ -1,5 +1,5 @@
 import java.util.*;
-public class Cache {
+public class Cache implements CacheInterface{
 
     private int musicIdCapacity = 3;
     private int userIdCapacity = 100;
@@ -185,46 +185,101 @@ public class Cache {
 
 
     }
-    public static void main(String[] args)
-    {
-        Cache cache =  new Cache(100);
-        cache.addTestData();
-      int timesPlayed = cache.getTimesPlayedFromCache("music1");
-        System.out.println("timesPlayed: "+timesPlayed);
-
-        int timesPlayedByUser = cache.getTimesPlayedByUserFromCache("music1", "user1");
-        System.out.println("timesPlayedByUser: "+timesPlayedByUser);
-
-
-        ArrayList<String> topArtists = cache.getTopArtistsByUserGenreInCache("user1", "rock");
-        System.out.println("Top Artists:" + topArtists);
-    }
+    // public static void main(String[] args)
+    // {
+    //     Cache cache =  new Cache(100);
+    //     cache.addTestData();
+    //     int timesPlayed = cache.getTimesPlayedFromCache("music1");
+    //     System.out.println("timesPlayed: "+timesPlayed);
+    //
+    //     int timesPlayedByUser = cache.getTimesPlayedByUserFromCache("music1", "user1");
+    //     System.out.println("timesPlayedByUser: "+timesPlayedByUser);
+    //
+    //
+    //     ArrayList<String> topArtists = cache.getTopArtistsByUserGenreInCache("user1", "rock");
+    //     System.out.println("Top Artists:" + topArtists);
+    // }
 
     //Method returns getTimesPlayed from the cache
-    public int getTimesPlayedFromCache(String musicId){
+    // public int getTimesPlayedFromCache(String musicId){
+    //     int res = 0;
+    //     LinkedHashMap<MusicProfile, Integer> cacheMap = this.musicProfiles;
+    //     for (MusicProfile mp: cacheMap.keySet())
+    //     {
+    //        // System.out.println("mp.musicId: " + mp.musicId);
+    //         if(mp.musicId.equals(musicId)){
+    //             // System.out.println("mp: " + mp);
+    //             if(cacheMap.containsKey(mp)){
+    //                 res = cacheMap.get(mp);
+    //                 // System.out.println("res: " + res);
+    //                 return res;
+    //             }
+    //         }
+    //     }
+    //     //Implement the "normal RMI query"
+    //     return res;
+    // }
+    //
+    // //Method returns getTimesPlayedByUser from Cache
+    //User specific getTimesPlayed is stored in the user profile
+    // public int getTimesPlayedByUserFromCache(String musicId, String userId) {
+    //     int res = 0;
+    //     Queue<UserProfile> userProfiles = this.userProfiles;
+    //     for (UserProfile u : userProfiles) {
+    //         if (u.userId.equals(userId)) {
+    //             for(String genre : u.musicProfileMap.keySet()){
+    //                 //System.out.println("Hello");
+    //                 HashMap<MusicProfile, Integer> favMusic = u.musicProfileMap.get(genre);
+    //                 for(MusicProfile mp : favMusic.keySet()){
+    //                     if(mp.musicId.equals(musicId)){
+    //                         res = favMusic.get(mp);
+    //                       //  System.out.println("res: " + res);
+    //                         return res;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return res;
+    //     //Implement the rest rmi stuff
+    // }
+
+
+
+    //Method returns getTimesPlayed from the cache
+    public TimesPlayedTask fetchFromCache(TimesPlayedTask task){
+
+        String musicId = task.getMusicID();
+
         int res = 0;
+
         LinkedHashMap<MusicProfile, Integer> cacheMap = this.musicProfiles;
-        for (MusicProfile mp: cacheMap.keySet())
-        {
+
+        for (MusicProfile mp: cacheMap.keySet()) {
            // System.out.println("mp.musicId: " + mp.musicId);
             if(mp.musicId.equals(musicId)){
                 // System.out.println("mp: " + mp);
                 if(cacheMap.containsKey(mp)){
-                    res = cacheMap.get(mp);
+                    res += cacheMap.get(mp);
                     // System.out.println("res: " + res);
-                    return res;
+
                 }
             }
         }
-        //Implement the "normal RMI query"
-        return res;
+
+        task.setResult(res);
+        return task;
     }
 
 
     //Method returns getTimesPlayedByUser from Cache
     //User specific getTimesPlayed is stored in the user profile
-    public int getTimesPlayedByUserFromCache(String musicId, String userId) {
+    public TimesPlayedByUserTask fetchFromCache(TimesPlayedByUserTask task) {
+        String musicId = task.getMusicID();
+        String userId = task.getUserID();
+
         int res = 0;
+
         Queue<UserProfile> userProfiles = this.userProfiles;
         for (UserProfile u : userProfiles) {
             if (u.userId.equals(userId)) {
@@ -233,23 +288,28 @@ public class Cache {
                     HashMap<MusicProfile, Integer> favMusic = u.musicProfileMap.get(genre);
                     for(MusicProfile mp : favMusic.keySet()){
                         if(mp.musicId.equals(musicId)){
-                            res = favMusic.get(mp);
-                          //  System.out.println("res: " + res);
-                            return res;
+                            res += favMusic.get(mp);
+
                         }
                     }
                 }
             }
         }
-        return res;
-        //Implement the rest rmi stuff
+
+        task.setResult(res);
+        return task;
+
     }
 
     //Returns the top artists of a specific genre a user listens to
     //The artist ids are stored in the Music Profile, which is the value to the genre key
-    public ArrayList<String> getTopArtistsByUserGenreInCache(String userId, String genre){
-        ArrayList<String> res = new ArrayList<String>();
+    public TopArtistsByMusicGenreTask fetchFromCache(TopArtistsByMusicGenreTask task) {
+        String userId = task.getUserID();
+        String genre = task.getGenre();
+
+        ArrayList<String> res = new ArrayList<>();
         Queue<UserProfile> userProfiles = this.userProfiles;
+
         for (UserProfile u : userProfiles){
            if(u.userId.equals(userId)){
                if(u.musicProfileMap.containsKey(genre)){
@@ -259,14 +319,16 @@ public class Cache {
                        res.add(mp.artistId);
                       // System.out.println(mp.artistId);
                     //   System.out.println("res: " + res);
-                       return res;
+                    //
                    }
+
 
                }
             }
         }
-        //Implement the normal RMI stuff
-        return res;
+
+        task.setResult(res.toArray(new String[3]));
+        return task;
     }
 
 }
