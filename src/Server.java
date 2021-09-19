@@ -100,29 +100,32 @@ public class Server implements ServerInterface {
 
     simulateLatency(task);
 
-
     Future<TimesPlayedTask> future = queryExecutor.submit(() -> {
 
-      // TimesPlayedTask t = null;
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      // if (cache != null) {
-      //   cache.fetchFromCache(task);
-      //   // t = cache.fetchFromCache(task);
-      // }
+      int count = 0;
 
-      // if (task.getResult() == 0) {
+
+      if (cache != null) {
+        count =  cache.getTimesPlayedFromCache(task.getMusicID());
+        if(count!=0) {
+          System.out.println("server : "+ id + "\t getTimesPlayed for "+task.getMusicID()+" is answered from cache. result : "+count);
+        }
+      }
+
+      if(cache == null || count == 0) {
 
         database.executeQuery(task);
-        // t = database.executeQuery(task);
-        //
         // update the cache
         // artist id is null for now. once it's parsed from the file then add it
         // cache.addMusicToMusicProfile(task.getMusicID(), null, count); // NULLPOINTER
-      // }
+      }
 
-      // return t;
+
+
+      task.setServerID(this.getID());
       return task;
 
     });
@@ -149,22 +152,28 @@ public class Server implements ServerInterface {
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
+      int count = 0;
+
       System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
 
-      // if (cache != null) {
-      //
-      //   cache.fetchFromCache(task);
-      //
-      // }
+      if (cache != null) {
+          count = cache.getTimesPlayedByUserFromCache(task.getMusicID(), task.getUserID());
 
-      // if (task.getResult() == 0) {
+          if(count!=0)
+            System.out.println("\t result : "+ count);
+          else
+            System.out.println(" \tcache didn't have it");
+      }
+
+      if (cache == null || count == 0) {
 
         database.executeQuery(task);
-
         // update the cache
         // cache.addUserProfile(task.getUserID(), "N/A", task.getMusicID(), "N/A", task.getResult());
 
-      // }
+      }
+
+      task.setServerID(this.getID());
 
       return task;
     });
@@ -190,7 +199,7 @@ public class Server implements ServerInterface {
       task.setTimeStarted(System.currentTimeMillis());
 
       database.executeQuery(task);
-
+      task.setServerID(this.getID());
       return task;
 
     });
@@ -212,15 +221,22 @@ public class Server implements ServerInterface {
 
       task.setTimeStarted(System.currentTimeMillis());
 
+      String[] top3 = new String[3];
+
       // System.out.print("getTopArtistsByMusicGenre by user "+task.getUserID()+" , genre : "+ task.getGenre()
       //         +"is called" );
 
       if (cache != null) {
+        ArrayList<String> topArtists = cache.getTopArtistsByUserGenreInCache(task.getUserID(),task.getGenre());
+        top3 = topArtists.toArray(new String[3]);
 
-        cache.fetchFromCache(task);
+        if (top3 != null)
+          System.out.println("\t result : "/*+ count*/);
+        else
+          System.out.println(" \tcache didn't have it");
       }
 
-      if (task.getResult() == null) {
+      if (top3 == null) {
         database.executeQuery(task);
         // Todo: update the cache
         // BUT ONLY IF NOT NULL!!
@@ -228,6 +244,9 @@ public class Server implements ServerInterface {
         // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
       }
 
+      if(top3 != null)
+      task.setResult(top3);
+      task.setServerID(this.getID());
       return task;
 
     });

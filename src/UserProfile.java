@@ -1,9 +1,6 @@
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Deque;
-import java.util.Set;
+import java.util.*;
 
-class UserProfile{
+public class UserProfile{
 
     /* UserProfile contains userId and for each userId it stores the map of "genre"
     for each genre it stores the map of music profiles , times played (for 3 music profiles)
@@ -56,7 +53,7 @@ class UserProfile{
         musicPlayCount.put(musicProfile, 10);
 
         // add the music play count map to the genre
-        musicProfileMap.put(genre,musicPlayCount);
+        this.musicProfileMap.put(genre,musicPlayCount);
 
     }
 }

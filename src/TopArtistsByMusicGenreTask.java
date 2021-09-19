@@ -23,23 +23,23 @@ public class TopArtistsByMusicGenreTask extends Task<String[]> {
     return genre;
   }
 
-  // @Override
-  // public TopArtistsByMusicGenreTask execute(Cache cache) {
-  //   // TODO: call the correct method in cache here
-  //   ArrayList<String> timesPlayed = cache.getTopArtistsByUserGenreInCache(this.userID, this.genre);
-  //   if(timesPlayed.size()<3)
-  //   {
-  //     return null;
-  //   }
-  //   String[] res = timesPlayed.toArray(new String[3]);
-  //   super.setResult(res);
-  //   return this;
-  // }
+  @Override
+  public TopArtistsByMusicGenreTask execute(Cache cache) {
+    // TODO: call the correct method in cache here
+    ArrayList<String> timesPlayed = cache.getTopArtistsByUserGenreInCache(this.userID, this.genre);
+    if(timesPlayed.size()<3)
+    {
+      return null;
+    }
+    String[] res = timesPlayed.toArray(new String[3]);
+    super.setResult(res);
+    return this;
+  }
 
-  // @Override
-  // public TopArtistsByMusicGenreTask execute(ServerInterface server) throws RemoteException {
-  //   return server.executeQuery(this);
-  // }
+  @Override
+  public TopArtistsByMusicGenreTask execute(ServerInterface server) throws RemoteException {
+    return server.executeQuery(this);
+  }
 
   @Override
   public String toString() {
