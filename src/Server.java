@@ -103,24 +103,27 @@ public class Server implements ServerInterface {
 
     Future<TimesPlayedTask> future = queryExecutor.submit(() -> {
 
-      TimesPlayedTask t = null;
+      // TimesPlayedTask t = null;
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      if (cache != null) {
-        t = cache.fetchFromCache(task);
-      }
+      // if (cache != null) {
+      //   cache.fetchFromCache(task);
+      //   // t = cache.fetchFromCache(task);
+      // }
 
-      if (task.getResult() == 0) {
+      // if (task.getResult() == 0) {
 
-        t = database.executeQuery(task);
+        database.executeQuery(task);
+        // t = database.executeQuery(task);
+        //
         // update the cache
         // artist id is null for now. once it's parsed from the file then add it
         // cache.addMusicToMusicProfile(task.getMusicID(), null, count); // NULLPOINTER
-      }
+      // }
 
-      return t;
-    // return task;
+      // return t;
+      return task;
 
     });
 
@@ -146,28 +149,22 @@ public class Server implements ServerInterface {
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      TimesPlayedByUserTask t = null;
+      System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
 
-      try {
-        System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
+      // if (cache != null) {
+      //
+      //   cache.fetchFromCache(task);
+      //
+      // }
 
-        if (cache != null) {
+      // if (task.getResult() == 0) {
 
-          cache.fetchFromCache(task);
+        database.executeQuery(task);
 
-        }
+        // update the cache
+        // cache.addUserProfile(task.getUserID(), "N/A", task.getMusicID(), "N/A", task.getResult());
 
-        if (task.getResult() == 0) {
-
-          database.executeQuery(task);
-
-          // update the cache
-          // cache.addUserProfile(task.getUserID(), "N/A", task.getMusicID(), "N/A", task.getResult());
-
-        }
-      } catch(Exception e) {
-        e.printStackTrace();
-      }
+      // }
 
       return task;
     });
@@ -215,29 +212,21 @@ public class Server implements ServerInterface {
 
       task.setTimeStarted(System.currentTimeMillis());
 
-      String[] top3 = new String[3];
+      // System.out.print("getTopArtistsByMusicGenre by user "+task.getUserID()+" , genre : "+ task.getGenre()
+      //         +"is called" );
 
-      try {
-        System.out.print("getTopArtistsByMusicGenre by user "+task.getUserID()+" , genre : "+ task.getGenre()
-                +"is called" );
+      if (cache != null) {
 
-        if (cache != null) {
-
-          cache.fetchFromCache(task);
-        }
-
-        if (task.getResult() == null) {
-          database.executeQuery(task);
-          // Todo: update the cache
-          // BUT ONLY IF NOT NULL!!
-          // if (cache != null)
-          // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
+        cache.fetchFromCache(task);
       }
 
-      task.setResult(top3);
+      if (task.getResult() == null) {
+        database.executeQuery(task);
+        // Todo: update the cache
+        // BUT ONLY IF NOT NULL!!
+        // if (cache != null)
+        // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
+      }
 
       return task;
 
