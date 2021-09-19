@@ -18,12 +18,16 @@ public class Server implements ServerInterface {
   private ThreadPoolExecutor waitListExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
   private ThreadPoolExecutor queryExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 
+
   private Cache cache;
+  private Database database;
+
   // How should I shut them down? Maybe when client is finished
   private int id;
 
   public Server(int id) {
     this.id = id;
+    database = new Database();
   }
 
   public int getID() {
@@ -53,9 +57,6 @@ public class Server implements ServerInterface {
     queryExecutor.shutdownNow();
   }
 
-  private BufferedReader newReader() throws IOException {
-    return new BufferedReader(new FileReader("../data/dataset.csv"));
-  }
 
   /**
    * Remote methods
@@ -106,7 +107,7 @@ public class Server implements ServerInterface {
 
       int count = 0;
 
-      try {
+      // try {
 
         if (cache != null) {
           count =  cache.getTimesPlayedFromCache(task.getMusicID());
@@ -116,28 +117,16 @@ public class Server implements ServerInterface {
         }
 
         if(cache == null || count == 0) {
-          // if the query is not in cache then read from the data set
-          BufferedReader br = newReader();
-          String line, delimiter = ",";
 
-          while ((line = br.readLine()) != null) {
-            String[] record = line.split(delimiter);
-
-            // maybe could be replaced with an abstract class and functions to decrease
-            // code duplication
-            if (record[0].equals(task.getMusicID())) {
-              // return Integer.parseInt(record[record.length - 1]);
-              count += Integer.parseInt(record[record.length - 1]);
-            }
-          }
+          database.executeQuery(task);
           // update the cache
           // artist id is null for now. once it's parsed from the file then add it
-          this.cache.addMusicToMusicProfile(task.getMusicID(), null, count);
+          // cache.addMusicToMusicProfile(task.getMusicID(), null, count); // NULLPOINTER
         }
 
-      } catch(Exception e) {
-        e.printStackTrace();
-      }
+      // } catch(Exception e) {
+      //   e.printStackTrace();
+      // }
 
       task.setResult(count);
       return task;
@@ -172,7 +161,7 @@ public class Server implements ServerInterface {
         System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
 
         if (cache != null) {
-            count =  this.cache.getTimesPlayedByUserFromCache(task.getMusicID(), task.getUserID());
+            count = cache.getTimesPlayedByUserFromCache(task.getMusicID(), task.getUserID());
 
             if(count!=0)
               System.out.println("\t result : "+ count);
@@ -182,24 +171,10 @@ public class Server implements ServerInterface {
 
         if (cache == null || count == 0) {
 
-          BufferedReader br = newReader();
-          String line, delimiter = ",";
+          database.executeQuery(task);
+          // update the cache
+          // cache.addUserProfile(task.getUserID(), "N/A", task.getMusicID(), "N/A", task.getResult());
 
-          while ((line = br.readLine()) != null) {
-            String[] record = line.split(delimiter);
-            String genre = record[record.length - 3];
-            String artistId = record[record.length - 4];
-            // if (record[0].equals(musicID) &&
-            if (record[0].equals(task.getMusicID()) &&
-                // record[record.length - 2].equals(userID)) {
-                record[record.length - 2].equals(task.getUserID())) {
-              // return Integer.parseInt(record[record.length - 1]);
-              count += Integer.parseInt(record[record.length - 1]);
-
-              // update the cache
-              this.cache.addUserProfile(task.getUserID(),genre, task.getMusicID(), artistId, count);
-            }
-          }
         }
       } catch(Exception e) {
         e.printStackTrace();
@@ -230,39 +205,7 @@ public class Server implements ServerInterface {
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-
-      String[] top3 = new String[3];
-      int[] count = new int[3];
-
-      try {
-        BufferedReader br = newReader();
-        String line, delimiter = ",";
-
-        while ((line = br.readLine()) != null) {
-          String[] record = line.split(delimiter);
-          String user = record[record.length - 2];
-          int timesPlayed = Integer.parseInt(record[record.length - 1]);
-
-          if (user.equals(task.getUserID()) && timesPlayed > count[2]) {
-
-            int i = 1;
-            while (i >= 0 && timesPlayed > count[i]) {
-              count[i + 1] = count[i];
-              top3[i + 1] = top3[i--];
-            }
-
-            count[i + 1] = timesPlayed;
-            top3[i + 1] = record[0];
-          }
-        }
-
-        // br.close();
-
-      } catch(Exception e) {
-        e.printStackTrace();
-      }
-
-      task.setResult(top3);
+      database.executeQuery(task);
 
       return task;
 
@@ -282,81 +225,31 @@ public class Server implements ServerInterface {
     simulateLatency(task);
 
     Future<TopArtistsByMusicGenreTask> future = queryExecutor.submit(() -> {
+
+      task.setTimeStarted(System.currentTimeMillis());
+
       String[] top3 = new String[3];
-      int count[] = new int[3];
 
       try {
         System.out.print("getTopArtistsByMusicGenre by user "+task.getUserID()+" , genre : "+ task.getGenre()
                 +"is called" );
 
         if (cache != null) {
-          ArrayList<String> topArtists =  this.cache.getTopArtistsByUserGenreInCache(task.getUserID(),task.getGenre());
+          ArrayList<String> topArtists = cache.getTopArtistsByUserGenreInCache(task.getUserID(),task.getGenre());
           top3 = topArtists.toArray(new String[3]);
 
           if (top3 != null)
-            System.out.println("\t result : "+ count);
+            System.out.println("\t result : "/*+ count*/);
           else
             System.out.println(" \tcache didn't have it");
         }
 
         if (top3 == null) {
-          // RandomAccessFile raf = new RandomAccessFile("../data/dataset.csv", "r");
-          BufferedReader br = newReader();
-          String line, delimiter = ",";
-
-          // Accumulating all the relevant values and placing them in a HashMap
-          HashMap<String, Integer> artistToCount = new HashMap<>();
-
-          while ((line = br.readLine()) != null) {
-            String[] record = line.split(delimiter);
-            String user = record[record.length - 2];
-            String genre = record[record.length - 3];
-
-            if (user.equals(task.getUserID()) && genre.equals(task.getGenre())) {
-
-              // Calculating the number of artists
-              int numOfArtists = (record.length % 5) + 1;
-
-              // Getting the count of listens
-              int timesPlayed = Integer.parseInt(record[record.length - 1]);
-
-              // Adding the count to the existing count
-              for (int i = 1; i <= numOfArtists; i++) {
-
-                String artistID = record[i];
-                int artistCount = artistToCount.getOrDefault(artistID, 0);
-                artistToCount.put(artistID,  timesPlayed + artistCount);
-
-              }
-            }
-          }
-
-          // Performing a simple insertion sort for each entry
-
-          for (HashMap.Entry<String, Integer> entry : artistToCount.entrySet()) {
-
-            int timesPlayed = entry.getValue();
-
-            int lastIndex = count.length - 1;
-
-            if (timesPlayed > count[lastIndex]) {
-
-              String artist = entry.getKey();
-
-              int i = lastIndex - 1;
-
-              while (i >= 0 && timesPlayed > count[i]) {
-                count[i + 1] = count[i];
-                top3[i + 1] = top3[i--];
-              }
-
-              count[i + 1] = timesPlayed;
-              top3[i + 1] = artist;
-            }
-          }
-
+          database.executeQuery(task);
           // Todo: update the cache
-          // this.cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
+          // BUT ONLY IF NOT NULL!!
+          // if (cache != null)
+          // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -383,186 +276,4 @@ public class Server implements ServerInterface {
       try { Thread.sleep(170); } catch(Exception e) { e.printStackTrace(); }
   }
 
-  // private int[] testTop3Genre(TopArtistsByMusicGenreTask task) {
-  //   try {
-  //     String[] top3 = new String[3];
-  //     int count[] = new int[3];
-  //     // RandomAccessFile raf = new RandomAccessFile("../data/dataset.csv", "r");
-  //     BufferedReader br = newReader();
-  //     String line, delimiter = ",";
-  //
-  //     // Accumulating all the relevant values and placing them in a HashMap
-  //     HashMap<String, Integer> artistToCount = new HashMap<>();
-  //
-  //     while ((line = br.readLine()) != null) {
-  //       String[] record = line.split(delimiter);
-  //       String user = record[record.length - 2];
-  //       String genre = record[record.length - 3];
-  //
-  //       System.out.println(user + ", " + genre);
-  //
-  //       if (user.equals(task.getUserID()) && genre.equals(task.getGenre())) {
-  //
-  //         System.out.println("TRUE");
-  //
-  //         // Calculating the number of artists
-  //         int numOfArtists = (record.length % 5) + 1;
-  //
-  //         // Getting the count of listens
-  //         int timesPlayed = Integer.parseInt(record[record.length - 1]);
-  //
-  //         // Adding the count to the existing count
-  //         for (int i = 1; i <= numOfArtists; i++) {
-  //
-  //           String artistID = record[i];
-  //           int artistCount = artistToCount.getOrDefault(artistID, 0);
-  //           artistToCount.put(artistID,  timesPlayed + artistCount);
-  //
-  //         }
-  //       }
-  //     }
-  //
-  //     // Performing a simple insertion sort for each entry
-  //
-  //     for (HashMap.Entry<String, Integer> entry : artistToCount.entrySet()) {
-  //
-  //       int timesPlayed = entry.getValue();
-  //
-  //       int lastIndex = count.length - 1;
-  //
-  //       if (timesPlayed > count[lastIndex]) {
-  //
-  //         String artist = entry.getKey();
-  //
-  //         int i = lastIndex - 1;
-  //
-  //         while (i >= 0 && timesPlayed > count[i]) {
-  //           count[i + 1] = count[i];
-  //           top3[i + 1] = top3[i--];
-  //         }
-  //
-  //         count[i + 1] = timesPlayed;
-  //         top3[i + 1] = artist;
-  //       }
-  //     }
-  //     task.setResult(top3);
-  //     return count;
-  //   } catch (Exception e) {
-  //     e.printStackTrace();
-  //     return null;
-  //   }
-  //
-  // }
-  //
-  // public static void main(String[] args) {
-  //   Server s = new Server(0);
-  //
-  //   TopArtistsByMusicGenreTask task = new TopArtistsByMusicGenreTask("U11", "Rock", 0);
-  //
-  //   int[] counts = s.testTop3Genre(task);
-  //
-  //   System.out.println(task.toString());
-  //
-  //   for (int c : counts)
-  //     System.out.println(c);
-  //
-  // }
-  //
-  // // DELETE BEFORE DELIVERY
-  // // Trying with buffered reader. Faster than scanner according to google
-  // // https://www.javatpoint.com/how-to-read-csv-file-in-java
-  // void readCSVfile() {
-  //
-  //   String line = "";
-  //   String splitBy = ",";
-  //
-  //   try {
-  //     BufferedReader br = new BufferedReader(new FileReader("../data/dummydataset.csv"));
-  //
-  //     while ((line = br.readLine()) != null) {
-  //       String[] record = line.split(splitBy);
-  //       // 0 1 2 3 4
-  //       // M A G U T
-  //       // 0 1 2 3 4 5
-  //       // M A A G U T
-  //       String[] columnNames = {"MusicID", "ArtistID", "Genre", "UserID", "Times played"};
-  //
-  //       // getting the number of artists by using mod "number of columns"
-  //       int numOfArtists = (record.length % 5) + 1;
-  //
-  //       System.out.print(columnNames[0] + ": " + record[0] + "\t");
-  //
-  //       System.out.print(columnNames[1] + ": ");
-  //       for (int i = 1; i <= numOfArtists; i++)
-  //         System.out.print(record[i] + " ");
-  //
-  //       System.out.print("\t");
-  //
-  //       for (int i = 2; i < columnNames.length; i++)
-  //         System.out.print(columnNames[i] + ": " + record[i + numOfArtists - 1] + "\t");
-  //
-  //       System.out.println("");
-  //     }
-  //
-  //
-  //   } catch(IOException e) {
-  //       e.printStackTrace();
-  //   }
-  //
-  // }
-//
-//   // DELETE BEFORE DELIVERY
-//   public static void main(String[] args) {
-//
-//     Server s = new Server();
-//
-//     // s.readCSVfile();
-//
-//     System.out.println("\nDummy dataset");
-//
-//     // Dummy dataset
-//     System.out.println("\nTimes played");
-//     System.out.println("M9: " + s.getTimesPlayed("M9"));
-//     System.out.println("M1: " + s.getTimesPlayed("M1"));
-//     System.out.println("M14: " + s.getTimesPlayed("M14"));
-//
-//     System.out.println("\nTimes played by user");
-//     System.out.println("M1 and U1: " + s.getTimesPlayedByUser("M1", "U1"));
-//     System.out.println("M1 and U2: " + s.getTimesPlayedByUser("M1", "U2"));
-//     System.out.println("M1 and U3: " + s.getTimesPlayedByUser("M1", "U3"));
-//     System.out.println("M10 and U4: " + s.getTimesPlayedByUser("M10", "U4"));
-//
-//     System.out.println("\nTop 3 music");
-//     String user = "U2";
-//     String[] top3 = s.getTopThreeMusicByUser(user);
-//     System.out.print(user + ": ");
-//
-//     for (String m : top3)
-//       System.out.print(m + " ");
-//
-//     System.out.println("\n\nReal dataset");
-//
-//
-//     // Real dataset
-//     System.out.println("\nTimes played");
-//     System.out.println("MZnK007OYs: " + s.getTimesPlayed("MZnK007OYs"));
-//     System.out.println("MK3r9RF0Fz: " + s.getTimesPlayed("MK3r9RF0Fz"));
-//     System.out.println("Mnni7iWPl2: " + s.getTimesPlayed("Mnni7iWPl2"));
-//
-//     System.out.println("\nTimes played by user");
-//     System.out.println("MZnK007OYs and UQ9lO8EhXd: " + s.getTimesPlayedByUser("MZnK007OYs", "UQ9lO8EhXd"));
-//     System.out.println("MZnK007OYs and Uo59ASIkor: " + s.getTimesPlayedByUser("MZnK007OYs", "Uo59ASIkor"));
-//     System.out.println("MK3r9RF0Fz and U1hn1abhsA: " + s.getTimesPlayedByUser("MK3r9RF0Fz", "U1hn1abhsA"));
-//     System.out.println("MeD0M4CGzg and Url3aJX8dX: " + s.getTimesPlayedByUser("MeD0M4CGzg", "Url3aJX8dX"));
-//
-//     System.out.println("\nTop 3 music");
-//     user = "U5etSKm4EW";
-//     top3 = s.getTopThreeMusicByUser(user);
-//     System.out.println(user + ": ");
-//
-//     for (String m : top3)
-//       System.out.println(m + ": " + s.getTimesPlayedByUser(m, user));
-//
-//     System.out.println("");
-//   }
 }
