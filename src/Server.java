@@ -168,7 +168,18 @@ public class Server implements ServerInterface {
   @Override
   // public Task getTimesPlayedByUser(String musicID, String userID) {
   public TimesPlayedByUserTask getTimesPlayedByUser(TimesPlayedByUserTask t) {
+    t.setTimeRequested(System.nanoTime());
+
+    if (!t.sameZone()) try {
+      Thread.sleep(80);
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+
     Future<TimesPlayedByUserTask> future = queryExecutor.submit(() -> {
+
+      t.setTimeStarted(System.nanoTime());
+
       int count = 0;
       try {
         System.out.print("getTimesPlayed by user "+t.getUserID()+" , music id : "+ t.getMusicID()
@@ -214,6 +225,7 @@ public class Server implements ServerInterface {
       // Task<Integer> task = new TimesPlayedByUserTask(musicID, userID, 111);
 
       t.setResult(count);
+      t.setTimeFinished(System.nanoTime());
 
       return t;
     });
@@ -229,7 +241,18 @@ public class Server implements ServerInterface {
   // Here I am assuming that there is only one record per song for a specific user.
   @Override
   public TopThreeMusicByUserTask getTopThreeMusicByUser(TopThreeMusicByUserTask task) {
+    task.setTimeRequested(System.nanoTime());
+
+    if (!task.sameZone()) try {
+      Thread.sleep(80);
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+
     Future<TopThreeMusicByUserTask> future = queryExecutor.submit(() -> {
+
+      task.setTimeStarted(System.nanoTime());
+
       String[] top3 = new String[3];
       int[] count = new int[3];
 
@@ -263,6 +286,8 @@ public class Server implements ServerInterface {
 
       task.setResult(top3);
 
+      task.setTimeFinished(System.nanoTime());
+
       return task;
 
     });
@@ -278,6 +303,16 @@ public class Server implements ServerInterface {
 
   @Override
   public TopArtistsByMusicGenreTask getTopArtistsByMusicGenre(TopArtistsByMusicGenreTask task) {
+    task.setTimeRequested(System.nanoTime());
+
+    if (!task.sameZone()) try {
+      Thread.sleep(80);
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+
+    task.setTimeStarted(System.nanoTime());
+
     String[] top3 = new String[3];
     int count[] = new int[3];
 
@@ -322,6 +357,7 @@ public class Server implements ServerInterface {
       e.printStackTrace();
     }
 
+    task.setTimeFinished(System.nanoTime());
     // return top3;
     return task;
   }
