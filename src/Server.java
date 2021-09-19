@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -254,6 +255,9 @@ public class Server implements ServerInterface {
             top3[i + 1] = record[0];
           }
         }
+
+        // br.close();
+
       } catch(Exception e) {
         e.printStackTrace();
       }
@@ -275,7 +279,6 @@ public class Server implements ServerInterface {
 
   @Override
   public TopArtistsByMusicGenreTask executeQuery(TopArtistsByMusicGenreTask task) {
-
     simulateLatency(task);
 
     Future<TopArtistsByMusicGenreTask> future = queryExecutor.submit(() -> {
@@ -297,24 +300,63 @@ public class Server implements ServerInterface {
         }
 
         if (top3 == null) {
+          // RandomAccessFile raf = new RandomAccessFile("../data/dataset.csv", "r");
           BufferedReader br = newReader();
           String line, delimiter = ",";
+
+          // Accumulating all the relevant values and placing them in a HashMap
+          HashMap<String, Integer> artistToCount = new HashMap<>();
 
           while ((line = br.readLine()) != null) {
             String[] record = line.split(delimiter);
             String user = record[record.length - 2];
             String genre = record[record.length - 3];
 
-            if (user.equals(task.getUserID()) &&
-                    genre.equals(task.getGenre())) {
-              // TODO
-              // run through n * n.
-              // Do this do save space
+            if (user.equals(task.getUserID()) && genre.equals(task.getGenre())) {
 
-              // Todo: update the cache
-              // this.cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
+              // Calculating the number of artists
+              int numOfArtists = (record.length % 5) + 1;
+
+              // Getting the count of listens
+              int timesPlayed = Integer.parseInt(record[record.length - 1]);
+
+              // Adding the count to the existing count
+              for (int i = 1; i <= numOfArtists; i++) {
+
+                String artistID = record[i];
+                int artistCount = artistToCount.getOrDefault(artistID, 0);
+                artistToCount.put(artistID,  timesPlayed + artistCount);
+
+              }
             }
           }
+
+          // Performing a simple insertion sort for each entry
+
+          for (HashMap.Entry<String, Integer> entry : artistToCount.entrySet()) {
+
+            int timesPlayed = entry.getValue();
+
+            int lastIndex = count.length - 1;
+
+            if (timesPlayed > count[lastIndex]) {
+
+              String artist = entry.getKey();
+
+              int i = lastIndex - 1;
+
+              while (i >= 0 && timesPlayed > count[i]) {
+                count[i + 1] = count[i];
+                top3[i + 1] = top3[i--];
+              }
+
+              count[i + 1] = timesPlayed;
+              top3[i + 1] = artist;
+            }
+          }
+
+          // Todo: update the cache
+          // this.cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -340,49 +382,134 @@ public class Server implements ServerInterface {
     else
       try { Thread.sleep(170); } catch(Exception e) { e.printStackTrace(); }
   }
-//
-//   // DELETE BEFORE DELIVERY
-//   // Trying with buffered reader. Faster than scanner according to google
-//   // https://www.javatpoint.com/how-to-read-csv-file-in-java
-//   void readCSVfile() {
-//
-//     String line = "";
-//     String splitBy = ",";
-//
-//     try {
-//       BufferedReader br = new BufferedReader(new FileReader("../data/dummydataset.csv"));
-//
-//       while ((line = br.readLine()) != null) {
-//         String[] record = line.split(splitBy);
-//         // 0 1 2 3 4
-//         // M A G U T
-//         // 0 1 2 3 4 5
-//         // M A A G U T
-//         String[] columnNames = {"MusicID", "ArtistID", "Genre", "UserID", "Times played"};
-//
-//         // getting the number of artists by using mod "number of columns"
-//         int numOfArtists = (record.length % 5) + 1;
-//
-//         System.out.print(columnNames[0] + ": " + record[0] + "\t");
-//
-//         System.out.print(columnNames[1] + ": ");
-//         for (int i = 1; i <= numOfArtists; i++)
-//           System.out.print(record[i] + " ");
-//
-//         System.out.print("\t");
-//
-//         for (int i = 2; i < columnNames.length; i++)
-//           System.out.print(columnNames[i] + ": " + record[i + numOfArtists - 1] + "\t");
-//
-//         System.out.println("");
-//       }
-//
-//
-//     } catch(IOException e) {
-//         e.printStackTrace();
-//     }
-//
-//   }
+
+  // private int[] testTop3Genre(TopArtistsByMusicGenreTask task) {
+  //   try {
+  //     String[] top3 = new String[3];
+  //     int count[] = new int[3];
+  //     // RandomAccessFile raf = new RandomAccessFile("../data/dataset.csv", "r");
+  //     BufferedReader br = newReader();
+  //     String line, delimiter = ",";
+  //
+  //     // Accumulating all the relevant values and placing them in a HashMap
+  //     HashMap<String, Integer> artistToCount = new HashMap<>();
+  //
+  //     while ((line = br.readLine()) != null) {
+  //       String[] record = line.split(delimiter);
+  //       String user = record[record.length - 2];
+  //       String genre = record[record.length - 3];
+  //
+  //       System.out.println(user + ", " + genre);
+  //
+  //       if (user.equals(task.getUserID()) && genre.equals(task.getGenre())) {
+  //
+  //         System.out.println("TRUE");
+  //
+  //         // Calculating the number of artists
+  //         int numOfArtists = (record.length % 5) + 1;
+  //
+  //         // Getting the count of listens
+  //         int timesPlayed = Integer.parseInt(record[record.length - 1]);
+  //
+  //         // Adding the count to the existing count
+  //         for (int i = 1; i <= numOfArtists; i++) {
+  //
+  //           String artistID = record[i];
+  //           int artistCount = artistToCount.getOrDefault(artistID, 0);
+  //           artistToCount.put(artistID,  timesPlayed + artistCount);
+  //
+  //         }
+  //       }
+  //     }
+  //
+  //     // Performing a simple insertion sort for each entry
+  //
+  //     for (HashMap.Entry<String, Integer> entry : artistToCount.entrySet()) {
+  //
+  //       int timesPlayed = entry.getValue();
+  //
+  //       int lastIndex = count.length - 1;
+  //
+  //       if (timesPlayed > count[lastIndex]) {
+  //
+  //         String artist = entry.getKey();
+  //
+  //         int i = lastIndex - 1;
+  //
+  //         while (i >= 0 && timesPlayed > count[i]) {
+  //           count[i + 1] = count[i];
+  //           top3[i + 1] = top3[i--];
+  //         }
+  //
+  //         count[i + 1] = timesPlayed;
+  //         top3[i + 1] = artist;
+  //       }
+  //     }
+  //     task.setResult(top3);
+  //     return count;
+  //   } catch (Exception e) {
+  //     e.printStackTrace();
+  //     return null;
+  //   }
+  //
+  // }
+  //
+  // public static void main(String[] args) {
+  //   Server s = new Server(0);
+  //
+  //   TopArtistsByMusicGenreTask task = new TopArtistsByMusicGenreTask("U11", "Rock", 0);
+  //
+  //   int[] counts = s.testTop3Genre(task);
+  //
+  //   System.out.println(task.toString());
+  //
+  //   for (int c : counts)
+  //     System.out.println(c);
+  //
+  // }
+  //
+  // // DELETE BEFORE DELIVERY
+  // // Trying with buffered reader. Faster than scanner according to google
+  // // https://www.javatpoint.com/how-to-read-csv-file-in-java
+  // void readCSVfile() {
+  //
+  //   String line = "";
+  //   String splitBy = ",";
+  //
+  //   try {
+  //     BufferedReader br = new BufferedReader(new FileReader("../data/dummydataset.csv"));
+  //
+  //     while ((line = br.readLine()) != null) {
+  //       String[] record = line.split(splitBy);
+  //       // 0 1 2 3 4
+  //       // M A G U T
+  //       // 0 1 2 3 4 5
+  //       // M A A G U T
+  //       String[] columnNames = {"MusicID", "ArtistID", "Genre", "UserID", "Times played"};
+  //
+  //       // getting the number of artists by using mod "number of columns"
+  //       int numOfArtists = (record.length % 5) + 1;
+  //
+  //       System.out.print(columnNames[0] + ": " + record[0] + "\t");
+  //
+  //       System.out.print(columnNames[1] + ": ");
+  //       for (int i = 1; i <= numOfArtists; i++)
+  //         System.out.print(record[i] + " ");
+  //
+  //       System.out.print("\t");
+  //
+  //       for (int i = 2; i < columnNames.length; i++)
+  //         System.out.print(columnNames[i] + ": " + record[i + numOfArtists - 1] + "\t");
+  //
+  //       System.out.println("");
+  //     }
+  //
+  //
+  //   } catch(IOException e) {
+  //       e.printStackTrace();
+  //   }
+  //
+  // }
 //
 //   // DELETE BEFORE DELIVERY
 //   public static void main(String[] args) {

@@ -17,10 +17,10 @@ class ServerSimulator {
           for(int i=0; i<5; i++) {
               server[i] = new Server(i+1);
               // sets the cache
-              server[i].setCache(new Cache(100));
+              // server[i].setCache(new Cache(100));
 
               // disables the cache
-              // server[i].disableCache();
+              server[i].disableCache();
 
               stubs[i] = (ServerInterface) UnicastRemoteObject.exportObject(server[i], 0);
               registry.bind("server" + (i + 1), stubs[i]);
