@@ -133,6 +133,7 @@ class Database {
   public TopArtistsByMusicGenreTask executeQuery(TopArtistsByMusicGenreTask task) {
 
     String[] top3 = new String[3];
+
     try {
 
       BufferedReader br = newReader();
@@ -197,6 +198,30 @@ class Database {
     } catch(Exception e) {
       e.printStackTrace();
     }
+
+    return null;
+  }
+
+  public UserProfile getPersonProfile(String ID) {
+
+    // try {
+    //
+    //   BufferedReader br = newReader();
+    //   String line, delimiter = ",";
+    //
+    //   while ((line = br.readLine()) != null) {
+    //     String[] record = line.split(delimiter);
+    //
+    //     if (record[userIndex].equals(personID)) {
+    //       return new MusicProfile(musicID, record[1]);
+    //     }
+    //   }
+    //
+    //   br.close();
+    //
+    // } catch(Exception e) {
+    //   e.printStackTrace();
+    // }
 
     return null;
   }

@@ -45,6 +45,7 @@ public class Client {
 
     String inputFile = "../input/" +  "naive_input.txt";
     String outputFile = "../output/" +  "naive_output.txt";
+
     if(args.length==2){
       if(args[0].equals("-s") && args[1].equals("-c")) {
         // server cache status should have been retrieved without passing it as a flag
@@ -53,8 +54,10 @@ public class Client {
       System.out.println("client cache is and server cache both enabled");
        inputFile = "../input/" +  "cached_input.txt";
        outputFile = "../output/" +  "server_client_cache.txt";
-    }}if(args.length==1)
-    {
+     }
+   }
+
+   if(args.length==1) {
       if(args[0].equals("-s"))
       {
         System.out.println("only server cache is enabled");
@@ -69,6 +72,7 @@ public class Client {
       outputFile = "../output/" +  "naive_output.txt";
       repository = new ClientRepository(null);
     }
+
     System.out.println("\nSending the requests to server...");
     executeCommands(inputFile);
     System.out.println("...All requests have been sent to server!\n");
