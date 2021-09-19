@@ -128,7 +128,8 @@ public class Server implements ServerInterface {
       //   e.printStackTrace();
       // }
 
-      task.setResult(count);
+
+      task.setServerID(this.getID());
       return task;
 
     });
@@ -180,7 +181,7 @@ public class Server implements ServerInterface {
         e.printStackTrace();
       }
 
-      task.setResult(count);
+      task.setServerID(this.getID());
 
       return task;
     });
@@ -206,7 +207,7 @@ public class Server implements ServerInterface {
       task.setTimeStarted(System.currentTimeMillis());
 
       database.executeQuery(task);
-
+      task.setServerID(this.getID());
       return task;
 
     });
@@ -255,8 +256,9 @@ public class Server implements ServerInterface {
         e.printStackTrace();
       }
 
+      if(top3 != null)
       task.setResult(top3);
-
+      task.setServerID(this.getID());
       return task;
 
     });
