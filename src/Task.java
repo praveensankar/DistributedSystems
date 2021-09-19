@@ -49,15 +49,15 @@ public abstract class Task<T> implements Serializable {
   }
 
   public double getWaitTime() {
-    return (timeStarted - timeRequested) / 1000000.0;
+    return (timeStarted - timeRequested); // / 1000000.0;
   }
 
   public double getTurnaroundTime() {
-    return (timeFinished - timeRequested) / 1000000.0;
+    return (timeFinished - timeRequested); // / 1000000.0;
   }
 
   public double getExecutionTime() {
-    return (timeFinished - timeStarted) / 1000000.0;
+    return (timeFinished - timeStarted); // / 1000000.0;
   }
 
   public abstract Task<T> execute(Cache cache);

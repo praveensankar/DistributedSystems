@@ -3,9 +3,9 @@ import java.rmi.RemoteException;
 
 public interface ServerInterface extends Remote {
   public int getWaitListSize() throws RemoteException;
-  public TimesPlayedTask getTimesPlayed(TimesPlayedTask task) throws RemoteException;
-  public TimesPlayedByUserTask getTimesPlayedByUser(TimesPlayedByUserTask task) throws RemoteException;
-  public TopThreeMusicByUserTask getTopThreeMusicByUser(TopThreeMusicByUserTask task) throws RemoteException;
-  public TopArtistsByMusicGenreTask getTopArtistsByMusicGenre(TopArtistsByMusicGenreTask task) throws RemoteException;
-  public int getServerId() throws java.rmi.RemoteException;
+  public TimesPlayedTask executeQuery(TimesPlayedTask task) throws RemoteException;
+  public TimesPlayedByUserTask executeQuery(TimesPlayedByUserTask task) throws RemoteException;
+  public TopThreeMusicByUserTask executeQuery(TopThreeMusicByUserTask task) throws RemoteException;
+  public TopArtistsByMusicGenreTask executeQuery(TopArtistsByMusicGenreTask task) throws RemoteException;
+  public int getID() throws RemoteException;
 }

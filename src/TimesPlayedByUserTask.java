@@ -22,14 +22,14 @@ public class TimesPlayedByUserTask extends Task<Integer> {
   }
 
   @Override
-  public Task<Integer> execute(Cache cache) {
+  public TimesPlayedByUserTask execute(Cache cache) {
     // TODO: call the correct method in cache here
     return null;
   }
 
   @Override
-  public Task<Integer> execute(ServerInterface server) throws RemoteException {
-    return server.getTimesPlayedByUser(this);
+  public TimesPlayedByUserTask execute(ServerInterface server) throws RemoteException {
+    return server.executeQuery(this);
   }
 
   @Override

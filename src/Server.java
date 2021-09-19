@@ -10,22 +10,22 @@ import java.util.concurrent.ExecutionException;
 // I wonder if it is best to return a task class here?
 
 // According to stack overflow, submit() is thread safe
+
+// TODO: Use an alternative to System.nanoTime() as it doesn't work across VMs
 public class Server implements ServerInterface {
 
   private ThreadPoolExecutor waitListExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
   private ThreadPoolExecutor queryExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 
   // How should I shut them down? Maybe when client is finished
-  private int serverId;
+  private int id;
 
-  public Server(int id)
-  {
-    this.serverId = id;
+  public Server(int id) {
+    this.id = id;
   }
 
-  public int getServerId()
-  {
-    return this.serverId;
+  public int getID() {
+    return this.id;
   }
 
   /**
@@ -60,16 +60,14 @@ public class Server implements ServerInterface {
       return future.get();
     } catch(InterruptedException | ExecutionException e) {
       e.printStackTrace();
-    return -1;
     }
+
+    return -1;
   }
 
 
   @Override
-  public TimesPlayedTask getTimesPlayed(TimesPlayedTask task) {
-
-    // Unsure if should do it here or in Task
-    task.setTimeRequested(System.nanoTime());
+  public TimesPlayedTask executeQuery(TimesPlayedTask task) {
 
     // Unsure if should do it here or in Task
     // It should at least be done outside the queryExecutor thread.
@@ -79,15 +77,17 @@ public class Server implements ServerInterface {
     // So it should be moved back into the queryExecutor thread.
     // Or actually, the client starts this in another thread
     // (and requests the waiting list in the main thread), so it can be outside
-    if (!task.sameZone()) try {
-      Thread.sleep(80);
-    } catch(Exception e) {
-      e.printStackTrace();
-    }
+    // Can also placed this inside the clientExecutor on client side.
+    // Then it will be clearer, and this method will never pause the
+    // server thread if we decide to place a main method here.
+    // Well actually, we need to do this here so that it won't interfere with cache
+
+    simulateLatency(task);
 
     Future<TimesPlayedTask> future = queryExecutor.submit(() -> {
 
-      task.setTimeStarted(System.nanoTime());
+      // task.setTimeStarted(System.nanoTime());
+      task.setTimeStarted(System.currentTimeMillis());
 
       int count = 0;
 
@@ -99,27 +99,19 @@ public class Server implements ServerInterface {
         while ((line = br.readLine()) != null) {
           String[] record = line.split(delimiter);
 
-          // maybe could be replaced with an abstract class and functions to decrease
-          // code duplication
           if (record[0].equals(task.getMusicID())) {
             // return Integer.parseInt(record[record.length - 1]);
             count += Integer.parseInt(record[record.length - 1]);
           }
         }
 
-      } catch(IOException e) {
-        e.printStackTrace();
-      } catch(NumberFormatException e) {
-        System.err.println("Logical error: Something went wrong with parsing!\n");
+      } catch(Exception e) {
         e.printStackTrace();
       }
 
       task.setResult(count);
-      // Unsure if should do it here or in Task
-      task.setTimeFinished(System.nanoTime());
-
-      // I guess it is not completely necessary to return the task
       return task;
+
     });
 
     try {
@@ -135,10 +127,17 @@ public class Server implements ServerInterface {
   // If so, this needs to be modified. Have now modified it. But not sure if necessary.
   // If this is the case, then the top three will be more complicated
   @Override
-  // public Task getTimesPlayedByUser(String musicID, String userID) {
-  public TimesPlayedByUserTask getTimesPlayedByUser(TimesPlayedByUserTask t) {
+  public TimesPlayedByUserTask executeQuery(TimesPlayedByUserTask task) {
+
+    simulateLatency(task);
+
     Future<TimesPlayedByUserTask> future = queryExecutor.submit(() -> {
+
+      // task.setTimeStarted(System.nanoTime());
+      task.setTimeStarted(System.currentTimeMillis());
+
       int count = 0;
+
       try {
         BufferedReader br = newReader();
         String line, delimiter = ",";
@@ -147,25 +146,20 @@ public class Server implements ServerInterface {
           String[] record = line.split(delimiter);
 
           // if (record[0].equals(musicID) &&
-          if (record[0].equals(t.getMusicID()) &&
+          if (record[0].equals(task.getMusicID()) &&
               // record[record.length - 2].equals(userID)) {
-              record[record.length - 2].equals(t.getUserID())) {
+              record[record.length - 2].equals(task.getUserID())) {
             // return Integer.parseInt(record[record.length - 1]);
             count += Integer.parseInt(record[record.length - 1]);
           }
         }
-      } catch(IOException e) {
-        e.printStackTrace();
-      } catch(NumberFormatException e) {
-        System.err.println("Logical error: Something went wrong with the parsing!");
+      } catch(Exception e) {
         e.printStackTrace();
       }
 
-      // Task<Integer> task = new TimesPlayedByUserTask(musicID, userID, 111);
+      task.setResult(count);
 
-      t.setResult(count);
-
-      return t;
+      return task;
     });
 
     try {
@@ -177,9 +171,18 @@ public class Server implements ServerInterface {
   }
 
   // Here I am assuming that there is only one record per song for a specific user.
+  // Apparently not the case
   @Override
-  public TopThreeMusicByUserTask getTopThreeMusicByUser(TopThreeMusicByUserTask task) {
+  public TopThreeMusicByUserTask executeQuery(TopThreeMusicByUserTask task) {
+
+    simulateLatency(task);
+
     Future<TopThreeMusicByUserTask> future = queryExecutor.submit(() -> {
+
+      // task.setTimeStarted(System.nanoTime());
+      task.setTimeStarted(System.currentTimeMillis());
+
+
       String[] top3 = new String[3];
       int[] count = new int[3];
 
@@ -204,10 +207,7 @@ public class Server implements ServerInterface {
             top3[i + 1] = record[0];
           }
         }
-      } catch(IOException e) {
-        e.printStackTrace();
-      } catch(NumberFormatException e) {
-        System.err.println("Logical error: Something went wrong with the parsing!\n");
+      } catch(Exception e) {
         e.printStackTrace();
       }
 
@@ -227,36 +227,57 @@ public class Server implements ServerInterface {
   }
 
   @Override
-  public TopArtistsByMusicGenreTask getTopArtistsByMusicGenre(TopArtistsByMusicGenreTask task) {
-    String[] top3 = new String[3];
-    int count[] = new int[3];
+  public TopArtistsByMusicGenreTask executeQuery(TopArtistsByMusicGenreTask task) {
 
-    try {
-      BufferedReader br = newReader();
-      String line, delimiter = ",";
+    simulateLatency(task);
 
-      while ((line = br.readLine()) != null) {
-        String[] record = line.split(delimiter);
-        String user = record[record.length - 2];
-        String genre = record[record.length - 3];
+    Future<TopArtistsByMusicGenreTask> future = queryExecutor.submit(() -> {
 
-        if (user.equals(task.getUserID()) &&
-            genre.equals(task.getGenre())) {
-          // TODO
-          // run through n * n.
-          // Do this do save space
+      task.setTimeStarted(System.currentTimeMillis());
+
+      String[] top3 = new String[3];
+      int count[] = new int[3];
+
+      try {
+        BufferedReader br = newReader();
+        String line, delimiter = ",";
+
+        while ((line = br.readLine()) != null) {
+          String[] record = line.split(delimiter);
+          String user = record[record.length - 2];
+          String genre = record[record.length - 3];
+
+          if (user.equals(task.getUserID()) &&
+              genre.equals(task.getGenre())) {
+            // TODO
+            // run through n * n.
+            // Do this do save space
+          }
         }
+
+      } catch(Exception e) {
+        e.printStackTrace();
       }
 
-    } catch(IOException e) {
+      task.setResult(top3);
+
+      return task;
+    });
+
+    try {
+      return future.get();
+    } catch(InterruptedException | ExecutionException e) {
       e.printStackTrace();
-    } catch (NumberFormatException e) {
-      System.err.println("Logical error: Something went wrong with the parsing!\n");
-      e.printStackTrace();
+      return null;
     }
 
-    // return top3;
-    return task;
+  }
+
+  private void simulateLatency(Task<?> task) {
+    if (task.sameZone())
+      try { Thread.sleep(80); } catch(Exception e) { e.printStackTrace(); }
+    else
+      try { Thread.sleep(170); } catch(Exception e) { e.printStackTrace(); }
   }
 //
 //   // DELETE BEFORE DELIVERY

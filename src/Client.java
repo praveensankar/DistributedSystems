@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.util.function.Supplier;
+
 public class Client {
 
   // Implementation decision:
@@ -31,7 +33,7 @@ public class Client {
 	static List<Task<?>> tasks = new ArrayList<>();
 
   // Will run the naive implementation
-  static Repository repository = new Repository(null);
+  static ClientRepository repository = new ClientRepository(null);
 
   public static void main(String[] args) {
 
@@ -43,58 +45,13 @@ public class Client {
     System.out.println("...All requests have been sent to server!\n");
 
     System.out.println("Waiting for all requests to finish...");
-
-    try {
-      // All previously submitted tasks will be executed.
-      clientExecutor.shutdown();
-      // Will block until all tasks have completed, or after exception, or after 300 years or so
-      clientExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-    } catch(Exception e) {
-      e.printStackTrace();
-    }
-
+    waitUntilFinished();
     System.out.println("..All requests have finished!\n");
+
     System.out.println("Writing to file...");
-
-    try {
-
-      FileWriter writer = new FileWriter(outputFile);
-
-      for (Task<?> t : tasks)
-        writer.write(t.toString() + "\n");
-
-      writer.close();
-
-    } catch(Exception e) {
-      e.printStackTrace();
-      System.out.println("Unable to write to file!");
-    }
-
+    writeToFile(outputFile);
     System.out.println("...Finished writing to file!\n");
 
-  }
-
-
-  private static void executeTask(Task<?> task, ServerInterface server) {
-    clientExecutor.submit(() -> {
-
-      try {
-        // Blocking
-        // Task<?> t = task.execute(server);
-        Task<?> t = repository.execute(task, server);
-
-        // Making sure that adding to shared list is thread safe
-        synchronized (tasks) {
-          tasks.add(t);
-        }
-
-      } catch(Exception e) {
-        e.printStackTrace();
-      }
-
-      return;
-
-    });
   }
 
   private static void executeCommands(String file) {
@@ -107,13 +64,7 @@ public class Client {
 
       while (scanner.hasNextLine()) {
         String command = scanner.nextLine();
-        Task<?> task = createTask(command);
-
-        LoadBalancerResponse response = lbstub.fetchServer(task.getZoneID());
-        ServerInterface server = response.serverStub;
-       // System.out.println("server id : "+server.getServerId());
-        task.setServerID(server.getServerId());
-        executeTask(task, server);
+        executeCommand(command, lbstub);
       }
 
       scanner.close();
@@ -123,6 +74,70 @@ public class Client {
     }
   }
 
+
+  private static void waitUntilFinished() {
+    try {
+      // All previously submitted tasks will be executed.
+      clientExecutor.shutdown();
+      // Will block until all tasks have completed, or after exception, or after 300 years or so
+      clientExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  private static void writeToFile(String outputFile) {
+    try {
+
+      FileWriter writer = new FileWriter(outputFile);
+
+      for (Task<?> t : tasks)
+        writer.write(t.toString() + "\n");
+
+      writer.close();
+
+    } catch(Exception e) {
+      e.printStackTrace();
+      System.out.println("...Unable to write to file!");
+      return;
+    }
+  }
+
+  private static void executeCommand(String command, LoadBalancerInterface lbstub) {
+
+    Matcher m = parse(command);
+
+    if (!m.find())
+      return;
+
+    String method = m.group(1);
+    String args1 = m.group(2);
+    String args2 = m.group(3);
+    int zoneID = Integer.parseInt(m.group(4));
+
+    if (method.equals("getTimesPlayed"))
+      executeTask(() -> {
+        return repository.execute(new TimesPlayedTask(args1, zoneID), getServer(zoneID, lbstub));
+      });
+
+    else if (method.equals("getTimesPlayedByUser"))
+      executeTask(() -> {
+        return repository.execute(new TimesPlayedByUserTask(args1, args2, zoneID), getServer(zoneID, lbstub));
+      });
+
+    else if (method.equals("getTopThreeMusicByUser"))
+      executeTask(() -> {
+        return repository.execute(new TopThreeMusicByUserTask(args1, zoneID), getServer(zoneID, lbstub));
+      });
+
+    else if (method.equals("getTopArtistsByUserGenre"))
+      executeTask(() -> {
+        return repository.execute(new TopArtistsByMusicGenreTask(args1, args2, zoneID), getServer(zoneID, lbstub));
+      });
+  }
+
+
   private static Matcher parse(String command) {
     String pattern = "^(.*)[(]([a-zA-Z0-9]*)[,]?([a-zA-Z0-9]*)[)] Zone:([1-5])";
 
@@ -131,37 +146,98 @@ public class Client {
 
     // Create a matcher object
     return r.matcher(command);
+  }
+
+  // TODO: Use an alternative to System.nanoTime() as it doesn't work across VMs
+  private static void executeTask(Supplier<Task<?>> function) {
+
+    clientExecutor.submit(() -> {
+
+      // Long timeRequested = System.nanoTime();
+      Long timeRequested = System.currentTimeMillis();
+      Task<?> t = function.get();
+      // Long timeFinished = System.nanoTime();
+      Long timeFinished = System.currentTimeMillis();
+
+      t.setTimeRequested(timeRequested);
+      t.setTimeFinished(timeFinished);
+
+      // Making sure that adding to shared list is thread safe
+      synchronized (tasks) {
+        tasks.add(t);
+      }
+    });
 
   }
 
-  private static Task<?> createTask(String command) {
-
-    Matcher m = parse(command);
-
-    if (!m.find())
-      return null;
-
-    String method = m.group(1);
-    String args1 = m.group(2);
-    String args2 = m.group(3);
-    int zoneID = Integer.parseInt(m.group(4));
-
+  private static ServerInterface getServer(int zoneID, LoadBalancerInterface lbstub) {
     try {
-      if (method.equals("getTimesPlayed"))
-       return new TimesPlayedTask(args1, zoneID);
-
-     if (method.equals("getTimesPlayedByUser"))
-       return new TimesPlayedByUserTask(args1, args2, zoneID);
-
-     if (method.equals("getTopThreeMusicByUser"))
-       return new TopThreeMusicByUserTask(args1, zoneID);
-
-     if (method.equals("getTopArtistsByUserGenre"))
-       return new TopArtistsByMusicGenreTask(args1, args2, zoneID);
+      LoadBalancerResponse response = lbstub.fetchServer(zoneID);
+      ServerInterface server = response.serverStub;
+      return server;
     } catch(Exception e) {
       e.printStackTrace();
+      return null;
     }
-
-    return null;
   }
+
+
+
+
+  // private static void executeTask(Task<?> task, ServerInterface server) {
+  //
+  //   clientExecutor.submit(() -> {
+  //
+  //     try {
+  //       // Blocking
+  //       task.setTimeRequested(System.nanoTime());
+  //       Task<?> t = repository.execute(task, server);
+  //       t.setTimeFinished(System.nanoTime());
+  //
+  //       // Making sure that adding to shared list is thread safe
+  //       synchronized (tasks) {
+  //         tasks.add(t);
+  //       }
+  //
+  //     } catch(Exception e) {
+  //       e.printStackTrace();
+  //     }
+  //
+  //   });
+  // }
+
+
+  // private static Task<?> createTask(String command) {
+  //
+  //   Matcher m = parse(command);
+  //
+  //   if (!m.find())
+  //     return null;
+  //
+  //   String method = m.group(1);
+  //   String args1 = m.group(2);
+  //   String args2 = m.group(3);
+  //   int zoneID = Integer.parseInt(m.group(4));
+  //
+  //   try {
+  //     if (method.equals("getTimesPlayed"))
+  //      return new TimesPlayedTask(args1, zoneID);
+  //
+  //    if (method.equals("getTimesPlayedByUser"))
+  //      return new TimesPlayedByUserTask(args1, args2, zoneID);
+  //
+  //    if (method.equals("getTopThreeMusicByUser"))
+  //      return new TopThreeMusicByUserTask(args1, zoneID);
+  //
+  //    if (method.equals("getTopArtistsByUserGenre"))
+  //      return new TopArtistsByMusicGenreTask(args1, args2, zoneID);
+  //   } catch(Exception e) {
+  //     e.printStackTrace();
+  //   }
+  //
+  //   return null;
+  // }
+
+  // Maybe execute command instead?
+
 }

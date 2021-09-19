@@ -24,14 +24,14 @@ public class TopArtistsByMusicGenreTask extends Task<String[]> {
   }
 
   @Override
-  public Task<String[]> execute(Cache cache) {
+  public TopArtistsByMusicGenreTask execute(Cache cache) {
     // TODO: call the correct method in cache here
     return null;
   }
 
   @Override
-  public Task<String[]> execute(ServerInterface server) throws RemoteException {
-    return server.getTopArtistsByMusicGenre(this);
+  public TopArtistsByMusicGenreTask execute(ServerInterface server) throws RemoteException {
+    return server.executeQuery(this);
   }
 
   @Override
