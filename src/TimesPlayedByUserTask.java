@@ -13,6 +13,10 @@ public class TimesPlayedByUserTask extends Task<Integer> {
     this.userID = userID;
   }
 
+  public boolean hasResult() {
+    return result != 0;
+  }
+
   public String getMusicID() {
     return musicID;
   }

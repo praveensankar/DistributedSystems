@@ -16,22 +16,9 @@ public class TimesPlayedTask extends Task<Integer> {
     return musicID;
   }
 
-  // @Override
-  // public TimesPlayedTask execute(Cache cache) {
-  //   // TODO: call the correct method in cache here
-  //
-  //   int timesPlayed = cache.getTimesPlayedFromCache(this.musicID);
-  //   if(timesPlayed==0)
-  //     return null;
-  //   super.setResult(timesPlayed);
-  //   System.out.println("getTimesPlayed for "+this.getMusicID()+" is answered from client cache. result : "+timesPlayed);
-  //   return this;
-  // }
-
-  // @Override
-  // public TimesPlayedTask execute(ServerInterface server) throws RemoteException {
-  //   return server.executeQuery(this);
-  // }
+  public boolean hasResult() {
+    return result != 0;
+  }
 
   @Override
   public String toString() {
@@ -40,23 +27,4 @@ public class TimesPlayedTask extends Task<Integer> {
             + " times. " + super.toString();
   }
 
-  // public static void main(String[] args) {
-  //
-  //   try {
-  //     Task<Integer> t1 = new TimesPlayedTask("M1234", 1);
-  //     Task<Integer> t2 = new TimesPlayedByUserTask("M1234", "U111", 1);
-  //     Task<String[]> t3 = new TopThreeMusicByUserTask("U111", 1);
-  //     Task<String[]> t4 = new TopArtistsByMusicGenreTask("M1234", "rock", 1);
-  //
-  //     t1.setResult(6);
-  //     t4.setResult(new String[]{"A111", "A222", "A333"});
-  //
-  //     System.out.println(t1.toString());
-  //     System.out.println(t2.toString());
-  //     System.out.println(t3.toString());
-  //     System.out.println(t4.toString());
-  //   } catch(Exception e) {
-  //     e.printStackTrace();
-  //   }
-  // }
 }

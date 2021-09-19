@@ -1,6 +1,3 @@
-import java.rmi.RemoteException;
-import java.util.*;
-
 public class TopArtistsByMusicGenreTask extends Task<String[]> {
 
   private static final long serialVersionUID = 14L;
@@ -23,23 +20,13 @@ public class TopArtistsByMusicGenreTask extends Task<String[]> {
     return genre;
   }
 
-  // @Override
-  // public TopArtistsByMusicGenreTask execute(Cache cache) {
-  //   // TODO: call the correct method in cache here
-  //   ArrayList<String> timesPlayed = cache.getTopArtistsByUserGenreInCache(this.userID, this.genre);
-  //   if(timesPlayed.size()<3)
-  //   {
-  //     return null;
-  //   }
-  //   String[] res = timesPlayed.toArray(new String[3]);
-  //   super.setResult(res);
-  //   return this;
-  // }
+  public boolean hasResult() {
+    for (String s : result)
+      if (s != null)
+        return true;
 
-  // @Override
-  // public TopArtistsByMusicGenreTask execute(ServerInterface server) throws RemoteException {
-  //   return server.executeQuery(this);
-  // }
+    return false;
+  }
 
   @Override
   public String toString() {

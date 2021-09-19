@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.BufferedReader;
@@ -103,16 +104,20 @@ public class Server implements ServerInterface {
 
     Future<TimesPlayedTask> future = queryExecutor.submit(() -> {
 
+      System.err.println("Before cache" + task == null);
+
       // TimesPlayedTask t = null;
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      // if (cache != null) {
-      //   cache.fetchFromCache(task);
-      //   // t = cache.fetchFromCache(task);
-      // }
+      if (cache != null) {
+        cache.fetchFromCache(task);
+        // t = cache.fetchFromCache(task);
+      }
 
-      // if (task.getResult() == 0) {
+      System.err.println("After cache" + task == null);
+
+      if (!task.hasResult()) {
 
         database.executeQuery(task);
         // t = database.executeQuery(task);
@@ -120,7 +125,7 @@ public class Server implements ServerInterface {
         // update the cache
         // artist id is null for now. once it's parsed from the file then add it
         // cache.addMusicToMusicProfile(task.getMusicID(), null, count); // NULLPOINTER
-      // }
+      }
 
       // return t;
       return task;
@@ -151,20 +156,20 @@ public class Server implements ServerInterface {
 
       System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
 
-      // if (cache != null) {
-      //
-      //   cache.fetchFromCache(task);
-      //
-      // }
+      if (cache != null) {
 
-      // if (task.getResult() == 0) {
+        cache.fetchFromCache(task);
+
+      }
+
+      if (!task.hasResult()) {
 
         database.executeQuery(task);
 
         // update the cache
         // cache.addUserProfile(task.getUserID(), "N/A", task.getMusicID(), "N/A", task.getResult());
 
-      // }
+      }
 
       return task;
     });
@@ -220,8 +225,9 @@ public class Server implements ServerInterface {
         cache.fetchFromCache(task);
       }
 
-      if (task.getResult() == null) {
+      if (!task.hasResult()) {
         database.executeQuery(task);
+
         // Todo: update the cache
         // BUT ONLY IF NOT NULL!!
         // if (cache != null)

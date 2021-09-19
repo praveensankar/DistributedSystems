@@ -32,6 +32,8 @@ public abstract class Task<T> implements Serializable {
     return result;
   }
 
+  abstract public boolean hasResult();
+
   public void setServerID(int id) {
     serverID = id;
   }

@@ -1,6 +1,3 @@
-import java.rmi.RemoteException;
-
-
 public class TopThreeMusicByUserTask extends Task<String[]> {
 
   private static final long serialVersionUID = 13L;
@@ -17,16 +14,13 @@ public class TopThreeMusicByUserTask extends Task<String[]> {
     return userID;
   }
 
-  // @Override
-  // public TopThreeMusicByUserTask execute(Cache cache) {
-  //   // TODO: call the correct method in cache here
-  //   return null;
-  // }
-  //
-  // @Override
-  // public TopThreeMusicByUserTask execute(ServerInterface server) throws RemoteException {
-  //   return server.executeQuery(this);
-  // }
+  public boolean hasResult() {
+    for (String s : result)
+      if (s != null)
+        return true;
+
+    return false;
+  }
 
   @Override
   public String toString() {
