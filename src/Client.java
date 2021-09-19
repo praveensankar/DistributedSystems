@@ -56,6 +56,41 @@ public class Client {
     System.out.println("..All requests have finished!\n");
     System.out.println("Writing to file...");
 
+    //0: Counter, 1: TurnoverTime, 2: ExecutionTime, 3: WaitingTime
+    int[] timesPlayed = {0,0,0,0};
+    int[] timesPlayedByUser = {0,0,0,0};
+    int[] topArtistsByMusicGenre = {0,0,0,0};
+    int[] topThreeMusicByUser = {0,0,0,0};
+    try {
+
+      for(Task<?> t : tasks){
+        if(t instanceof TimesPlayedTask){
+          timesPlayed[0] += 1;
+          timesPlayed[1] += t.getTurnaroundTime();
+          timesPlayed[2] += t.getExecutionTime();
+          timesPlayed[3] += t.getWaitTime();
+        } else if (t instanceof TimesPlayedByUserTask){
+          timesPlayedByUser[0] += 1;
+          timesPlayedByUser[1] += t.getTurnaroundTime();
+          timesPlayedByUser[2] += t.getExecutionTime();
+          timesPlayedByUser[3] += t.getWaitTime();
+        } else if (t instanceof TopArtistsByMusicGenreTask){
+          topArtistsByMusicGenre[0] += 1;
+          topArtistsByMusicGenre[1] += t.getTurnaroundTime();
+          topArtistsByMusicGenre[2] += t.getExecutionTime();
+          topArtistsByMusicGenre[3] += t.getWaitTime();
+        } else if (t instanceof TopThreeMusicByUserTask) {
+          topThreeMusicByUser[0] += 1;
+          topThreeMusicByUser[1] += t.getTurnaroundTime();
+          topThreeMusicByUser[2] += t.getExecutionTime();
+          topThreeMusicByUser[3] += t.getWaitTime();
+        }
+      }
+    } catch ( Exception e){
+      e.printStackTrace();
+      System.out.println("Unable to calculate average!");
+    }
+
     try {
 
       FileWriter writer = new FileWriter(outputFile);
@@ -63,6 +98,10 @@ public class Client {
       for (Task<?> t : tasks)
         writer.write(t.toString() + "\n");
 
+      writer.write("Average times for getTimesPlayed(Turnover: " + (timesPlayed[1] / timesPlayed[0]) + "ms, Execution: " + (timesPlayed[2] / timesPlayed[0]) + "ms, Waiting: " + (timesPlayed[3] / timesPlayed[0]) + "ms)" + "\n");
+      writer.write("Average times for getTimesPlayedByUser(Turnover: " + (timesPlayedByUser[1] / timesPlayedByUser[0]) + "ms, Execution: " + (timesPlayedByUser[2] / timesPlayedByUser[0]) + "ms, Waiting: " + (timesPlayedByUser[3] / timesPlayedByUser[0]) + "ms)" + "\n");
+      writer.write("Average times for topArtistsByMusicGenre(Turnover: " + (topArtistsByMusicGenre[1] / topArtistsByMusicGenre[0]) + "ms, Execution: " + (topArtistsByMusicGenre[2] / topArtistsByMusicGenre[0]) + "ms, Waiting: " + (topArtistsByMusicGenre[3] / topArtistsByMusicGenre[0]) + "ms)" + "\n");
+      writer.write("Average times for topThreeMusicByUser(Turnover: " + (topThreeMusicByUser[1] / topThreeMusicByUser[0]) + "ms, Execution: " + (topThreeMusicByUser[2] / topThreeMusicByUser[0]) + "ms, Waiting: " + (topThreeMusicByUser[3] / topThreeMusicByUser[0]) + "ms)" + "\n");
       writer.close();
 
     } catch(Exception e) {
