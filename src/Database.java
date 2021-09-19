@@ -202,28 +202,46 @@ class Database {
     return null;
   }
 
-  public UserProfile getPersonProfile(String ID) {
+  public UserProfile getUserProfile(String ID, String musicId) {
 
-    // try {
-    //
-    //   BufferedReader br = newReader();
-    //   String line, delimiter = ",";
-    //
-    //   while ((line = br.readLine()) != null) {
-    //     String[] record = line.split(delimiter);
-    //
-    //     if (record[userIndex].equals(personID)) {
-    //       return new MusicProfile(musicID, record[1]);
-    //     }
-    //   }
-    //
-    //   br.close();
-    //
-    // } catch(Exception e) {
-    //   e.printStackTrace();
-    // }
+    UserProfile userProfile = new UserProfile(ID);
+    userProfile.userId=ID;
+    HashMap<MusicProfile, Integer> musicProfileMap = new HashMap<MusicProfile, Integer>(10);
+    int count = 0;
 
-    return null;
+
+    try {
+
+      BufferedReader br = newReader();
+      String line, delimiter = ",";
+
+      String genre = "";
+      String artistId = "";
+      while ((line = br.readLine()) != null) {
+
+        String[] record = line.split(delimiter);
+
+        boolean flag = false;
+
+        if (record[musicIndex].equals(musicId) &&
+                record[userIndex].equals(ID)) {
+           genre = record[genreIndex];
+           artistId = record[artistIndex];
+          count += Integer.parseInt(record[countIndex]);
+        }
+      }
+      MusicProfile musicprofile = new MusicProfile(musicId, artistId);
+      musicProfileMap.put(musicprofile, count);
+      userProfile.musicProfileMap.put(genre, musicProfileMap);
+
+
+      br.close();
+
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+
+    return userProfile;
   }
 
   // Performing a simple insertion sort for each entry

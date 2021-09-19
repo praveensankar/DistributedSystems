@@ -19,16 +19,16 @@ class ServerSimulator {
           for(int i=0; i<5; i++) {
               server[i] = new Server(i+1);
 
-              // sets the cache if -c flag is passed
-              // if(args.length>0) {
-              //     if(args[0].equals("-c"))
-              //     {
-              //     server[i].setCache(new Cache(100));
-              //     System.out.println("cache is added to the server : " +(i+1) );
-              //     }
-              // }
-              //
-              // // disables the cache
+               // sets the cache if -c flag is passed
+               if(args.length>0) {
+                   if(args[0].equals("-c"))
+                   {
+                   server[i].setCache(new Cache(100));
+                   System.out.println("cache is added to the server : " +(i+1) );
+                   }
+               }
+
+               // disables the cache
               // server[i].disableCache();
 
               stubs[i] = (ServerInterface) UnicastRemoteObject.exportObject(server[i], 0);

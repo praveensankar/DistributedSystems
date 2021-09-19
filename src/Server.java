@@ -107,22 +107,26 @@ public class Server implements ServerInterface {
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      // if (cache != null) {
-      //   cache.fetchFromCache(task);
-      //   // t = cache.fetchFromCache(task);
-      // }
-
-      // if (task.getResult() == 0) {
-
+      if (cache != null) {
+        cache.fetchFromCache(task);
+        int count = (int)task.getResult();
+        if(count !=0)
+        {
+          System.out.println("server : "+ id + "\t getTimesPlayed for "+task.getMusicID()+" is answered from cache. result : "+count);
+          return task;
+        }
+        if(count==0)
+        {
+          // cache didn't have the data so fetch it from server and update cache
+          database.executeQuery(task);
+          String artistId = database.getMusicProfile(task.getMusicID()).artistId;
+          cache.addMusicToMusicProfile(task.getMusicID(), artistId, (int)task.getResult());
+        }
+      }
+      if(cache == null) {
         database.executeQuery(task);
-        // t = database.executeQuery(task);
-        //
-        // update the cache
-        // artist id is null for now. once it's parsed from the file then add it
-        // cache.addMusicToMusicProfile(task.getMusicID(), null, count); // NULLPOINTER
-      // }
+      }
 
-      // return t;
       return task;
 
     });
@@ -149,22 +153,41 @@ public class Server implements ServerInterface {
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      System.out.println("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
+      System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
 
-      // if (cache != null) {
-      //
-      //   cache.fetchFromCache(task);
-      //
-      // }
-
-      // if (task.getResult() == 0) {
-
+      if (cache != null) {
+        cache.fetchFromCache(task);
+        int count = (int)task.getResult();
+        if(count !=0)
+        {
+          System.out.println(" It is answered from cache. result : "+count);
+          return task;
+        }
+        if(count==0)
+        {
+          // cache didn't have the data so fetch it from server and update cache
+          database.executeQuery(task);
+          UserProfile userProfile = database.getUserProfile(task.getUserID(), task.getMusicID());
+          String userId = task.getUserID();
+          String genre  = userProfile.getGenres().iterator().next();
+          String musicId = " ";
+          String artistId = "";
+          int numberOfTimesPlayed = 0;
+          HashMap<MusicProfile, Integer> musicProfileMap = userProfile.musicProfileMap.get(genre);
+          for (MusicProfile mp: musicProfileMap.keySet())
+          {
+            musicId = mp.musicId;
+            artistId = mp.artistId;
+            numberOfTimesPlayed = musicProfileMap.get(mp);
+            break;
+          }
+          cache.addUserProfile(userId,genre,musicId,artistId, numberOfTimesPlayed);
+        }
+      }
+      if(cache == null) {
         database.executeQuery(task);
+      }
 
-        // update the cache
-        // cache.addUserProfile(task.getUserID(), "N/A", task.getMusicID(), "N/A", task.getResult());
-
-      // }
 
       return task;
     });
@@ -216,8 +239,14 @@ public class Server implements ServerInterface {
       //         +"is called" );
 
       if (cache != null) {
-
-        cache.fetchFromCache(task);
+         cache.fetchFromCache(task);
+         String[] top3 = (String[]) task.getResult();
+        if (top3[0]!=null)
+          System.out.println("\t result : "+ top3[0]+"\t"+top3[1]+"\t"+top3[2]);
+        else {
+          System.out.println(" \tcache didn't have it");
+          database.executeQuery(task);
+        }
       }
 
       if (cache == null) {
@@ -227,7 +256,7 @@ public class Server implements ServerInterface {
         // if (cache != null)
         // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
       }
-
+      System.out.println("top 3 artists : "+task.getResult()[0]+ "\t"+ task.getResult()[1] + "\t" + task.getResult()[2]);
       return task;
 
     });

@@ -4,8 +4,8 @@ public class MusicProfile{
     To test the code:
     MusicProfile profile1 = new MusicProfile("music1", "artist1");
      */
-    String musicId;
-    String artistId;
+    public String musicId;
+    public String artistId;
 
     public MusicProfile(String musicId, String artistId) {
         this.musicId = musicId;
