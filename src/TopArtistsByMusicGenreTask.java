@@ -27,9 +27,12 @@ public class TopArtistsByMusicGenreTask extends Task<String[]> {
   public Task<String[]> execute(Cache cache) {
     // TODO: call the correct method in cache here
     ArrayList<String> timesPlayed = cache.getTopArtistsByUserGenreInCache(this.userID, this.genre);
-    if(timesPlayed==null)
+    if(timesPlayed.size()<3)
+    {
       return null;
-    super.setResult(timesPlayed.toArray(new String[0]));
+    }
+    String[] res = timesPlayed.toArray(new String[3]);
+    super.setResult(res);
     return this;
   }
 
