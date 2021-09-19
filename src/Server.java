@@ -114,7 +114,7 @@ public class Server implements ServerInterface {
           count =  this.cache.getTimesPlayedFromCache(task.getMusicID());
           if(count!=0)
           {
-            System.out.println("getTimesPlayed for "+task.getMusicID()+" is answered from cache. result : "+count);
+            System.out.println("server : "+this.serverId+"\t getTimesPlayed for "+task.getMusicID()+" is answered from cache. result : "+count);
           }
         }
         if(cache == null || count == 0)
@@ -182,7 +182,7 @@ public class Server implements ServerInterface {
 
       int count = 0;
       try {
-        System.out.print("getTimesPlayed by user "+t.getUserID()+" , music id : "+ t.getMusicID()
+        System.out.print("server : "+this.serverId+"\t getTimesPlayed by user "+t.getUserID()+" , music id : "+ t.getMusicID()
                 +"is called" );
         if(cache!=null)
         {
@@ -317,7 +317,7 @@ public class Server implements ServerInterface {
     int count[] = new int[3];
 
     try {
-      System.out.print("getTopArtistsByMusicGenre by user "+task.getUserID()+" , genre : "+ task.getGenre()
+      System.out.print("server : "+this.serverId+"\t getTopArtistsByMusicGenre by user "+task.getUserID()+" , genre : "+ task.getGenre()
               +"is called" );
       if(cache!=null)
       {

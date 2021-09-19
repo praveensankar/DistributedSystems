@@ -38,21 +38,35 @@ public class Repository {
       // if cache is added then query is sent to cache first
       // if cache has result then it's returned
       // or else query is sent to server and the result is cached in the client cache
-      System.out.println("query is checked against client cache");
+
+      String queryName="";
+      if(t instanceof TimesPlayedTask)
+        queryName = "getTimesPlayed";
+      if (t instanceof TimesPlayedByUserTask) {
+        queryName = "getTimesPlayedByUser";
+      }
+      if(t instanceof TopArtistsByMusicGenreTask) {
+        queryName = "getTopArtistsByMusicGenre";
+      }
+
+      if(t instanceof TopArtistsByMusicGenreTask) {
+      queryName = "getTopThreeMusicByUser";
+      }
+      System.out.print(queryName+" is checked against client cache. ");
       task = t.execute(cache);
       if(task == null)
       {
         System.out.println("client cache didn't have it. so query is sent to server");
         task = t.execute(server);
-        if (task instanceof TimesPlayedTask) {
+        if (t instanceof TimesPlayedTask) {
           TimesPlayedTask taskMap = (TimesPlayedTask) task;
           this.cache.addMusicToMusicProfile(taskMap.getMusicID(), null, (int)task.getResult());
           System.out.println("query is added to client cache");
         }
-        if (task instanceof TimesPlayedByUserTask) {
+        if (t instanceof TimesPlayedByUserTask) {
 
         }
-        if(task instanceof TopArtistsByMusicGenreTask)
+        if(t instanceof TopArtistsByMusicGenreTask)
         {
           TopArtistsByMusicGenreTask taskMap = (TopArtistsByMusicGenreTask) task;
          // this.cache.addUserProfile(taskMap.getMusicID(), taskMap.getGenre(), (int)task.getResult());
