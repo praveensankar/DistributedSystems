@@ -108,10 +108,9 @@ public class Server implements ServerInterface {
       try {
 
         if (cache != null) {
-          count =  this.cache.getTimesPlayedFromCache(task.getMusicID());
-          if(count!=0)
-          {
-            System.out.println("getTimesPlayed for "+task.getMusicID()+" is answered from cache. result : "+count);
+          count =  cache.getTimesPlayedFromCache(task.getMusicID());
+          if(count!=0) {
+            System.out.println("server : "+ id + "\t getTimesPlayed for "+task.getMusicID()+" is answered from cache. result : "+count);
           }
         }
 
