@@ -17,6 +17,7 @@ public class Server implements ServerInterface {
   private ThreadPoolExecutor waitListExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
   private ThreadPoolExecutor queryExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 
+  private Cache cache;
   // How should I shut them down? Maybe when client is finished
   private int id;
 
@@ -28,9 +29,22 @@ public class Server implements ServerInterface {
     return this.id;
   }
 
-  /**
-   * Local methods
-   */
+  // this setter method is used to enable cache
+  // parameters:
+  // cache object
+  // set this in the server simulator if needed
+  public void setCache(Cache cache) {
+    this.cache = cache;
+  }
+
+  // disables the cache
+  public void disableCache() {
+    this.setCache(null);
+  }
+
+  public Cache getCache() {
+    return this.cache;
+  }
 
   public void shutDownServer() {
     System.out.println("Shutting down pools");
@@ -93,16 +107,32 @@ public class Server implements ServerInterface {
 
       try {
 
-        BufferedReader br = newReader();
-        String line, delimiter = ",";
-
-        while ((line = br.readLine()) != null) {
-          String[] record = line.split(delimiter);
-
-          if (record[0].equals(task.getMusicID())) {
-            // return Integer.parseInt(record[record.length - 1]);
-            count += Integer.parseInt(record[record.length - 1]);
+        if (cache != null) {
+          count =  this.cache.getTimesPlayedFromCache(task.getMusicID());
+          if(count!=0)
+          {
+            System.out.println("getTimesPlayed for "+task.getMusicID()+" is answered from cache. result : "+count);
           }
+        }
+
+        if(cache == null || count == 0) {
+          // if the query is not in cache then read from the data set
+          BufferedReader br = newReader();
+          String line, delimiter = ",";
+
+          while ((line = br.readLine()) != null) {
+            String[] record = line.split(delimiter);
+
+            // maybe could be replaced with an abstract class and functions to decrease
+            // code duplication
+            if (record[0].equals(task.getMusicID())) {
+              // return Integer.parseInt(record[record.length - 1]);
+              count += Integer.parseInt(record[record.length - 1]);
+            }
+          }
+          // update the cache
+          // artist id is null for now. once it's parsed from the file then add it
+          this.cache.addMusicToMusicProfile(task.getMusicID(), null, count);
         }
 
       } catch(Exception e) {
@@ -139,18 +169,36 @@ public class Server implements ServerInterface {
       int count = 0;
 
       try {
-        BufferedReader br = newReader();
-        String line, delimiter = ",";
+        System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
 
-        while ((line = br.readLine()) != null) {
-          String[] record = line.split(delimiter);
+        if (cache != null) {
+            count =  this.cache.getTimesPlayedByUserFromCache(task.getMusicID(), task.getUserID());
 
-          // if (record[0].equals(musicID) &&
-          if (record[0].equals(task.getMusicID()) &&
-              // record[record.length - 2].equals(userID)) {
-              record[record.length - 2].equals(task.getUserID())) {
-            // return Integer.parseInt(record[record.length - 1]);
-            count += Integer.parseInt(record[record.length - 1]);
+            if(count!=0)
+              System.out.println("\t result : "+ count);
+            else
+              System.out.println(" \tcache didn't have it");
+        }
+
+        if (cache == null || count == 0) {
+
+          BufferedReader br = newReader();
+          String line, delimiter = ",";
+
+          while ((line = br.readLine()) != null) {
+            String[] record = line.split(delimiter);
+            String genre = record[record.length - 3];
+            String artistId = record[record.length - 4];
+            // if (record[0].equals(musicID) &&
+            if (record[0].equals(task.getMusicID()) &&
+                // record[record.length - 2].equals(userID)) {
+                record[record.length - 2].equals(task.getUserID())) {
+              // return Integer.parseInt(record[record.length - 1]);
+              count += Integer.parseInt(record[record.length - 1]);
+
+              // update the cache
+              this.cache.addUserProfile(task.getUserID(),genre, task.getMusicID(), artistId, count);
+            }
           }
         }
       } catch(Exception e) {
@@ -223,8 +271,8 @@ public class Server implements ServerInterface {
       e.printStackTrace();
       return null;
     }
-
   }
+
 
   @Override
   public TopArtistsByMusicGenreTask executeQuery(TopArtistsByMusicGenreTask task) {
@@ -232,46 +280,60 @@ public class Server implements ServerInterface {
     simulateLatency(task);
 
     Future<TopArtistsByMusicGenreTask> future = queryExecutor.submit(() -> {
-
-      task.setTimeStarted(System.currentTimeMillis());
-
       String[] top3 = new String[3];
       int count[] = new int[3];
 
       try {
-        BufferedReader br = newReader();
-        String line, delimiter = ",";
+        System.out.print("getTopArtistsByMusicGenre by user "+task.getUserID()+" , genre : "+ task.getGenre()
+                +"is called" );
 
-        while ((line = br.readLine()) != null) {
-          String[] record = line.split(delimiter);
-          String user = record[record.length - 2];
-          String genre = record[record.length - 3];
+        if (cache != null) {
+          ArrayList<String> topArtists =  this.cache.getTopArtistsByUserGenreInCache(task.getUserID(),task.getGenre());
+          top3 = topArtists.toArray(new String[3]);
 
-          if (user.equals(task.getUserID()) &&
-              genre.equals(task.getGenre())) {
-            // TODO
-            // run through n * n.
-            // Do this do save space
-          }
+          if (top3 != null)
+            System.out.println("\t result : "+ count);
+          else
+            System.out.println(" \tcache didn't have it");
         }
 
-      } catch(Exception e) {
+        if (top3 == null) {
+          BufferedReader br = newReader();
+          String line, delimiter = ",";
+
+          while ((line = br.readLine()) != null) {
+            String[] record = line.split(delimiter);
+            String user = record[record.length - 2];
+            String genre = record[record.length - 3];
+
+            if (user.equals(task.getUserID()) &&
+                    genre.equals(task.getGenre())) {
+              // TODO
+              // run through n * n.
+              // Do this do save space
+
+              // Todo: update the cache
+              // this.cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
+            }
+          }
+        }
+      } catch (Exception e) {
         e.printStackTrace();
       }
 
       task.setResult(top3);
 
       return task;
+
     });
 
     try {
       return future.get();
     } catch(InterruptedException | ExecutionException e) {
-      e.printStackTrace();
       return null;
     }
-
   }
+
 
   private void simulateLatency(Task<?> task) {
     if (task.sameZone())

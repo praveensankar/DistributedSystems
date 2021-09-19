@@ -19,7 +19,13 @@ public class TimesPlayedTask extends Task<Integer> {
   @Override
   public TimesPlayedTask execute(Cache cache) {
     // TODO: call the correct method in cache here
-    return null;
+
+    int timesPlayed = cache.getTimesPlayedFromCache(this.musicID);
+    if(timesPlayed==0)
+      return null;
+    super.setResult(timesPlayed);
+    System.out.println("getTimesPlayed for "+this.getMusicID()+" is answered from client cache. result : "+timesPlayed);
+    return this;
   }
 
   @Override

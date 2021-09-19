@@ -27,6 +27,7 @@ public abstract class Task<T> implements Serializable {
   public void setResult(T r) {
     result = r;
   }
+  public T getResult() {return result;}
 
   public void setServerID(int id) {
     serverID = id;

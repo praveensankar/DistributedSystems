@@ -33,7 +33,10 @@ public class Client {
 	static List<Task<?>> tasks = new ArrayList<>();
 
   // Will run the naive implementation
-  static ClientRepository repository = new ClientRepository(null);
+//  static Repository repository = new Repository(null);
+
+  static Cache cache = new Cache(250);
+  static ClientRepository repository = new ClientRepository(cache);
 
   public static void main(String[] args) {
 
@@ -88,19 +91,60 @@ public class Client {
 
 
   private static void writeToFile(String outputFile) {
+
+    //0: Counter, 1: TurnoverTime, 2: ExecutionTime, 3: WaitingTime
+    int[] timesPlayed = {0,0,0,0};
+    int[] timesPlayedByUser = {0,0,0,0};
+    int[] topArtistsByMusicGenre = {0,0,0,0};
+    int[] topThreeMusicByUser = {0,0,0,0};
+    try {
+
+      for(Task<?> t : tasks){
+        if(t instanceof TimesPlayedTask){
+          timesPlayed[0] += 1;
+          timesPlayed[1] += t.getTurnaroundTime();
+          timesPlayed[2] += t.getExecutionTime();
+          timesPlayed[3] += t.getWaitTime();
+        } else if (t instanceof TimesPlayedByUserTask){
+          timesPlayedByUser[0] += 1;
+          timesPlayedByUser[1] += t.getTurnaroundTime();
+          timesPlayedByUser[2] += t.getExecutionTime();
+          timesPlayedByUser[3] += t.getWaitTime();
+        } else if (t instanceof TopArtistsByMusicGenreTask){
+          topArtistsByMusicGenre[0] += 1;
+          topArtistsByMusicGenre[1] += t.getTurnaroundTime();
+          topArtistsByMusicGenre[2] += t.getExecutionTime();
+          topArtistsByMusicGenre[3] += t.getWaitTime();
+        } else if (t instanceof TopThreeMusicByUserTask) {
+          topThreeMusicByUser[0] += 1;
+          topThreeMusicByUser[1] += t.getTurnaroundTime();
+          topThreeMusicByUser[2] += t.getExecutionTime();
+          topThreeMusicByUser[3] += t.getWaitTime();
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Unable to calculate average!");
+    }
+
     try {
 
       FileWriter writer = new FileWriter(outputFile);
 
-      for (Task<?> t : tasks)
+      for (Task<?> t : tasks) {
         writer.write(t.toString() + "\n");
+      }
 
+      writer.write("Average times for getTimesPlayed(Turnover: " + (timesPlayed[1] / timesPlayed[0]) + "ms, Execution: " + (timesPlayed[2] / timesPlayed[0]) + "ms, Waiting: " + (timesPlayed[3] / timesPlayed[0]) + "ms)" + "\n");
+      writer.write("Average times for getTimesPlayedByUser(Turnover: " + (timesPlayedByUser[1] / timesPlayedByUser[0]) + "ms, Execution: " + (timesPlayedByUser[2] / timesPlayedByUser[0]) + "ms, Waiting: " + (timesPlayedByUser[3] / timesPlayedByUser[0]) + "ms)" + "\n");
+      writer.write("Average times for topArtistsByMusicGenre(Turnover: " + (topArtistsByMusicGenre[1] / topArtistsByMusicGenre[0]) + "ms, Execution: " + (topArtistsByMusicGenre[2] / topArtistsByMusicGenre[0]) + "ms, Waiting: " + (topArtistsByMusicGenre[3] / topArtistsByMusicGenre[0]) + "ms)" + "\n");
+      writer.write("Average times for topThreeMusicByUser(Turnover: " + (topThreeMusicByUser[1] / topThreeMusicByUser[0]) + "ms, Execution: " + (topThreeMusicByUser[2] / topThreeMusicByUser[0]) + "ms, Waiting: " + (topThreeMusicByUser[3] / topThreeMusicByUser[0]) + "ms)" + "\n");
       writer.close();
 
     } catch(Exception e) {
       e.printStackTrace();
       System.out.println("...Unable to write to file!");
-      return;
+      System.exit(-1);
     }
   }
 
@@ -180,64 +224,4 @@ public class Client {
       return null;
     }
   }
-
-
-
-
-  // private static void executeTask(Task<?> task, ServerInterface server) {
-  //
-  //   clientExecutor.submit(() -> {
-  //
-  //     try {
-  //       // Blocking
-  //       task.setTimeRequested(System.nanoTime());
-  //       Task<?> t = repository.execute(task, server);
-  //       t.setTimeFinished(System.nanoTime());
-  //
-  //       // Making sure that adding to shared list is thread safe
-  //       synchronized (tasks) {
-  //         tasks.add(t);
-  //       }
-  //
-  //     } catch(Exception e) {
-  //       e.printStackTrace();
-  //     }
-  //
-  //   });
-  // }
-
-
-  // private static Task<?> createTask(String command) {
-  //
-  //   Matcher m = parse(command);
-  //
-  //   if (!m.find())
-  //     return null;
-  //
-  //   String method = m.group(1);
-  //   String args1 = m.group(2);
-  //   String args2 = m.group(3);
-  //   int zoneID = Integer.parseInt(m.group(4));
-  //
-  //   try {
-  //     if (method.equals("getTimesPlayed"))
-  //      return new TimesPlayedTask(args1, zoneID);
-  //
-  //    if (method.equals("getTimesPlayedByUser"))
-  //      return new TimesPlayedByUserTask(args1, args2, zoneID);
-  //
-  //    if (method.equals("getTopThreeMusicByUser"))
-  //      return new TopThreeMusicByUserTask(args1, zoneID);
-  //
-  //    if (method.equals("getTopArtistsByUserGenre"))
-  //      return new TopArtistsByMusicGenreTask(args1, args2, zoneID);
-  //   } catch(Exception e) {
-  //     e.printStackTrace();
-  //   }
-  //
-  //   return null;
-  // }
-
-  // Maybe execute command instead?
-
 }

@@ -11,8 +11,6 @@ public class ClientRepository {
 
   Cache cache;
 
-  // This should use repository interface instead
-
   // Send in null for naive implementation
   public ClientRepository(Cache cache) {
     this.cache = cache;
@@ -96,39 +94,89 @@ public class ClientRepository {
   //   }
   //
   // }
-
-  // For this to work I assume that cache is returning null when not found.
+  //
   public Task<?> execute(Task<?> t, ServerInterface server) {
+    Task<?> task = null;
+
     try {
-      Task<?> task = null;
-
       if (cache != null) {
-        task = null; // for now
+        //checks whether cache is added or not
+        // if cache is added then query is sent to cache first
+        // if cache has result then it's returned
+        // or else query is sent to server and the result is cached in the client cache
+        System.out.println("query is checked against client cache");
+        task = t.execute(cache);
+        if(task == null) {
+          System.out.println("client cache didn't have it. so query is sent to server");
+          task = t.execute(server);
 
-        // Don't do this:
-        // task = t.execute(cache);
+          if (task instanceof TimesPlayedTask) {
+            TimesPlayedTask taskMap = (TimesPlayedTask) task;
+            this.cache.addMusicToMusicProfile(taskMap.getMusicID(), null, (int)task.getResult());
+            System.out.println("query is added to client cache");
+          }
 
-        // Do this:
-        // same can be done with the cache here, just make sure to overload the methods:
-        // task = cache.fetchStoredData(t); // <- call every method for fetchStoredData for example
+          if (task instanceof TimesPlayedByUserTask) {
+
+          }
+
+          if(task instanceof TopArtistsByMusicGenreTask) {
+            TopArtistsByMusicGenreTask taskMap = (TopArtistsByMusicGenreTask) task;
+           // this.cache.addUserProfile(taskMap.getMusicID(), taskMap.getGenre(), (int)task.getResult());
+            System.out.println("query is added to client cache");
+          }
+        } else {
+          System.out.println("query is answered from client cache");
+        }
+      } else {
+        task=  t.execute(server);
       }
-
-      // If client communicates with server repository instead
-      if (task == null) {
-        // task = server.executeQuery(t);
-        task = t.execute(server); // bad practicve I think. Not good separatioin of concern
-      }
-
-      return task;
     } catch(Exception e) {
       return null;
     }
 
+
+    return task;
+
   }
 
+  // For this to work I assume that cache is returning null when not found.
+  // public Task<?> execute(Task<?> t, ServerInterface server) {
+  //   try {
+  //     Task<?> task = null;
+  //
+  //     if (cache != null) {
+  //       task = null; // for now
+  //
+  //       // Don't do this:
+  //       // task = t.execute(cache);
+  //
+  //       // Do this:
+  //       // same can be done with the cache here, just make sure to overload the methods:
+  //       // task = cache.fetchStoredData(t); // <- call every method for fetchStoredData for example
+  //     }
+  //
+  //     // If client communicates with server repository instead
+  //     if (task == null) {
+  //       // task = server.executeQuery(t);
+  //       task = t.execute(server); // bad practicve I think. Not good separatioin of concern
+  //     }
+  //
+  //     return task;
+  //   } catch(Exception e) {
+  //     return null;
+  //   }
+  //
+  // }
 
 
-  // // For this to work I assume that cache is returning null when not found.
+
+  /*
+
+  TO DO: Implement it like this instead:
+
+
+   */
   // public TimesPlayedTask execute(TimesPlayedTask t, ServerInterface server) throws RemoteException {
   //   TimesPlayedTask task = null;
   //

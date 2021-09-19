@@ -189,7 +189,7 @@ public class LoadBalancer implements LoadBalancerInterface {
             }
             int numberOfRequestsInTheWaitingList = this.getServerWaitingListFromCache(serverId);
             System.out.println("client zone id : "+zoneId+"\t server zone id : "+serverId+
-                    "number of requests sent : " +
+                    "\t number of requests sent : " +
                     numberofRequestsSent + "\t waiting list : "+ numberOfRequestsInTheWaitingList);
 
             return constructResponse(stub, serverId, zoneId);
@@ -213,7 +213,7 @@ public class LoadBalancer implements LoadBalancerInterface {
         {
             communicationDelay = 170;
         }
-        System.out.println("communication delay : " + communicationDelay);
+      //  System.out.println("communication delay : " + communicationDelay);
         LoadBalancerResponse response = new LoadBalancerResponse(communicationDelay, stub);
         return response;
     }
