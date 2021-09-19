@@ -149,7 +149,7 @@ public class Server implements ServerInterface {
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
+      System.out.println("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
 
       // if (cache != null) {
       //
@@ -220,7 +220,7 @@ public class Server implements ServerInterface {
         cache.fetchFromCache(task);
       }
 
-      if (task.getResult() == null) {
+      if (cache == null) {
         database.executeQuery(task);
         // Todo: update the cache
         // BUT ONLY IF NOT NULL!!
