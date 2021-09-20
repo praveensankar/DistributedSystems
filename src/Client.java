@@ -70,8 +70,12 @@ public class Client {
         outputFile += "server_cache.txt";
         repository = new ClientRepository(null);
 
-      } else if (args[0].equals("-t")) {
+      }else if (args[0].equals("-c")) {
 
+        inputFile += "naive_input.txt";
+        outputFile += "client_cache.txt";
+        repository = new ClientRepository(new Cache(250));
+      }  else if (args[0].equals("-t")) {
         inputFile += "dummy_input.txt";
         outputFile += "dummy_output.txt";
         repository = new ClientRepository(new Cache(250));
