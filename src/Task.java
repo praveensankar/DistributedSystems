@@ -1,4 +1,3 @@
-import java.rmi.RemoteException;
 import java.io.Serializable;
 
 // An object must be serializable for it to be sent over RMI.
@@ -55,19 +54,16 @@ public abstract class Task<T> implements Serializable {
   }
 
   public double getWaitTime() {
-    return (timeStarted - timeRequested); // / 1000000.0;
+    return (timeStarted - timeRequested);
   }
 
   public double getTurnaroundTime() {
-    return (timeFinished - timeRequested); // / 1000000.0;
+    return (timeFinished - timeRequested);
   }
 
   public double getExecutionTime() {
-    return (timeFinished - timeStarted); // / 1000000.0;
+    return (timeFinished - timeStarted);
   }
-
-  // public abstract Task<T> execute(Cache cache);
-  // public abstract Task<T> execute(ServerInterface server) throws RemoteException;
 
   @Override
   public String toString() {

@@ -149,9 +149,6 @@ class Database {
 
         if (user.equals(task.getUserID()) && genre.equals(task.getGenre())) {
 
-          // Calculating the number of artists
-          int numOfArtists = (record.length % 5) + 1;
-
           // Getting the count of listens
           int timesPlayed = Integer.parseInt(record[countIndex]);
           String artistID = record[artistIndex];
@@ -202,7 +199,7 @@ class Database {
     return null;
   }
 
-  public UserProfile getPersonProfile(String ID) {
+  public UserProfile getUserProfile(String userID) {
 
     // try {
     //

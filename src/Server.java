@@ -9,16 +9,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ExecutionException;
 
-// I wonder if it is best to return a task class here?
-
 // According to stack overflow, submit() is thread safe
 
-// TODO: Use an alternative to System.nanoTime() as it doesn't work across VMs
 public class Server implements ServerInterface {
 
   private ThreadPoolExecutor waitListExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
   private ThreadPoolExecutor queryExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
-
 
   private Cache cache;
   private Database database;
@@ -32,7 +28,7 @@ public class Server implements ServerInterface {
   }
 
   public int getID() {
-    return this.id;
+    return id;
   }
 
   // this setter method is used to enable cache
@@ -40,23 +36,23 @@ public class Server implements ServerInterface {
   // cache object
   // set this in the server simulator if needed
   public void setCache(Cache cache) {
-    this.cache = cache;
+    cache = cache;
   }
 
   // disables the cache
   public void disableCache() {
-    this.setCache(null);
+    setCache(null);
   }
 
   public Cache getCache() {
-    return this.cache;
+    return cache;
   }
 
-  public void shutDownServer() {
-    System.out.println("Shutting down pools");
-    waitListExecutor.shutdownNow();
-    queryExecutor.shutdownNow();
-  }
+  // public void shutDownServer() {
+  //   System.out.println("Shutting down pools");
+  //   waitListExecutor.shutdownNow();
+  //   queryExecutor.shutdownNow();
+  // }
 
 
   /**
@@ -101,29 +97,22 @@ public class Server implements ServerInterface {
 
     simulateLatency(task);
 
-
     Future<TimesPlayedTask> future = queryExecutor.submit(() -> {
 
-      // TimesPlayedTask t = null;
-      // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
       if (cache != null) {
         cache.fetchFromCache(task);
-        // t = cache.fetchFromCache(task);
       }
 
       if (!task.hasResult()) {
-
         database.executeQuery(task);
-        // t = database.executeQuery(task);
-        //
-        // update the cache
-        // artist id is null for now. once it's parsed from the file then add it
-        // cache.addMusicToMusicProfile(task.getMusicID(), null, count); // NULLPOINTER
+
+        // cache didn't have the data so fetch it from server and update cache
+        // String artistId = database.getMusicProfile(task.getMusicID()).artistId;
+        // cache.addMusicToMusicProfile(task.getMusicID(), artistId, (int)task.getResult());
       }
 
-      // return t;
       return task;
 
     });
@@ -150,21 +139,30 @@ public class Server implements ServerInterface {
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      // System.out.println("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
-
       if (cache != null) {
-
         cache.fetchFromCache(task);
-
       }
 
       if (!task.hasResult()) {
 
+        // cache didn't have the data so fetch it from server and update cache
         database.executeQuery(task);
 
-        // update the cache
-        // cache.addUserProfile(task.getUserID(), "N/A", task.getMusicID(), "N/A", task.getResult());
-
+        // UserProfile userProfile = database.getUserProfile(task.getUserID(), task.getMusicID());
+        // String userId = task.getUserID();
+        // String genre  = userProfile.getGenres().iterator().next();
+        // String musicId = "";
+        // String artistId = "";
+        // int numberOfTimesPlayed = 0;
+        // HashMap<MusicProfile, Integer> musicProfileMap = userProfile.musicProfileMap.get(genre);
+        //
+        // for (MusicProfile mp: musicProfileMap.keySet()) {
+        //   musicId = mp.musicId;
+        //   artistId = mp.artistId;
+        //   numberOfTimesPlayed = musicProfileMap.get(mp);
+        //   break;
+        // }
+        // cache.addUserProfile(userId,genre,musicId,artistId, numberOfTimesPlayed);
       }
 
       return task;
@@ -187,7 +185,6 @@ public class Server implements ServerInterface {
 
     Future<TopThreeMusicByUserTask> future = queryExecutor.submit(() -> {
 
-      // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
       database.executeQuery(task);
@@ -213,23 +210,18 @@ public class Server implements ServerInterface {
 
       task.setTimeStarted(System.currentTimeMillis());
 
-      // System.out.print("getTopArtistsByMusicGenre by user "+task.getUserID()+" , genre : "+ task.getGenre()
-      //         +"is called" );
-
       if (cache != null) {
-
-        cache.fetchFromCache(task);
+         cache.fetchFromCache(task);
       }
 
       if (!task.hasResult()) {
         database.executeQuery(task);
 
-        // Todo: update the cache
-        // BUT ONLY IF NOT NULL!!
         // if (cache != null)
         // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
       }
 
+      // System.out.println("top 3 artists : "+task.getResult()[0]+ "\t"+ task.getResult()[1] + "\t" + task.getResult()[2]);
       return task;
 
     });
@@ -243,10 +235,14 @@ public class Server implements ServerInterface {
 
 
   private void simulateLatency(Task<?> task) {
+
+    task.setServerID(id);
+
     if (task.sameZone())
       try { Thread.sleep(80); } catch(Exception e) { e.printStackTrace(); }
     else
       try { Thread.sleep(170); } catch(Exception e) { e.printStackTrace(); }
+
   }
 
 }

@@ -266,7 +266,6 @@ public class Cache implements CacheInterface{
                 }
             }
         }
-
         task.setResult(res);
         return task;
     }

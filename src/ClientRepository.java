@@ -22,78 +22,83 @@ public class ClientRepository {
 
 
    */
-  public TimesPlayedTask execute(TimesPlayedTask t, ServerInterface server) {
-    TimesPlayedTask task = null;
+  public TimesPlayedTask execute(TimesPlayedTask task, ServerInterface server) {
 
     try {
+
       if (cache != null) {
-        // task = t.execute(cache);
+        // task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
       }
 
-      if (task == null) {
-        task = server.executeQuery(t);
+      if (!task.hasResult()) {
+        task = server.executeQuery(task);
       }
 
       return task;
+
     } catch(Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public TimesPlayedByUserTask execute(TimesPlayedByUserTask task, ServerInterface server) {
+
+    try {
+
+      if (cache != null) {
+        // task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+      }
+
+      if (!task.hasResult()) {
+        task = server.executeQuery(task);
+      }
+
+      return task;
+
+    } catch(Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public TopArtistsByMusicGenreTask execute(TopArtistsByMusicGenreTask task, ServerInterface server) {
+
+    try {
+
+      if (cache != null) {
+        // task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+      }
+
+      if (!task.hasResult()) {
+        task = server.executeQuery(task);
+      }
+
+      return task;
+
+    } catch(Exception e) {
+      e.printStackTrace();
       return null;
     }
 
   }
 
-  public TimesPlayedByUserTask execute(TimesPlayedByUserTask t, ServerInterface server) {
-    TimesPlayedByUserTask task = null;
+  public TopThreeMusicByUserTask execute(TopThreeMusicByUserTask task, ServerInterface server) {
 
     try {
+
       if (cache != null) {
-        // task = t.execute(cache);
+        // task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
       }
 
-      if (task == null) {
-        task = server.executeQuery(t);
+      if (!task.hasResult()) {
+        task = server.executeQuery(task);
       }
 
       return task;
+
     } catch(Exception e) {
-      return null;
-    }
-
-  }
-
-  public TopArtistsByMusicGenreTask execute(TopArtistsByMusicGenreTask t, ServerInterface server) {
-    TopArtistsByMusicGenreTask task = null;
-
-
-    try {
-      if (cache != null) {
-        // task = t.execute(cache);
-      }
-
-      if (task == null) {
-        task = server.executeQuery(t);
-      }
-
-      return task;
-    } catch(Exception e) {
-      return null;
-    }
-
-  }
-
-  public TopThreeMusicByUserTask execute(TopThreeMusicByUserTask t, ServerInterface server) {
-    TopThreeMusicByUserTask task = null;
-
-    try {
-      if (cache != null) {
-        // task = t.execute(cache);
-      }
-
-      if (task == null) {
-        task = server.executeQuery(t);
-      }
-
-      return task;
-    } catch(Exception e) {
+      e.printStackTrace();
       return null;
     }
 

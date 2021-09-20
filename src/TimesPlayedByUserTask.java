@@ -1,5 +1,3 @@
-import java.rmi.RemoteException;
-
 
 public class TimesPlayedByUserTask extends Task<Integer> {
 
@@ -25,22 +23,6 @@ public class TimesPlayedByUserTask extends Task<Integer> {
   public String getUserID() {
     return userID;
   }
-
-  // @Override
-  // public TimesPlayedByUserTask execute(Cache cache) {
-  //   // TODO: call the correct method in cache here
-  //   int timesPlayed = cache.getTimesPlayedByUserFromCache(this.musicID, this.userID);
-  //   if(timesPlayed==0)
-  //     return null;
-  //   super.setResult(timesPlayed);
-  //   return this;
-  //
-  // }
-  //
-  // @Override
-  // public TimesPlayedByUserTask execute(ServerInterface server) throws RemoteException {
-  //   return server.executeQuery(this);
-  // }
 
   @Override
   public String toString() {
