@@ -202,11 +202,11 @@ public class Client {
       for (Task<?> t : tasks) {
         writer.write(t.toString() + "\n");
       }
-      //
-      // writer.write("Average times for getTimesPlayed(Turnover: " + (timesPlayed[1] / timesPlayed[0]) + "ms, Execution: " + (timesPlayed[2] / timesPlayed[0]) + "ms, Waiting: " + (timesPlayed[3] / timesPlayed[0]) + "ms)" + "\n");
-      // writer.write("Average times for getTimesPlayedByUser(Turnover: " + (timesPlayedByUser[1] / timesPlayedByUser[0]) + "ms, Execution: " + (timesPlayedByUser[2] / timesPlayedByUser[0]) + "ms, Waiting: " + (timesPlayedByUser[3] / timesPlayedByUser[0]) + "ms)" + "\n");
-      // writer.write("Average times for topArtistsByUserGenre(Turnover: " + (topArtistsByUserGenre[1] / topArtistsByUserGenre[0]) + "ms, Execution: " + (topArtistsByUserGenre[2] / topArtistsByUserGenre[0]) + "ms, Waiting: " + (topArtistsByUserGenre[3] / topArtistsByUserGenre[0]) + "ms)" + "\n");
-      // writer.write("Average times for topThreeMusicByUser(Turnover: " + (topThreeMusicByUser[1] / topThreeMusicByUser[0]) + "ms, Execution: " + (topThreeMusicByUser[2] / topThreeMusicByUser[0]) + "ms, Waiting: " + (topThreeMusicByUser[3] / topThreeMusicByUser[0]) + "ms)" + "\n");
+
+      writer.write("Average times for getTimesPlayed(Turnover: " + (timesPlayed[1] / timesPlayed[0]) + "ms, Execution: " + (timesPlayed[2] / timesPlayed[0]) + "ms, Waiting: " + (timesPlayed[3] / timesPlayed[0]) + "ms)" + "\n");
+      writer.write("Average times for getTimesPlayedByUser(Turnover: " + (timesPlayedByUser[1] / timesPlayedByUser[0]) + "ms, Execution: " + (timesPlayedByUser[2] / timesPlayedByUser[0]) + "ms, Waiting: " + (timesPlayedByUser[3] / timesPlayedByUser[0]) + "ms)" + "\n");
+      writer.write("Average times for topArtistsByUserGenre(Turnover: " + (topArtistsByUserGenre[1] / topArtistsByUserGenre[0]) + "ms, Execution: " + (topArtistsByUserGenre[2] / topArtistsByUserGenre[0]) + "ms, Waiting: " + (topArtistsByUserGenre[3] / topArtistsByUserGenre[0]) + "ms)" + "\n");
+      writer.write("Average times for topThreeMusicByUser(Turnover: " + (topThreeMusicByUser[1] / topThreeMusicByUser[0]) + "ms, Execution: " + (topThreeMusicByUser[2] / topThreeMusicByUser[0]) + "ms, Waiting: " + (topThreeMusicByUser[3] / topThreeMusicByUser[0]) + "ms)" + "\n");
       writer.close();
 
     } catch(Exception e) {

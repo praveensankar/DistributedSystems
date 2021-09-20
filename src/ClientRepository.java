@@ -130,15 +130,28 @@ public class ClientRepository {
 
   public TopThreeMusicByUserTask execute(TopThreeMusicByUserTask task, ServerInterface server) {
 
+    task.setTimeStarted(System.currentTimeMillis());
+
     try {
+      if (cache != null) {
+        synchronized(cache) {
+          task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+        }
+      }
 
-      return server.executeQuery(task);
-
+      if (!task.hasResult()) {
+        task = server.executeQuery(task);
+        if (cache != null) {
+          synchronized (cache) {
+            cache.addToCache(task);
+          }
+        }
+      }
+      return task;
     } catch(Exception e) {
       e.printStackTrace();
       return null;
     }
-
   }
 
 }
