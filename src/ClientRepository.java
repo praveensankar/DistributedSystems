@@ -29,14 +29,23 @@ public class ClientRepository {
     try {
 
       if (cache != null) {
-        task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+
+        synchronized (cache) {
+          task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+        }
+
       }
 
       if (!task.hasResult()) {
+        
         task = server.executeQuery(task);
-        if(cache!=null)
-        {
-          cache.addToCache(task);
+
+        if(cache != null) {
+
+          synchronized (cache) {
+            cache.addToCache(task);
+          }
+
         }
       }
 
@@ -55,15 +64,20 @@ public class ClientRepository {
     try {
 
       if (cache != null) {
-        task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+
+        synchronized (cache) {
+          task = cache.fetchFromCache(task);
+        }
+
       }
 
       if (!task.hasResult()) {
         task = server.executeQuery(task);
 
-        if (cache != null) {
+        synchronized (cache) {
           cache.addToCache(task);
         }
+
       }
 
       return task;
@@ -81,14 +95,22 @@ public class ClientRepository {
     try {
 
       if (cache != null) {
-        task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+
+        synchronized(cache) {
+          task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+        }
+
       }
 
       if (!task.hasResult()) {
         task = server.executeQuery(task);
 
         if (cache != null) {
-          cache.addToCache(task);
+
+          synchronized (cache) {
+            cache.addToCache(task);
+          }
+
         }
       }
 
