@@ -27,7 +27,7 @@ public class Cache implements CacheInterface{
     }
 
     //adds music profiles to cache
-    public void addToCache(String musicId, String artistId, int numberOfTimesPlayed)
+    public void addMusicProfileToCache(String musicId, String artistId, int numberOfTimesPlayed)
     {
     /*
     adds new music profile to the cache
@@ -43,7 +43,7 @@ public class Cache implements CacheInterface{
         System.out.println("new cache entry : \t music Id : "+musicId+"\t times played : "+numberOfTimesPlayed);
     }
     // adds number of times played to user id
-    public void addToCache(String userId, int numberoOfTimesPlayed)
+    public void addTimesPlayedToUser(String userId, int numberoOfTimesPlayed)
     {
         boolean userIdExistFlag = false;
 
@@ -79,7 +79,7 @@ public class Cache implements CacheInterface{
 
     }
     // adds user profile
-    public void addToCache(String userId, String genre, String musicId, String artistId, int numberOfTimesPlayed)
+    public void addUserProfileToCache(String userId, String genre, String musicId, String artistId, int numberOfTimesPlayed)
     {
             /*
             steps:
@@ -197,94 +197,30 @@ public class Cache implements CacheInterface{
         }
         }
 
-    public void addTestData()
+    public void addToCache(TimesPlayedTask task)
     {
-
-        this.addToCache("music1", "artist1", 10);
-        this.addToCache("music2", "artist2", 20);
-        this.addToCache("music3", "artist3", 20);
-
-        this.addToCache("music4", "artist4", 20);
-        this.addToCache("user1", "rock", "music1", "artist1", 10);
-        this.addToCache("user1", "classic", "music2", "artist2", 10);
-
-        for(UserProfile u:this.userProfiles){
-            String userId = u.userId;
-            if(userId.equals("user1") || userId.equals("user2"))
-            {
-                System.out.println(" genres : "+ u.getGenres());
-                HashMap<MusicProfile, Integer> musicProfile = u.musicProfileMap.get(u.getGenres().iterator().next());
-                for (MusicProfile mp: musicProfile.keySet())
-                {
-                    String musicId = mp.musicId;
-                    String artistId = mp.artistId;
-                    System.out.println("music id : "+musicId+"\t artist id : "+artistId);
-                }
-            }
-        }
-
+        String artistId = "";
+        this.addMusicProfileToCache(task.getMusicID(), artistId, (int) task.getResult());
 
     }
-    // public static void main(String[] args)
-    // {
-    //     Cache cache =  new Cache(100);
-    //     cache.addTestData();
-    //     int timesPlayed = cache.getTimesPlayedFromCache("music1");
-    //     System.out.println("timesPlayed: "+timesPlayed);
-    //
-    //     int timesPlayedByUser = cache.getTimesPlayedByUserFromCache("music1", "user1");
-    //     System.out.println("timesPlayedByUser: "+timesPlayedByUser);
-    //
-    //
-    //     ArrayList<String> topArtists = cache.getTopArtistsByUserGenreInCache("user1", "rock");
-    //     System.out.println("Top Artists:" + topArtists);
-    // }
+    public void addToCache(TimesPlayedByUserTask task)
+    {
+        String userId = task.getUserID();
+        int numberOfTimesPlayed = (int) task.getResult();
+        this.addTimesPlayedToUser(userId, numberOfTimesPlayed);
+    }
+    public void addToCache(TopArtistsByMusicGenreTask task) {
+        String[] top3 = (String[]) task.getResult();
+        String genre = task.getGenre();
+        String userId = task.getUserID();
+        for (int i = 0; i < top3.length; i++) {
+            String artistId = top3[i];
+            String musicId = "";
+            int timesPlayed = 0;
+            this.addUserProfileToCache(userId, genre, musicId, artistId, timesPlayed);
 
-    //Method returns getTimesPlayed from the cache
-    // public int getTimesPlayedFromCache(String musicId){
-    //     int res = 0;
-    //     LinkedHashMap<MusicProfile, Integer> cacheMap = this.musicProfiles;
-    //     for (MusicProfile mp: cacheMap.keySet())
-    //     {
-    //        // System.out.println("mp.musicId: " + mp.musicId);
-    //         if(mp.musicId.equals(musicId)){
-    //             // System.out.println("mp: " + mp);
-    //             if(cacheMap.containsKey(mp)){
-    //                 res = cacheMap.get(mp);
-    //                 // System.out.println("res: " + res);
-    //                 return res;
-    //             }
-    //         }
-    //     }
-    //     //Implement the "normal RMI query"
-    //     return res;
-    // }
-    //
-    // //Method returns getTimesPlayedByUser from Cache
-    //User specific getTimesPlayed is stored in the user profile
-    // public int getTimesPlayedByUserFromCache(String musicId, String userId) {
-    //     int res = 0;
-    //     Queue<UserProfile> userProfiles = this.userProfiles;
-    //     for (UserProfile u : userProfiles) {
-    //         if (u.userId.equals(userId)) {
-    //             for(String genre : u.musicProfileMap.keySet()){
-    //                 //System.out.println("Hello");
-    //                 HashMap<MusicProfile, Integer> favMusic = u.musicProfileMap.get(genre);
-    //                 for(MusicProfile mp : favMusic.keySet()){
-    //                     if(mp.musicId.equals(musicId)){
-    //                         res = favMusic.get(mp);
-    //                       //  System.out.println("res: " + res);
-    //                         return res;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return res;
-    //     //Implement the rest rmi stuff
-    // }
-
-
+        }
+    }
 
     //Method returns getTimesPlayed from the cache
     public TimesPlayedTask fetchFromCache(TimesPlayedTask task){

@@ -117,9 +117,8 @@ public class Server implements ServerInterface {
 
         //cache didn't have the data so fetch it from server and update cache
         if (cache != null) {
-          String artistId = database.getMusicProfile(task.getMusicID()).artistId;
-          cache.addToCache(task.getMusicID(), artistId, (int) task.getResult());
-        }
+          cache.addToCache(task);
+          }
       }
 
       return task;
@@ -158,9 +157,7 @@ public class Server implements ServerInterface {
         database.executeQuery(task);
 
         if (cache != null) {
-          String userId = task.getUserID();
-          int numberOfTimesPlayed = (int) task.getResult();
-          cache.addToCache(userId, numberOfTimesPlayed);
+          cache.addToCache(task);
         }
       }
 
@@ -218,18 +215,11 @@ public class Server implements ServerInterface {
 
         if (cache != null)
         {
-          String[] top3 = (String[])task.getResult();
-          String genre = task.getGenre();
-          String userId = task.getUserID();
-          for (int i = 0; i < top3.length; i++) {
-            String artistId = top3[i];
-            String musicId = "";
-            int timesPlayed  = 0;
-            cache.addToCache(userId, genre, musicId, artistId, timesPlayed);
+          cache.addToCache(task);
           }
         }
         // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
-      }
+
 
       // System.out.println("top 3 artists : "+task.getResult()[0]+ "\t"+ task.getResult()[1] + "\t" + task.getResult()[2]);
       return task;

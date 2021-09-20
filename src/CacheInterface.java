@@ -8,10 +8,12 @@
 // }
 
 public interface CacheInterface {
-    public void addToCache(String musicId, String artistId, int numberOfTimesPlayed);
-    public void addToCache(String userId, String genre, String musicId, String artistId, int numberOfTimesPlayed);
     public TimesPlayedTask fetchFromCache(TimesPlayedTask task);
     public TimesPlayedByUserTask fetchFromCache(TimesPlayedByUserTask task);
     public TopArtistsByMusicGenreTask fetchFromCache(TopArtistsByMusicGenreTask task);
-    public void addToCache(String userId, int numberofTimesPlayed);
+    public void addToCache(TimesPlayedTask task);
+    public void addToCache(TimesPlayedByUserTask task);
+    public void addToCache(TopArtistsByMusicGenreTask task);
+
+
 }
