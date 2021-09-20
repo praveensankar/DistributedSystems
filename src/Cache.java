@@ -21,13 +21,13 @@ public class Cache implements CacheInterface{
         this.userProfiles = new ArrayDeque<UserProfile>(this.userIdCapacity);
         this.count = 0;
     }
-    public int getMusicProfileCacheSize()
+    private int getMusicProfileCacheSize()
     {
         return this.musicProfiles.size();
     }
 
     //adds music profiles to cache
-    public void addMusicProfileToCache(String musicId, String artistId, int numberOfTimesPlayed)
+    private void addMusicProfileToCache(String musicId, String artistId, int numberOfTimesPlayed)
     {
     /*
     adds new music profile to the cache
@@ -43,7 +43,7 @@ public class Cache implements CacheInterface{
         System.out.println("new cache entry : \t music Id : "+musicId+"\t times played : "+numberOfTimesPlayed);
     }
     // adds number of times played to user id
-    public void addTimesPlayedToUser(String userId, int numberoOfTimesPlayed)
+    private void addTimesPlayedToUser(String userId, int numberoOfTimesPlayed)
     {
         boolean userIdExistFlag = false;
 
@@ -79,7 +79,7 @@ public class Cache implements CacheInterface{
 
     }
     // adds user profile
-    public void addUserProfileToCache(String userId, String genre, String musicId, String artistId, int numberOfTimesPlayed)
+    private void addUserProfileToCache(String userId, String genre, String musicId, String artistId, int numberOfTimesPlayed)
     {
             /*
             steps:
