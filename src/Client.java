@@ -70,6 +70,13 @@ public class Client {
         outputFile += "server_cache.txt";
         repository = new ClientRepository(null);
 
+      } else if (args[0].equals("-t")) {
+
+        inputFile += "dummy_input.txt";
+        outputFile += "dummy_output.txt";
+        repository = new ClientRepository(new Cache(250));
+        clientExecutor = Executors.newFixedThreadPool(1);
+
       } else {
         System.out.println("Correct usage is: java Client [-s] [-s -c]");
         return;
@@ -82,22 +89,27 @@ public class Client {
       repository = new ClientRepository(null);
 
     }
+
+
     if (args.length == 2) {
-      if (args[0].equals("-s") && args[1].equals("-c")) {
+
+      if (args[0].equals("-s") && args[1].equals("-c"))
         System.out.println("\nSending the requests to client cache...");
-      }else {
+      else
         System.out.println("\nSending the requests to server...");
-      }
-    }
-    executeCommands(inputFile);
-    if (args.length == 2) {
-      if (args[0].equals("-s") && args[1].equals("-c")) {
-        System.out.println("\n ...All requests have been sent to cache and then to server!\n");
-      }else {
-        System.out.println("\n ...All requests have been sent to server!\n");
-      }
+
     }
 
+    executeCommands(inputFile);
+
+    if (args.length == 2) {
+
+      if (args[0].equals("-s") && args[1].equals("-c"))
+        System.out.println("\n ...All requests have been sent to cache and then to server!\n");
+      else
+        System.out.println("\n ...All requests have been sent to server!\n");
+
+    }
 
     System.out.println("Waiting for all requests to finish...");
     waitUntilFinished();
@@ -186,11 +198,11 @@ public class Client {
       for (Task<?> t : tasks) {
         writer.write(t.toString() + "\n");
       }
-
-      writer.write("Average times for getTimesPlayed(Turnover: " + (timesPlayed[1] / timesPlayed[0]) + "ms, Execution: " + (timesPlayed[2] / timesPlayed[0]) + "ms, Waiting: " + (timesPlayed[3] / timesPlayed[0]) + "ms)" + "\n");
-      writer.write("Average times for getTimesPlayedByUser(Turnover: " + (timesPlayedByUser[1] / timesPlayedByUser[0]) + "ms, Execution: " + (timesPlayedByUser[2] / timesPlayedByUser[0]) + "ms, Waiting: " + (timesPlayedByUser[3] / timesPlayedByUser[0]) + "ms)" + "\n");
-      writer.write("Average times for topArtistsByUserGenre(Turnover: " + (topArtistsByUserGenre[1] / topArtistsByUserGenre[0]) + "ms, Execution: " + (topArtistsByUserGenre[2] / topArtistsByUserGenre[0]) + "ms, Waiting: " + (topArtistsByUserGenre[3] / topArtistsByUserGenre[0]) + "ms)" + "\n");
-      writer.write("Average times for topThreeMusicByUser(Turnover: " + (topThreeMusicByUser[1] / topThreeMusicByUser[0]) + "ms, Execution: " + (topThreeMusicByUser[2] / topThreeMusicByUser[0]) + "ms, Waiting: " + (topThreeMusicByUser[3] / topThreeMusicByUser[0]) + "ms)" + "\n");
+      //
+      // writer.write("Average times for getTimesPlayed(Turnover: " + (timesPlayed[1] / timesPlayed[0]) + "ms, Execution: " + (timesPlayed[2] / timesPlayed[0]) + "ms, Waiting: " + (timesPlayed[3] / timesPlayed[0]) + "ms)" + "\n");
+      // writer.write("Average times for getTimesPlayedByUser(Turnover: " + (timesPlayedByUser[1] / timesPlayedByUser[0]) + "ms, Execution: " + (timesPlayedByUser[2] / timesPlayedByUser[0]) + "ms, Waiting: " + (timesPlayedByUser[3] / timesPlayedByUser[0]) + "ms)" + "\n");
+      // writer.write("Average times for topArtistsByUserGenre(Turnover: " + (topArtistsByUserGenre[1] / topArtistsByUserGenre[0]) + "ms, Execution: " + (topArtistsByUserGenre[2] / topArtistsByUserGenre[0]) + "ms, Waiting: " + (topArtistsByUserGenre[3] / topArtistsByUserGenre[0]) + "ms)" + "\n");
+      // writer.write("Average times for topThreeMusicByUser(Turnover: " + (topThreeMusicByUser[1] / topThreeMusicByUser[0]) + "ms, Execution: " + (topThreeMusicByUser[2] / topThreeMusicByUser[0]) + "ms, Waiting: " + (topThreeMusicByUser[3] / topThreeMusicByUser[0]) + "ms)" + "\n");
       writer.close();
 
     } catch(Exception e) {
