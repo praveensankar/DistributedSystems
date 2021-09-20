@@ -34,6 +34,10 @@ public class ClientRepository {
 
       if (!task.hasResult()) {
         task = server.executeQuery(task);
+        if(cache!=null)
+        {
+          cache.addToCache(task);
+        }
       }
 
       return task;

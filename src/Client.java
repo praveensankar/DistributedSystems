@@ -82,10 +82,22 @@ public class Client {
       repository = new ClientRepository(null);
 
     }
-
-    System.out.println("\nSending the requests to server...");
+    if (args.length == 2) {
+      if (args[0].equals("-s") && args[1].equals("-c")) {
+        System.out.println("\nSending the requests to client cache...");
+      }else {
+        System.out.println("\nSending the requests to server...");
+      }
+    }
     executeCommands(inputFile);
-    System.out.println("...All requests have been sent to server!\n");
+    if (args.length == 2) {
+      if (args[0].equals("-s") && args[1].equals("-c")) {
+        System.out.println("\n ...All requests have been sent to cache and then to server!\n");
+      }else {
+        System.out.println("\n ...All requests have been sent to server!\n");
+      }
+    }
+
 
     System.out.println("Waiting for all requests to finish...");
     waitUntilFinished();
