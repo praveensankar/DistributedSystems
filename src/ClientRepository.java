@@ -33,11 +33,11 @@ public class ClientRepository {
         synchronized (cache) {
           task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
         }
+        System.out.println("TimesPlayedTask : music id : "+task.getMusicID()+"\t count : "+task.getResult());
 
       }
 
       if (!task.hasResult()) {
-
         task = server.executeQuery(task);
 
         if(cache != null) {
@@ -81,7 +81,6 @@ public class ClientRepository {
           }
           
         }
-
       }
 
       return task;
