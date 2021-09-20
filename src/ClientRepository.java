@@ -37,7 +37,7 @@ public class ClientRepository {
       }
 
       if (!task.hasResult()) {
-        
+
         task = server.executeQuery(task);
 
         if(cache != null) {
@@ -74,8 +74,12 @@ public class ClientRepository {
       if (!task.hasResult()) {
         task = server.executeQuery(task);
 
-        synchronized (cache) {
-          cache.addToCache(task);
+        if (cache != null) {
+
+          synchronized (cache) {
+            cache.addToCache(task);
+          }
+          
         }
 
       }
