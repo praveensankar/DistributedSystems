@@ -172,7 +172,7 @@ public class Cache implements CacheInterface{
             }
         }
         if(userIdExistFlag == false) {
-            System.out.println(userId + " doesnt exist in the cache. so it's added in the cache");
+
             // step 1.B : User doesn't exist
             // step 1.B.a : check the capacity
             int userProfileQueueSize = this.count;
@@ -192,6 +192,8 @@ public class Cache implements CacheInterface{
             // add the genre order to the genreOrderQueue
             up.genreOrder.add(genre);
             this.userProfiles.add(up);
+            System.out.println("new cache entry : \t user Id : "+userId+"\t genre : " +genre+"\t music id : "+musicId+
+                    "\t artist id : "+artistId+ "\t times played : "+numberOfTimesPlayed);
         }
         }
 
@@ -358,6 +360,11 @@ public class Cache implements CacheInterface{
             }
         }
 
+        System.out.print("cache entry accessed: \t user Id : "+userId+"\t genre : "+genre+"\t top artists : ");
+        for (int counter = 0; counter < res.size(); counter++) {
+            System.out.print(res.get(counter)+"\t");
+        }
+        System.out.println();
         task.setResult(res.toArray(new String[3]));
         return task;
     }

@@ -216,7 +216,18 @@ public class Server implements ServerInterface {
       if (!task.hasResult()) {
         database.executeQuery(task);
 
-        // if (cache != null)
+        if (cache != null)
+        {
+          String[] top3 = (String[])task.getResult();
+          String genre = task.getGenre();
+          String userId = task.getUserID();
+          for (int i = 0; i < top3.length; i++) {
+            String artistId = top3[i];
+            String musicId = "";
+            int timesPlayed  = 0;
+            cache.addToCache(userId, genre, musicId, artistId, timesPlayed);
+          }
+        }
         // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
       }
 
