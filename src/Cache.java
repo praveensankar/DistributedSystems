@@ -26,7 +26,8 @@ public class Cache implements CacheInterface{
         return this.musicProfiles.size();
     }
 
-    public void addMusicToMusicProfile(String musicId, String artistId, int numberOfTimesPlayed)
+    //adds music profiles to cache
+    public void addToCache(String musicId, String artistId, int numberOfTimesPlayed)
     {
     /*
     adds new music profile to the cache
@@ -39,9 +40,46 @@ public class Cache implements CacheInterface{
      // add the new entry
         MusicProfile musicprofile = new MusicProfile(musicId, artistId);
         this.musicProfiles.put(musicprofile, numberOfTimesPlayed);
+        System.out.println("new cache entry : \t music Id : "+musicId+"\t times played : "+numberOfTimesPlayed);
     }
+    // adds number of times played to user id
+    public void addToCache(String userId, int numberoOfTimesPlayed)
+    {
+        boolean userIdExistFlag = false;
 
-    public void addUserProfile(String userId, String genre, String musicId, String artistId, int numberOfTimesPlayed)
+        // add userId and timesplayed to the user profile
+        for(UserProfile userProfile: this.userProfiles)
+         {
+        // step 1.A : user id exists
+        if (userProfile.userId.equals(userId)) {
+            userIdExistFlag = true;
+            userProfile.addTimesPlayed(numberoOfTimesPlayed);
+            break;
+             }
+          }
+        if(userIdExistFlag==false)
+        {
+            {
+                // step 1.B : User doesn't exist
+                // step 1.B.a : check the capacity
+                int userProfileQueueSize = this.count;
+                if (userProfileQueueSize == this.userIdCapacity) {
+                    // step 1.B.a : it's full so remove the oldest entry
+                    this.userProfiles.remove();
+                    this.count = this.count - 1;
+                }
+                // step 1.B.b : add the user profile
+                this.count = this.count + 1;
+                UserProfile up = new UserProfile(userId);
+                up.addTimesPlayed(numberoOfTimesPlayed);
+                this.userProfiles.add(up);
+            }
+        }
+        System.out.println("new cache entry : \t user Id : "+userId+"\t times played : "+numberoOfTimesPlayed);
+
+    }
+    // adds user profile
+    public void addToCache(String userId, String genre, String musicId, String artistId, int numberOfTimesPlayed)
     {
             /*
             steps:
@@ -160,13 +198,13 @@ public class Cache implements CacheInterface{
     public void addTestData()
     {
 
-        this.addMusicToMusicProfile("music1", "artist1", 10);
-        this.addMusicToMusicProfile("music2", "artist2", 20);
-        this.addMusicToMusicProfile("music3", "artist3", 20);
+        this.addToCache("music1", "artist1", 10);
+        this.addToCache("music2", "artist2", 20);
+        this.addToCache("music3", "artist3", 20);
 
-        this.addMusicToMusicProfile("music4", "artist4", 20);
-        this.addUserProfile("user1", "rock", "music1", "artist1", 10);
-        this.addUserProfile("user1", "classic", "music2", "artist2", 10);
+        this.addToCache("music4", "artist4", 20);
+        this.addToCache("user1", "rock", "music1", "artist1", 10);
+        this.addToCache("user1", "classic", "music2", "artist2", 10);
 
         for(UserProfile u:this.userProfiles){
             String userId = u.userId;
@@ -267,6 +305,7 @@ public class Cache implements CacheInterface{
             }
         }
         task.setResult(res);
+        System.out.println("cache entry accessed: \t music Id : "+musicId+"\t times played : "+res);
         return task;
     }
 
@@ -282,20 +321,13 @@ public class Cache implements CacheInterface{
         Queue<UserProfile> userProfiles = this.userProfiles;
         for (UserProfile u : userProfiles) {
             if (u.userId.equals(userId)) {
-                for(String genre : u.musicProfileMap.keySet()){
-                    //System.out.println("Hello");
-                    HashMap<MusicProfile, Integer> favMusic = u.musicProfileMap.get(genre);
-                    for(MusicProfile mp : favMusic.keySet()){
-                        if(mp.musicId.equals(musicId)){
-                            res += favMusic.get(mp);
-
-                        }
-                    }
-                }
+                res = u.getTimesPlayed();
+                break;
             }
         }
 
         task.setResult(res);
+        System.out.println("cache entry accessed: \t user Id : "+userId+"\t times played : "+res);
         return task;
 
     }

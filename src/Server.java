@@ -36,7 +36,7 @@ public class Server implements ServerInterface {
   // cache object
   // set this in the server simulator if needed
   public void setCache(Cache cache) {
-    cache = cache;
+    this.cache = cache;
   }
 
   // disables the cache
@@ -101,6 +101,13 @@ public class Server implements ServerInterface {
 
       task.setTimeStarted(System.currentTimeMillis());
 
+
+      // steps:
+      // 1 ) check if cache is enabled and if it is enabled then fetch result from cache
+      //        a )  if cache doesn't have data then fetch it from database and add it to the cache
+      // 2) if cache is not enabled then fetch it from database and return the value
+
+
       if (cache != null) {
         cache.fetchFromCache(task);
       }
@@ -108,9 +115,11 @@ public class Server implements ServerInterface {
       if (!task.hasResult()) {
         database.executeQuery(task);
 
-        // cache didn't have the data so fetch it from server and update cache
-        // String artistId = database.getMusicProfile(task.getMusicID()).artistId;
-        // cache.addMusicToMusicProfile(task.getMusicID(), artistId, (int)task.getResult());
+        //cache didn't have the data so fetch it from server and update cache
+        if (cache != null) {
+          String artistId = database.getMusicProfile(task.getMusicID()).artistId;
+          cache.addToCache(task.getMusicID(), artistId, (int) task.getResult());
+        }
       }
 
       return task;
@@ -148,21 +157,11 @@ public class Server implements ServerInterface {
         // cache didn't have the data so fetch it from server and update cache
         database.executeQuery(task);
 
-        // UserProfile userProfile = database.getUserProfile(task.getUserID(), task.getMusicID());
-        // String userId = task.getUserID();
-        // String genre  = userProfile.getGenres().iterator().next();
-        // String musicId = "";
-        // String artistId = "";
-        // int numberOfTimesPlayed = 0;
-        // HashMap<MusicProfile, Integer> musicProfileMap = userProfile.musicProfileMap.get(genre);
-        //
-        // for (MusicProfile mp: musicProfileMap.keySet()) {
-        //   musicId = mp.musicId;
-        //   artistId = mp.artistId;
-        //   numberOfTimesPlayed = musicProfileMap.get(mp);
-        //   break;
-        // }
-        // cache.addUserProfile(userId,genre,musicId,artistId, numberOfTimesPlayed);
+        if (cache != null) {
+          String userId = task.getUserID();
+          int numberOfTimesPlayed = (int) task.getResult();
+          cache.addToCache(userId, numberOfTimesPlayed);
+        }
       }
 
       return task;
