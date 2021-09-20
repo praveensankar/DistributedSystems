@@ -197,19 +197,19 @@ public class Cache implements CacheInterface{
         }
         }
 
-    public synchronized void addToCache(TimesPlayedTask task)
+    public void addToCache(TimesPlayedTask task)
     {
         String artistId = "";
         this.addMusicProfileToCache(task.getMusicID(), artistId, (int) task.getResult());
 
     }
-    public synchronized void addToCache(TimesPlayedByUserTask task)
+    public void addToCache(TimesPlayedByUserTask task)
     {
         String userId = task.getUserID();
         int numberOfTimesPlayed = (int) task.getResult();
         this.addTimesPlayedToUser(userId, numberOfTimesPlayed);
     }
-    public synchronized void addToCache(TopArtistsByUserGenreTask task) {
+    public void addToCache(TopArtistsByUserGenreTask task) {
         String[] top3 = (String[]) task.getResult();
         String genre = task.getGenre();
         String userId = task.getUserID();
@@ -223,7 +223,7 @@ public class Cache implements CacheInterface{
     }
 
     //Method returns getTimesPlayed from the cache
-    public synchronized TimesPlayedTask fetchFromCache(TimesPlayedTask task){
+    public TimesPlayedTask fetchFromCache(TimesPlayedTask task){
 
         String musicId = task.getMusicID();
 
@@ -250,7 +250,7 @@ public class Cache implements CacheInterface{
 
     //Method returns getTimesPlayedByUser from Cache
     //User specific getTimesPlayed is stored in the user profile
-    public synchronized TimesPlayedByUserTask fetchFromCache(TimesPlayedByUserTask task) {
+    public TimesPlayedByUserTask fetchFromCache(TimesPlayedByUserTask task) {
         String musicId = task.getMusicID();
         String userId = task.getUserID();
 
@@ -272,7 +272,7 @@ public class Cache implements CacheInterface{
 
     //Returns the top artists of a specific genre a user listens to
     //The artist ids are stored in the Music Profile, which is the value to the genre key
-    public synchronized TopArtistsByUserGenreTask fetchFromCache(TopArtistsByUserGenreTask task) {
+    public TopArtistsByUserGenreTask fetchFromCache(TopArtistsByUserGenreTask task) {
         String userId = task.getUserID();
         String genre = task.getGenre();
 
