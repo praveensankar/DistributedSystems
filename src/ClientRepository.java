@@ -126,8 +126,9 @@ public class ClientRepository {
 
   public TopThreeMusicByUserTask execute(TopThreeMusicByUserTask task) {
 
-    try {
+    task.setTimeStarted(System.currentTimeMillis());
 
+    try {
       if (cache != null) {
 
         synchronized(cache) {
@@ -150,7 +151,7 @@ public class ClientRepository {
       }
 
       return task;
-
+      
     } catch(Exception e) {
       e.printStackTrace();
       return null;
