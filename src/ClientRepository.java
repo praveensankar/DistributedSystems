@@ -16,12 +16,6 @@ public class ClientRepository {
     this.cache = cache;
   }
 
-  /*
-
-  TO DO: Implement it like this instead:
-
-
-   */
   public TimesPlayedTask execute(TimesPlayedTask task, ServerInterface server) {
 
     task.setTimeStarted(System.currentTimeMillis());
@@ -33,7 +27,7 @@ public class ClientRepository {
         synchronized (cache) {
           task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
         }
-        
+
         System.out.println("TimesPlayedTask : music id : "+task.getMusicID()+"\t count : "+task.getResult());
 
       }
@@ -132,13 +126,45 @@ public class ClientRepository {
 
     try {
 
-      return server.executeQuery(task);
+      if (cache != null) {
+
+        synchronized(cache) {
+          task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+        }
+
+      }
+
+      if (!task.hasResult()) {
+        
+        task = server.executeQuery(task);
+
+        if (cache != null) {
+
+          synchronized (cache) {
+            cache.addToCache(task);
+          }
+
+        }
+      }
+
+      return task;
 
     } catch(Exception e) {
       e.printStackTrace();
       return null;
     }
 
+  }
+
+  private static ServerInterface getServer(Task<?> task) {
+    try {
+      LoadBalancerResponse response = lbstub.fetchServer(task.getZoneID());
+      ServerInterface server = response.serverStub;
+      return server;
+    } catch(Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
 }
