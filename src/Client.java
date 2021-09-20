@@ -38,39 +38,49 @@ public class Client {
   // Will run the naive implementation
 //  static Repository repository = new Repository(null);
 
-  static Cache cache = new Cache(250);
+  // static Cache cache = new Cache(250);
   static ClientRepository repository;
 
   public static void main(String[] args) {
 
-    String inputFile = "../input/" +  "naive_input.txt";
-    String outputFile = "../output/" +  "naive_output.txt";
+    String inputFile = "../input/";
+    String outputFile = "../output/";
 
-    if(args.length==2){
-      if(args[0].equals("-s") && args[1].equals("-c")) {
+    if (args.length == 2) {
+
+      if (args[0].equals("-s") && args[1].equals("-c")) {
         // server cache status should have been retrieved without passing it as a flag
         // but due to time constraint we are using this hack
-       repository = new ClientRepository(cache);
+       repository = new ClientRepository(new Cache(250));
        System.out.println("client cache is and server cache both enabled");
-       inputFile = "../input/" +  "cached_input.txt";
-       outputFile = "../output/" +  "server_client_cache.txt";
-     }
-   }
+       inputFile += "cached_input.txt";
+       outputFile += "server_client_cache.txt";
 
-   if(args.length==1) {
-      if(args[0].equals("-s"))
-      {
+     } else {
+       System.out.println("Correct usage is: java Client [-s] [-s -c]");
+       return;
+     }
+
+   } else if (args.length == 1) {
+
+      if(args[0].equals("-s")) {
+
         System.out.println("only server cache is enabled");
-        inputFile = "../input/" +  "cached_input.txt";
-        outputFile = "../output/" +  "server_cache.txt";
+        inputFile += "cached_input.txt";
+        outputFile += "server_cache.txt";
         repository = new ClientRepository(null);
+
+      } else {
+        System.out.println("Correct usage is: java Client [-s] [-s -c]");
+        return;
       }
-    }
-    if(args.length==0)
-    {
-      inputFile = "../input/" +  "naive_input.txt";
-      outputFile = "../output/" +  "naive_output.txt";
+
+    } else if (args.length == 0) {
+
+      inputFile += "naive_input.txt";
+      outputFile += "naive_output.txt";
       repository = new ClientRepository(null);
+
     }
 
     System.out.println("\nSending the requests to server...");

@@ -199,29 +199,29 @@ class Database {
     return null;
   }
 
-  public UserProfile getUserProfile(String userID) {
-
-    // try {
-    //
-    //   BufferedReader br = newReader();
-    //   String line, delimiter = ",";
-    //
-    //   while ((line = br.readLine()) != null) {
-    //     String[] record = line.split(delimiter);
-    //
-    //     if (record[userIndex].equals(personID)) {
-    //       return new MusicProfile(musicID, record[1]);
-    //     }
-    //   }
-    //
-    //   br.close();
-    //
-    // } catch(Exception e) {
-    //   e.printStackTrace();
-    // }
-
-    return null;
-  }
+  // public UserProfile getUserProfile(String userID) {
+  //
+  //   // try {
+  //   //
+  //   //   BufferedReader br = newReader();
+  //   //   String line, delimiter = ",";
+  //   //
+  //   //   while ((line = br.readLine()) != null) {
+  //   //     String[] record = line.split(delimiter);
+  //   //
+  //   //     if (record[userIndex].equals(personID)) {
+  //   //       return new MusicProfile(musicID, record[1]);
+  //   //     }
+  //   //   }
+  //   //
+  //   //   br.close();
+  //   //
+  //   // } catch(Exception e) {
+  //   //   e.printStackTrace();
+  //   // }
+  //
+  //   return null;
+  // }
 
   // Performing a simple insertion sort for each entry
   private String[] getTop3(HashMap<String, Integer> map) {

@@ -115,10 +115,9 @@ public class Server implements ServerInterface {
       if (!task.hasResult()) {
         database.executeQuery(task);
 
-        //cache didn't have the data so fetch it from server and update cache
         if (cache != null) {
           cache.addToCache(task);
-          }
+        }
       }
 
       return task;
@@ -153,7 +152,6 @@ public class Server implements ServerInterface {
 
       if (!task.hasResult()) {
 
-        // cache didn't have the data so fetch it from server and update cache
         database.executeQuery(task);
 
         if (cache != null) {
@@ -162,31 +160,6 @@ public class Server implements ServerInterface {
       }
 
       return task;
-    });
-
-    try {
-      return future.get();
-    } catch(InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  // Here I am assuming that there is only one record per song for a specific user.
-  // Apparently not the case
-  @Override
-  public TopThreeMusicByUserTask executeQuery(TopThreeMusicByUserTask task) {
-
-    simulateLatency(task);
-
-    Future<TopThreeMusicByUserTask> future = queryExecutor.submit(() -> {
-
-      task.setTimeStarted(System.currentTimeMillis());
-
-      database.executeQuery(task);
-
-      return task;
-
     });
 
     try {
@@ -213,15 +186,12 @@ public class Server implements ServerInterface {
       if (!task.hasResult()) {
         database.executeQuery(task);
 
-        if (cache != null)
-        {
+        if (cache != null) {
           cache.addToCache(task);
-          }
         }
-        // cache.addUserProfile(t.getUserID(),genre, t.getMusicID(), artistId,count);
 
+      }
 
-      // System.out.println("top 3 artists : "+task.getResult()[0]+ "\t"+ task.getResult()[1] + "\t" + task.getResult()[2]);
       return task;
 
     });
@@ -229,6 +199,32 @@ public class Server implements ServerInterface {
     try {
       return future.get();
     } catch(InterruptedException | ExecutionException e) {
+      return null;
+    }
+  }
+
+
+  // Here I am assuming that there is only one record per song for a specific user.
+  // Apparently not the case
+  @Override
+  public TopThreeMusicByUserTask executeQuery(TopThreeMusicByUserTask task) {
+
+    simulateLatency(task);
+
+    Future<TopThreeMusicByUserTask> future = queryExecutor.submit(() -> {
+
+      task.setTimeStarted(System.currentTimeMillis());
+
+      database.executeQuery(task);
+
+      return task;
+
+    });
+
+    try {
+      return future.get();
+    } catch(InterruptedException | ExecutionException e) {
+      e.printStackTrace();
       return null;
     }
   }

@@ -24,10 +24,12 @@ public class ClientRepository {
    */
   public TimesPlayedTask execute(TimesPlayedTask task, ServerInterface server) {
 
+    task.setTimeStarted(System.currentTimeMillis());
+
     try {
 
       if (cache != null) {
-        // task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+        task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
       }
 
       if (!task.hasResult()) {
@@ -44,14 +46,20 @@ public class ClientRepository {
 
   public TimesPlayedByUserTask execute(TimesPlayedByUserTask task, ServerInterface server) {
 
+    task.setTimeStarted(System.currentTimeMillis());
+
     try {
 
       if (cache != null) {
-        // task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+        task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
       }
 
       if (!task.hasResult()) {
         task = server.executeQuery(task);
+
+        if (cache != null) {
+          cache.addToCache(task);
+        }
       }
 
       return task;
@@ -64,14 +72,20 @@ public class ClientRepository {
 
   public TopArtistsByMusicGenreTask execute(TopArtistsByMusicGenreTask task, ServerInterface server) {
 
+    task.setTimeStarted(System.currentTimeMillis());
+
     try {
 
       if (cache != null) {
-        // task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
+        task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
       }
 
       if (!task.hasResult()) {
         task = server.executeQuery(task);
+
+        if (cache != null) {
+          cache.addToCache(task);
+        }
       }
 
       return task;
@@ -87,15 +101,7 @@ public class ClientRepository {
 
     try {
 
-      if (cache != null) {
-        // task = cache.fetchFromCache(task); // UNCOMMENT TO FECTH FROM CACHE
-      }
-
-      if (!task.hasResult()) {
-        task = server.executeQuery(task);
-      }
-
-      return task;
+      return server.executeQuery(task);
 
     } catch(Exception e) {
       e.printStackTrace();
@@ -103,51 +109,5 @@ public class ClientRepository {
     }
 
   }
-
-  // public Task<?> execute(Task<?> t, ServerInterface server) {
-  //   Task<?> task = null;
-  //
-  //   try {
-  //     if (cache != null) {
-  //       //checks whether cache is added or not
-  //       // if cache is added then query is sent to cache first
-  //       // if cache has result then it's returned
-  //       // or else query is sent to server and the result is cached in the client cache
-  //       System.out.println("query is checked against client cache");
-  //       task = t.execute(cache);
-  //       if(task == null) {
-  //         System.out.println("client cache didn't have it. so query is sent to server");
-  //         task = t.execute(server);
-  //
-  //         if (task instanceof TimesPlayedTask) {
-  //           TimesPlayedTask taskMap = (TimesPlayedTask) task;
-  //           this.cache.addMusicToMusicProfile(taskMap.getMusicID(), null, (int)task.getResult());
-  //           System.out.println("query is added to client cache");
-  //         }
-  //
-  //         if (task instanceof TimesPlayedByUserTask) {
-  //
-  //         }
-  //
-  //         if(task instanceof TopArtistsByMusicGenreTask) {
-  //           TopArtistsByMusicGenreTask taskMap = (TopArtistsByMusicGenreTask) task;
-  //          // this.cache.addUserProfile(taskMap.getMusicID(), taskMap.getGenre(), (int)task.getResult());
-  //           System.out.println("query is added to client cache");
-  //         }
-  //       } else {
-  //         System.out.println("query is answered from client cache");
-  //       }
-  //     } else {
-  //       task = t.execute(server);
-  //     }
-  //   } catch(Exception e) {
-  //     return null;
-  //   }
-  //
-  //
-  //   return task;
-  //
-  // }
-
 
 }
