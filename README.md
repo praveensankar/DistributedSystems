@@ -19,3 +19,5 @@ instructions to execute
 kill the port in mac:
 1)  sudo lsof -i :<port_number> -> find PID
 2)  sudo kill -9 PID
+
+Documentation and screenshots available at /documentation
