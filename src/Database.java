@@ -130,7 +130,7 @@ class Database {
   }
 
 
-  public TopArtistsByMusicGenreTask executeQuery(TopArtistsByMusicGenreTask task) {
+  public TopArtistsByUserGenreTask executeQuery(TopArtistsByUserGenreTask task) {
 
     String[] top3 = new String[3];
 
@@ -282,11 +282,11 @@ class Database {
 
     System.out.println("\nTop 3 music");
 
-    TopArtistsByMusicGenreTask[] tpmg = {
-      new TopArtistsByMusicGenreTask("U1", "Rock", 0),
-      new TopArtistsByMusicGenreTask("U3", "Rock", 0),
-      new TopArtistsByMusicGenreTask("U2", "Rock", 0),
-      new TopArtistsByMusicGenreTask("U11", "Rock", 0)
+    TopArtistsByUserGenreTask[] tpmg = {
+      new TopArtistsByUserGenreTask("U1", "Rock", 0),
+      new TopArtistsByUserGenreTask("U3", "Rock", 0),
+      new TopArtistsByUserGenreTask("U2", "Rock", 0),
+      new TopArtistsByUserGenreTask("U11", "Rock", 0)
     };
 
     System.out.println("\nTimes played");
@@ -311,7 +311,7 @@ class Database {
       db.executeQuery(t);
       System.out.println(t.toString());
     }
-    for (TopArtistsByMusicGenreTask t : tpmg) {
+    for (TopArtistsByUserGenreTask t : tpmg) {
       db.executeQuery(t);
       System.out.println(t.toString());
     }

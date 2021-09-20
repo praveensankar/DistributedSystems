@@ -135,7 +135,7 @@ public class Client {
     //0: Counter, 1: TurnoverTime, 2: ExecutionTime, 3: WaitingTime
     int[] timesPlayed = {0,0,0,0};
     int[] timesPlayedByUser = {0,0,0,0};
-    int[] topArtistsByMusicGenre = {0,0,0,0};
+    int[] topArtistsByUserGenre = {0,0,0,0};
     int[] topThreeMusicByUser = {0,0,0,0};
     try {
 
@@ -150,11 +150,11 @@ public class Client {
           timesPlayedByUser[1] += t.getTurnaroundTime();
           timesPlayedByUser[2] += t.getExecutionTime();
           timesPlayedByUser[3] += t.getWaitTime();
-        } else if (t instanceof TopArtistsByMusicGenreTask){
-          topArtistsByMusicGenre[0] += 1;
-          topArtistsByMusicGenre[1] += t.getTurnaroundTime();
-          topArtistsByMusicGenre[2] += t.getExecutionTime();
-          topArtistsByMusicGenre[3] += t.getWaitTime();
+        } else if (t instanceof TopArtistsByUserGenreTask){
+          topArtistsByUserGenre[0] += 1;
+          topArtistsByUserGenre[1] += t.getTurnaroundTime();
+          topArtistsByUserGenre[2] += t.getExecutionTime();
+          topArtistsByUserGenre[3] += t.getWaitTime();
         } else if (t instanceof TopThreeMusicByUserTask) {
           topThreeMusicByUser[0] += 1;
           topThreeMusicByUser[1] += t.getTurnaroundTime();
@@ -177,7 +177,7 @@ public class Client {
 
       writer.write("Average times for getTimesPlayed(Turnover: " + (timesPlayed[1] / timesPlayed[0]) + "ms, Execution: " + (timesPlayed[2] / timesPlayed[0]) + "ms, Waiting: " + (timesPlayed[3] / timesPlayed[0]) + "ms)" + "\n");
       writer.write("Average times for getTimesPlayedByUser(Turnover: " + (timesPlayedByUser[1] / timesPlayedByUser[0]) + "ms, Execution: " + (timesPlayedByUser[2] / timesPlayedByUser[0]) + "ms, Waiting: " + (timesPlayedByUser[3] / timesPlayedByUser[0]) + "ms)" + "\n");
-      writer.write("Average times for topArtistsByMusicGenre(Turnover: " + (topArtistsByMusicGenre[1] / topArtistsByMusicGenre[0]) + "ms, Execution: " + (topArtistsByMusicGenre[2] / topArtistsByMusicGenre[0]) + "ms, Waiting: " + (topArtistsByMusicGenre[3] / topArtistsByMusicGenre[0]) + "ms)" + "\n");
+      writer.write("Average times for topArtistsByUserGenre(Turnover: " + (topArtistsByUserGenre[1] / topArtistsByUserGenre[0]) + "ms, Execution: " + (topArtistsByUserGenre[2] / topArtistsByUserGenre[0]) + "ms, Waiting: " + (topArtistsByUserGenre[3] / topArtistsByUserGenre[0]) + "ms)" + "\n");
       writer.write("Average times for topThreeMusicByUser(Turnover: " + (topThreeMusicByUser[1] / topThreeMusicByUser[0]) + "ms, Execution: " + (topThreeMusicByUser[2] / topThreeMusicByUser[0]) + "ms, Waiting: " + (topThreeMusicByUser[3] / topThreeMusicByUser[0]) + "ms)" + "\n");
       writer.close();
 
@@ -217,7 +217,7 @@ public class Client {
 
     else if (method.equals("getTopArtistsByUserGenre"))
       executeTask(() -> {
-        return repository.execute(new TopArtistsByMusicGenreTask(args1, args2, zoneID), getServer(zoneID, lbstub));
+        return repository.execute(new TopArtistsByUserGenreTask(args1, args2, zoneID), getServer(zoneID, lbstub));
       });
   }
 

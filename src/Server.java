@@ -172,10 +172,10 @@ public class Server implements ServerInterface {
 
 
   @Override
-  public TopArtistsByMusicGenreTask executeQuery(TopArtistsByMusicGenreTask task) {
+  public TopArtistsByUserGenreTask executeQuery(TopArtistsByUserGenreTask task) {
     simulateLatency(task);
 
-    Future<TopArtistsByMusicGenreTask> future = queryExecutor.submit(() -> {
+    Future<TopArtistsByUserGenreTask> future = queryExecutor.submit(() -> {
 
       task.setTimeStarted(System.currentTimeMillis());
 

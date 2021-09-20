@@ -209,7 +209,7 @@ public class Cache implements CacheInterface{
         int numberOfTimesPlayed = (int) task.getResult();
         this.addTimesPlayedToUser(userId, numberOfTimesPlayed);
     }
-    public void addToCache(TopArtistsByMusicGenreTask task) {
+    public void addToCache(TopArtistsByUserGenreTask task) {
         String[] top3 = (String[]) task.getResult();
         String genre = task.getGenre();
         String userId = task.getUserID();
@@ -272,7 +272,7 @@ public class Cache implements CacheInterface{
 
     //Returns the top artists of a specific genre a user listens to
     //The artist ids are stored in the Music Profile, which is the value to the genre key
-    public TopArtistsByMusicGenreTask fetchFromCache(TopArtistsByMusicGenreTask task) {
+    public TopArtistsByUserGenreTask fetchFromCache(TopArtistsByUserGenreTask task) {
         String userId = task.getUserID();
         String genre = task.getGenre();
 

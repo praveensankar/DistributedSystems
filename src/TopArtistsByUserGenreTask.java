@@ -1,12 +1,12 @@
 
-public class TopArtistsByMusicGenreTask extends Task<String[]> {
+public class TopArtistsByUserGenreTask extends Task<String[]> {
 
   private static final long serialVersionUID = 14L;
 
   String userID;
   String genre;
 
-  TopArtistsByMusicGenreTask(String userID, String genre, int zoneID) {
+  TopArtistsByUserGenreTask(String userID, String genre, int zoneID) {
     super(zoneID);
     this.userID = userID;
     this.genre = genre;

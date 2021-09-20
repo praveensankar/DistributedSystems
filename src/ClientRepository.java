@@ -70,7 +70,7 @@ public class ClientRepository {
     }
   }
 
-  public TopArtistsByMusicGenreTask execute(TopArtistsByMusicGenreTask task, ServerInterface server) {
+  public TopArtistsByUserGenreTask execute(TopArtistsByUserGenreTask task, ServerInterface server) {
 
     task.setTimeStarted(System.currentTimeMillis());
 
