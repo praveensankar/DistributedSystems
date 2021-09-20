@@ -213,6 +213,19 @@ public class Cache implements CacheInterface{
         this.addUserProfileToCache(userId,genre,musicId,artistId,numberOfTimesPlayed);
         //this.addTimesPlayedToUser(userId, numberOfTimesPlayed);
     }
+
+    public void addToCache(TopThreeMusicByUserTask task) {
+        String userId = task.getUserID();
+        String[] top3Music = (String[]) task.getResult();
+        String genre = "topThreeMusicByUser";
+        String artistId = "";
+        int numberOfTimesPlayed = 0;
+        if (top3Music.length == 3) {
+            for( int i = 0; i< 3; i++)
+            this.addUserProfileToCache(userId, genre, top3Music[i], artistId, numberOfTimesPlayed);
+           }
+    }
+
     public void addToCache(TopArtistsByUserGenreTask task) {
         String[] top3 = (String[]) task.getResult();
         String genre = task.getGenre();
@@ -221,6 +234,7 @@ public class Cache implements CacheInterface{
             String artistId = top3[i];
             String musicId = "";
             int timesPlayed = 0;
+            System.out.println(top3[i]);
             this.addUserProfileToCache(userId, genre, musicId, artistId, timesPlayed);
         }
     }
@@ -271,12 +285,7 @@ public class Cache implements CacheInterface{
                             res = favMusic.get(mp);
                             break;
                         }
-                        // System.out.println(mp.artistId);
-                        //   System.out.println("res: " + res);
-                        //
                     }
-
-
                 }
             }
         }
@@ -289,9 +298,9 @@ public class Cache implements CacheInterface{
 
     //Returns the top artists of a specific genre a user listens to
     //The artist ids are stored in the Music Profile, which is the value to the genre key
-    public TopArtistsByUserGenreTask fetchFromCache(TopArtistsByUserGenreTask task) {
+    public TopThreeMusicByUserTask fetchFromCache(TopThreeMusicByUserTask task) {
         String userId = task.getUserID();
-        String genre = task.getGenre();
+        String genre = "topThreeMusicByUser";
 
         ArrayList<String> res = new ArrayList<>();
         Queue<UserProfile> userProfiles = this.userProfiles;
@@ -300,20 +309,14 @@ public class Cache implements CacheInterface{
            if(u.userId.equals(userId)){
                if(u.musicProfileMap.containsKey(genre)){
                    HashMap<MusicProfile, Integer> favMusic = u.musicProfileMap.get(genre);
-                  // System.out.println("favMusic: "+favMusic);
                    for(MusicProfile mp : favMusic.keySet()){
-                       res.add(mp.artistId);
-                      // System.out.println(mp.artistId);
-                    //   System.out.println("res: " + res);
-                    //
+                       res.add(mp.musicId);
                    }
-
-
                }
             }
         }
 
-        System.out.print("cache entry accessed: \t user Id : "+userId+"\t genre : "+genre+"\t top artists : ");
+        System.out.print("cache entry accessed: \t user Id : "+userId+"\t top musics by user : ");
         for (int counter = 0; counter < res.size(); counter++) {
             System.out.print(res.get(counter)+"\t");
         }
@@ -321,6 +324,38 @@ public class Cache implements CacheInterface{
         if(res.size()==3)
         task.setResult(res.toArray(new String[3]));
         return task;
+    }
+
+    public TopArtistsByUserGenreTask fetchFromCache(TopArtistsByUserGenreTask task)
+    {
+        String userId = task.getUserID();
+        String genre = task.getGenre();
+
+        ArrayList<String> res = new ArrayList<>();
+        Queue<UserProfile> userProfiles = this.userProfiles;
+
+        for (UserProfile u : userProfiles){
+            if(u.userId.equals(userId)){
+                if(u.musicProfileMap.containsKey(genre)){
+                    HashMap<MusicProfile, Integer> favMusic = u.musicProfileMap.get(genre);
+                    // System.out.println("favMusic: "+favMusic);
+                    for(MusicProfile mp : favMusic.keySet()){
+                        res.add(mp.artistId);
+                    }
+                }
+            }
+        }
+
+        System.out.print("cache entry accessed: \t user Id : "+userId+"\t genre : "+genre+
+                "\t top artists by user genre : ");
+        for (int counter = 0; counter < res.size(); counter++) {
+            System.out.print(res.get(counter)+"\t");
+        }
+        System.out.println();
+        if(res.size()==3)
+            task.setResult(res.toArray(new String[3]));
+        return task;
+
     }
     public static void testCache()
     {
@@ -330,8 +365,8 @@ public class Cache implements CacheInterface{
         String userID = "1";
         String genre = "rock";
         int timesPlayed = 10;
-        String[] top3 = {"music1","music2","music3"};
-
+        String[] top3Artists = {"artist1","artist2","artist3"};
+        String[] top3Musics = {"music1","music2","music3"};
 
         TimesPlayedTask task1 = new TimesPlayedTask(musicID, zoneID);
         task1.setResult(timesPlayed);
@@ -339,24 +374,31 @@ public class Cache implements CacheInterface{
 
         TimesPlayedTask task11 = new TimesPlayedTask(musicID, zoneID);
         cache.fetchFromCache(task11);
-        System.out.println("count : "+task11.getResult());
+        System.out.println("times played : "+task11.getResult());
 
         TimesPlayedByUserTask task2=  new TimesPlayedByUserTask(musicID, userID, zoneID);
         task2.setResult(20);
         cache.addToCache(task2);
         TimesPlayedByUserTask task21 =  new TimesPlayedByUserTask(musicID, userID, zoneID);
         cache.fetchFromCache(task21);
-        System.out.println("count : "+task21.getResult());
+        System.out.println("times played by user : "+task21.getResult());
 
 
         TopThreeMusicByUserTask task3 =  new TopThreeMusicByUserTask(userID, zoneID);
+        task3.setResult(top3Musics);
+        cache.addToCache(task3);
+        TopThreeMusicByUserTask task31 =  new TopThreeMusicByUserTask(userID, zoneID);
+        cache.fetchFromCache(task31);
+        System.out.println("top musics by user : "+task31.getResult()[0]+"\t"+
+                task31.getResult()[1]+"\t"+task31.getResult()[2]);
 
         TopArtistsByUserGenreTask task4 = new TopArtistsByUserGenreTask(userID, genre, zoneID);
-        task4.setResult(top3);
+        task4.setResult(top3Artists);
         cache.addToCache(task4);
         TopArtistsByUserGenreTask task41 = new TopArtistsByUserGenreTask(userID, genre, zoneID);
         cache.fetchFromCache(task41);
-        System.out.println("result : "+task41.getResult()[0]+"\t"+task41.getResult()[1]+"\t"+task41.getResult()[2]);
+        System.out.println("top artists by user genre : "+task41.getResult()[0]+"\t"+
+                task41.getResult()[1]+"\t"+task41.getResult()[2]);
 
         TimesPlayedByUserTask task22 =  new TimesPlayedByUserTask(musicID, userID, zoneID);
         cache.fetchFromCache(task22);
@@ -365,7 +407,7 @@ public class Cache implements CacheInterface{
     }
     public static void main(String[] args)
     {
-            testCache();
+           // testCache();
     }
 
 }
