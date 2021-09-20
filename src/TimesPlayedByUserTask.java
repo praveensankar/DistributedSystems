@@ -11,6 +11,7 @@ public class TimesPlayedByUserTask extends Task<Integer> {
     super(zoneID);
     this.musicID = musicID;
     this.userID = userID;
+    result = 0;
   }
 
   public boolean hasResult() {

@@ -104,8 +104,6 @@ public class Server implements ServerInterface {
 
     Future<TimesPlayedTask> future = queryExecutor.submit(() -> {
 
-      System.err.println("Before cache" + task == null);
-
       // TimesPlayedTask t = null;
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
@@ -114,8 +112,6 @@ public class Server implements ServerInterface {
         cache.fetchFromCache(task);
         // t = cache.fetchFromCache(task);
       }
-
-      System.err.println("After cache" + task == null);
 
       if (!task.hasResult()) {
 
@@ -154,7 +150,7 @@ public class Server implements ServerInterface {
       // task.setTimeStarted(System.nanoTime());
       task.setTimeStarted(System.currentTimeMillis());
 
-      System.out.print("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
+      // System.out.println("getTimesPlayed by user "+task.getUserID()+" , music id : "+ task.getMusicID() +"is called" );
 
       if (cache != null) {
 

@@ -10,6 +10,7 @@ public class TimesPlayedTask extends Task<Integer> {
   TimesPlayedTask(String musicID, int zoneID) {
     super(zoneID);
     this.musicID = musicID;
+    result = 0;
   }
 
   public String getMusicID() {
