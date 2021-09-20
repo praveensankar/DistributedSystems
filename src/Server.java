@@ -215,7 +215,18 @@ public class Server implements ServerInterface {
 
       task.setTimeStarted(System.currentTimeMillis());
 
-      database.executeQuery(task);
+      if (cache != null) {
+         cache.fetchFromCache(task);
+      }
+
+      if (!task.hasResult()) {
+        database.executeQuery(task);
+
+        if (cache != null) {
+          cache.addToCache(task);
+        }
+
+      }
 
       return task;
 
