@@ -38,7 +38,6 @@ public class ClientRepository {
       }
 
       if (!task.hasResult()) {
-        System.out.println("TimesPlayedTask : music id : "+task.getMusicID()+"\t count : "+task.getResult());
         task = server.executeQuery(task);
 
         if(cache != null) {
@@ -74,10 +73,13 @@ public class ClientRepository {
 
       if (!task.hasResult()) {
         task = server.executeQuery(task);
-        if(cache!=null) {
+
+        if (cache != null) {
+
           synchronized (cache) {
             cache.addToCache(task);
           }
+          
         }
       }
 
