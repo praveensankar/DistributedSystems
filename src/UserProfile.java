@@ -31,7 +31,7 @@ class UserProfile{
   //String genre
   HashMap<String, HashMap<MusicProfile, Integer>> musicProfileMap = new HashMap<String, HashMap<MusicProfile, Integer>>(3);
 
-  int timesPlayed;
+
   // this queue stores the order of insertion for the genre for each user
   public Deque<String> genreOrder = new ArrayDeque<String>(3);
 
@@ -41,16 +41,6 @@ class UserProfile{
 
   public Set<String> getGenres() {
     return musicProfileMap.keySet();
-  }
-
-  public void addTimesPlayed(int timesPlayed)
-  {
-    this.timesPlayed = timesPlayed;
-  }
-
-  public int getTimesPlayed()
-  {
-    return this.timesPlayed;
   }
 
   public void addMusic(String genre, String musicId, String artistId, int numberOfTimesPlayed) {

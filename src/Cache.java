@@ -1,7 +1,7 @@
 import java.util.*;
 public class Cache implements CacheInterface{
 
-    private int musicIdCapacity = 3;
+    private int musicIdCapacity = 100;
     private int userIdCapacity = 100;
 
     // musicProfiles hash map is used to contain music Profile object as key and it stores the number of times it played as value
@@ -43,41 +43,41 @@ public class Cache implements CacheInterface{
         System.out.println("new cache entry : \t music Id : "+musicId+"\t times played : "+numberOfTimesPlayed);
     }
     // adds number of times played to user id
-    private void addTimesPlayedToUser(String userId, int numberoOfTimesPlayed)
-    {
-        boolean userIdExistFlag = false;
-
-        // add userId and timesplayed to the user profile
-        for(UserProfile userProfile: this.userProfiles)
-         {
-        // step 1.A : user id exists
-        if (userProfile.userId.equals(userId)) {
-            userIdExistFlag = true;
-            userProfile.addTimesPlayed(numberoOfTimesPlayed);
-            break;
-             }
-          }
-        if(userIdExistFlag==false)
-        {
-            {
-                // step 1.B : User doesn't exist
-                // step 1.B.a : check the capacity
-                int userProfileQueueSize = this.count;
-                if (userProfileQueueSize == this.userIdCapacity) {
-                    // step 1.B.a : it's full so remove the oldest entry
-                    this.userProfiles.remove();
-                    this.count = this.count - 1;
-                }
-                // step 1.B.b : add the user profile
-                this.count = this.count + 1;
-                UserProfile up = new UserProfile(userId);
-                up.addTimesPlayed(numberoOfTimesPlayed);
-                this.userProfiles.add(up);
-            }
-        }
-        System.out.println("new cache entry : \t user Id : "+userId+"\t times played : "+numberoOfTimesPlayed);
-
-    }
+//    private void addTimesPlayedToUser(String userId, int numberoOfTimesPlayed)
+//    {
+//        boolean userIdExistFlag = false;
+//
+//        // add userId and timesplayed to the user profile
+//        for(UserProfile userProfile: this.userProfiles)
+//         {
+//        // step 1.A : user id exists
+//        if (userProfile.userId.equals(userId)) {
+//            userIdExistFlag = true;
+//            userProfile.addTimesPlayed(numberoOfTimesPlayed);
+//            break;
+//             }
+//          }
+//        if(userIdExistFlag==false)
+//        {
+//            {
+//                // step 1.B : User doesn't exist
+//                // step 1.B.a : check the capacity
+//                int userProfileQueueSize = this.count;
+//                if (userProfileQueueSize == this.userIdCapacity) {
+//                    // step 1.B.a : it's full so remove the oldest entry
+//                    this.userProfiles.remove();
+//                    this.count = this.count - 1;
+//                }
+//                // step 1.B.b : add the user profile
+//                this.count = this.count + 1;
+//                UserProfile up = new UserProfile(userId);
+//                up.addTimesPlayed(numberoOfTimesPlayed);
+//                this.userProfiles.add(up);
+//            }
+//        }
+//        System.out.println("new cache entry : \t user Id : "+userId+"\t times played : "+numberoOfTimesPlayed);
+//
+//    }
     // adds user profile
     private void addUserProfileToCache(String userId, String genre, String musicId, String artistId, int numberOfTimesPlayed)
     {
@@ -207,7 +207,11 @@ public class Cache implements CacheInterface{
     {
         String userId = task.getUserID();
         int numberOfTimesPlayed = (int) task.getResult();
-        this.addTimesPlayedToUser(userId, numberOfTimesPlayed);
+        String musicId = task.getMusicID();
+        String genre = "userTimes";
+        String artistId = "";
+        this.addUserProfileToCache(userId,genre,musicId,artistId,numberOfTimesPlayed);
+        //this.addTimesPlayedToUser(userId, numberOfTimesPlayed);
     }
     public void addToCache(TopArtistsByUserGenreTask task) {
         String[] top3 = (String[]) task.getResult();
@@ -218,7 +222,6 @@ public class Cache implements CacheInterface{
             String musicId = "";
             int timesPlayed = 0;
             this.addUserProfileToCache(userId, genre, musicId, artistId, timesPlayed);
-
         }
     }
 
@@ -253,19 +256,33 @@ public class Cache implements CacheInterface{
     public TimesPlayedByUserTask fetchFromCache(TimesPlayedByUserTask task) {
         String musicId = task.getMusicID();
         String userId = task.getUserID();
-
+        String genre = "userTimes";
         int res = 0;
 
         Queue<UserProfile> userProfiles = this.userProfiles;
         for (UserProfile u : userProfiles) {
             if (u.userId.equals(userId)) {
-                res = u.getTimesPlayed();
-                break;
+                if(u.musicProfileMap.containsKey(genre)){
+                    HashMap<MusicProfile, Integer> favMusic = u.musicProfileMap.get(genre);
+                    // System.out.println("favMusic: "+favMusic);
+                    for(MusicProfile mp : favMusic.keySet()){
+                        if(mp.musicId.equals(musicId))
+                        {
+                            res = favMusic.get(mp);
+                            break;
+                        }
+                        // System.out.println(mp.artistId);
+                        //   System.out.println("res: " + res);
+                        //
+                    }
+
+
+                }
             }
         }
 
         task.setResult(res);
-        System.out.println("cache entry accessed: \t user Id : "+userId+"\t times played : "+res);
+        System.out.println("cache entry accessed: \t user Id : "+userId+"\t music id : "+musicId+"\t times played : "+res);
         return task;
 
     }
@@ -301,8 +318,54 @@ public class Cache implements CacheInterface{
             System.out.print(res.get(counter)+"\t");
         }
         System.out.println();
+        if(res.size()==3)
         task.setResult(res.toArray(new String[3]));
         return task;
+    }
+    public static void testCache()
+    {
+        Cache cache = new Cache(100);
+        int zoneID = 1;
+        String musicID = "1";
+        String userID = "1";
+        String genre = "rock";
+        int timesPlayed = 10;
+        String[] top3 = {"music1","music2","music3"};
+
+
+        TimesPlayedTask task1 = new TimesPlayedTask(musicID, zoneID);
+        task1.setResult(timesPlayed);
+        cache.addToCache(task1);
+
+        TimesPlayedTask task11 = new TimesPlayedTask(musicID, zoneID);
+        cache.fetchFromCache(task11);
+        System.out.println("count : "+task11.getResult());
+
+        TimesPlayedByUserTask task2=  new TimesPlayedByUserTask(musicID, userID, zoneID);
+        task2.setResult(20);
+        cache.addToCache(task2);
+        TimesPlayedByUserTask task21 =  new TimesPlayedByUserTask(musicID, userID, zoneID);
+        cache.fetchFromCache(task21);
+        System.out.println("count : "+task21.getResult());
+
+
+        TopThreeMusicByUserTask task3 =  new TopThreeMusicByUserTask(userID, zoneID);
+
+        TopArtistsByUserGenreTask task4 = new TopArtistsByUserGenreTask(userID, genre, zoneID);
+        task4.setResult(top3);
+        cache.addToCache(task4);
+        TopArtistsByUserGenreTask task41 = new TopArtistsByUserGenreTask(userID, genre, zoneID);
+        cache.fetchFromCache(task41);
+        System.out.println("result : "+task41.getResult()[0]+"\t"+task41.getResult()[1]+"\t"+task41.getResult()[2]);
+
+        TimesPlayedByUserTask task22 =  new TimesPlayedByUserTask(musicID, userID, zoneID);
+        cache.fetchFromCache(task22);
+        System.out.println("count : "+task22.getResult());
+
+    }
+    public static void main(String[] args)
+    {
+            testCache();
     }
 
 }
