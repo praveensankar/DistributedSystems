@@ -1,22 +1,24 @@
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.RemoteException;
-import java.util.function.Supplier;
 
 public class ClientRepository {
 
-  // To use with cache:
-  // ClientRepository repo = new ClientRepository(new Cache());
-
-  // To use without cache:
-  // ClientRepository repo = new ClientRepository(null);
-
   Cache cache;
+  LoadBalancerInterface loadBalancer;
 
   // Send in null for naive implementation
-  public ClientRepository(Cache cache) {
+  private ClientRepository(Cache cache) {
     this.cache = cache;
   }
 
-  public TimesPlayedTask execute(TimesPlayedTask task, ServerInterface server) {
+  static ClientRepository create(Cache cache) throws Exception {
+    ClientRepository cr = new ClientRepository(cache);
+    cr.setLoadBalancer();
+    return cr;
+  }
+
+  public TimesPlayedTask execute(TimesPlayedTask task) {
 
     task.setTimeStarted(System.currentTimeMillis());
 
@@ -33,7 +35,7 @@ public class ClientRepository {
       }
 
       if (!task.hasResult()) {
-        task = server.executeQuery(task);
+        task = getServer(task).executeQuery(task);
 
         if(cache != null) {
 
@@ -52,7 +54,7 @@ public class ClientRepository {
     }
   }
 
-  public TimesPlayedByUserTask execute(TimesPlayedByUserTask task, ServerInterface server) {
+  public TimesPlayedByUserTask execute(TimesPlayedByUserTask task) {
 
     task.setTimeStarted(System.currentTimeMillis());
 
@@ -68,7 +70,7 @@ public class ClientRepository {
 
       if (!task.hasResult()) {
 
-        task = server.executeQuery(task);
+        task = getServer(task).executeQuery(task);
 
         if (cache != null) {
 
@@ -87,7 +89,7 @@ public class ClientRepository {
     }
   }
 
-  public TopArtistsByUserGenreTask execute(TopArtistsByUserGenreTask task, ServerInterface server) {
+  public TopArtistsByUserGenreTask execute(TopArtistsByUserGenreTask task) {
 
     task.setTimeStarted(System.currentTimeMillis());
 
@@ -102,7 +104,7 @@ public class ClientRepository {
       }
 
       if (!task.hasResult()) {
-        task = server.executeQuery(task);
+        task = getServer(task).executeQuery(task);
 
         if (cache != null) {
 
@@ -122,7 +124,7 @@ public class ClientRepository {
 
   }
 
-  public TopThreeMusicByUserTask execute(TopThreeMusicByUserTask task, ServerInterface server) {
+  public TopThreeMusicByUserTask execute(TopThreeMusicByUserTask task) {
 
     try {
 
@@ -135,8 +137,8 @@ public class ClientRepository {
       }
 
       if (!task.hasResult()) {
-        
-        task = server.executeQuery(task);
+
+        task = getServer(task).executeQuery(task);
 
         if (cache != null) {
 
@@ -156,11 +158,15 @@ public class ClientRepository {
 
   }
 
-  private static ServerInterface getServer(Task<?> task) {
+  private void setLoadBalancer() throws Exception {
+    Registry registry = LocateRegistry.getRegistry();
+    loadBalancer = (LoadBalancerInterface) registry.lookup("loadbalancer");
+  }
+
+  private ServerInterface getServer(Task<?> task) {
     try {
-      LoadBalancerResponse response = lbstub.fetchServer(task.getZoneID());
-      ServerInterface server = response.serverStub;
-      return server;
+      LoadBalancerResponse r = loadBalancer.fetchServer(task.getZoneID());
+      return r.serverStub;
     } catch(Exception e) {
       e.printStackTrace();
       return null;

@@ -43,6 +43,7 @@ public class Client {
 
   public static void main(String[] args) {
 
+
     String inputFile = "../input/";
     String outputFile = "../output/";
 
@@ -51,7 +52,9 @@ public class Client {
       if (args[0].equals("-s") && args[1].equals("-c")) {
         // server cache status should have been retrieved without passing it as a flag
         // but due to time constraint we are using this hack
-       repository = new ClientRepository(new Cache(250));
+
+       initializeRepository(new Cache(250));
+
        System.out.println("client cache is and server cache both enabled");
        inputFile += "cached_input.txt";
        outputFile += "server_client_cache.txt";
@@ -68,13 +71,16 @@ public class Client {
         System.out.println("only server cache is enabled");
         inputFile += "cached_input.txt";
         outputFile += "server_cache.txt";
-        repository = new ClientRepository(null);
+
+        initializeRepository(null);
 
       } else if (args[0].equals("-t")) {
 
         inputFile += "dummy_input.txt";
         outputFile += "dummy_output.txt";
-        repository = new ClientRepository(new Cache(250));
+
+        initializeRepository(new Cache(250));
+
         clientExecutor = Executors.newFixedThreadPool(1);
 
       } else {
@@ -86,7 +92,7 @@ public class Client {
 
       inputFile += "naive_input.txt";
       outputFile += "naive_output.txt";
-      repository = new ClientRepository(null);
+      initializeRepository(null);
 
     }
 
@@ -124,14 +130,14 @@ public class Client {
   private static void executeCommands(String file) {
 
     try {
-      Registry registry = LocateRegistry.getRegistry();
-      LoadBalancerInterface lbstub = (LoadBalancerInterface) registry.lookup("loadbalancer");
+      // Registry registry = LocateRegistry.getRegistry();
+      // LoadBalancerInterface lbstub = (LoadBalancerInterface) registry.lookup("loadbalancer");
 
       Scanner scanner = new Scanner(new File(file));
 
       while (scanner.hasNextLine()) {
         String command = scanner.nextLine();
-        executeCommand(command, lbstub);
+        executeCommand(command);
       }
 
       scanner.close();
@@ -212,7 +218,7 @@ public class Client {
     }
   }
 
-  private static void executeCommand(String command, LoadBalancerInterface lbstub) {
+  private static void executeCommand(String command) {
 
     Matcher m = parse(command);
 
@@ -226,22 +232,22 @@ public class Client {
 
     if (method.equals("getTimesPlayed"))
       executeTask(() -> {
-        return repository.execute(new TimesPlayedTask(args1, zoneID), getServer(zoneID, lbstub));
+        return repository.execute(new TimesPlayedTask(args1, zoneID));
       });
 
     else if (method.equals("getTimesPlayedByUser"))
       executeTask(() -> {
-        return repository.execute(new TimesPlayedByUserTask(args1, args2, zoneID), getServer(zoneID, lbstub));
+        return repository.execute(new TimesPlayedByUserTask(args1, args2, zoneID));
       });
 
     else if (method.equals("getTopThreeMusicByUser"))
       executeTask(() -> {
-        return repository.execute(new TopThreeMusicByUserTask(args1, zoneID), getServer(zoneID, lbstub));
+        return repository.execute(new TopThreeMusicByUserTask(args1, zoneID));
       });
 
     else if (method.equals("getTopArtistsByUserGenre"))
       executeTask(() -> {
-        return repository.execute(new TopArtistsByUserGenreTask(args1, args2, zoneID), getServer(zoneID, lbstub));
+        return repository.execute(new TopArtistsByUserGenreTask(args1, args2, zoneID));
       });
   }
 
@@ -278,14 +284,23 @@ public class Client {
 
   }
 
-  private static ServerInterface getServer(int zoneID, LoadBalancerInterface lbstub) {
+  private static void initializeRepository(Cache cache) {
     try {
-      LoadBalancerResponse response = lbstub.fetchServer(zoneID);
-      ServerInterface server = response.serverStub;
-      return server;
+      repository = ClientRepository.create(cache);
     } catch(Exception e) {
       e.printStackTrace();
-      return null;
+      System.exit(-1);
     }
   }
+
+  // private static ServerInterface getServer(int zoneID, LoadBalancerInterface lbstub) {
+  //   try {
+  //     LoadBalancerResponse response = lbstub.fetchServer(zoneID);
+  //     ServerInterface server = response.serverStub;
+  //     return server;
+  //   } catch(Exception e) {
+  //     e.printStackTrace();
+  //     return null;
+  //   }
+  // }
 }
