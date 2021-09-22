@@ -20,6 +20,21 @@ public class TimesPlayedTask extends Task<Integer> {
   }
 
   @Override
+  public TimesPlayedTask execute(Database database) {
+    return database.executeQuery(this);
+  }
+
+  @Override
+  public TimesPlayedTask execute(Cache cache) {
+    return cache.fetchFromCache(this);
+  }
+
+  @Override
+  public void addToCache(Cache cache) {
+    cache.addToCache(this);
+  }
+
+  @Override
   public String toString() {
     return "Music " + musicID
             + " was played " + result

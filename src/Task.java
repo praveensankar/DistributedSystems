@@ -65,6 +65,10 @@ public abstract class Task<T> implements Serializable {
     return (timeFinished - timeStarted);
   }
 
+  public abstract Task<T> execute(Database database);
+  public abstract Task<T> execute(Cache cache);
+  public abstract void addToCache(Cache cache);
+
   @Override
   public String toString() {
     return "(turnaround time: " + getTurnaroundTime()

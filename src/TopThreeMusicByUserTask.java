@@ -24,6 +24,21 @@ public class TopThreeMusicByUserTask extends Task<String[]> {
   }
 
   @Override
+  public TopThreeMusicByUserTask execute(Database database) {
+    return database.executeQuery(this);
+  }
+
+  @Override
+  public TopThreeMusicByUserTask execute(Cache cache) {
+    return cache.fetchFromCache(this);
+  }
+
+  @Override
+  public void addToCache(Cache cache) {
+    cache.addToCache(this);
+  }
+
+  @Override
   public String toString() {
     return "Top three musics for user " + userID + " were "
             + result[0] + ", " + result[1] + ", " + result[2]
