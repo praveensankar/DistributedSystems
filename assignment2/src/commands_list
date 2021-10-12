@@ -1,0 +1,10 @@
+getQuickBalance
+getSyncedBalance
+deposit 10
+addInterest 1.5
+getHistory
+checkTxStatus 123
+cleanHistory
+memberInfo
+sleep 5
+exit
