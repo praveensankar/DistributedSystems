@@ -30,6 +30,21 @@ public class TopArtistsByUserGenreTask extends Task<String[]> {
   }
 
   @Override
+  public TopArtistsByUserGenreTask execute(Database database) {
+    return database.executeQuery(this);
+  }
+
+  @Override
+  public TopArtistsByUserGenreTask execute(Cache cache) {
+    return cache.fetchFromCache(this);
+  }
+
+  @Override
+  public void addToCache(Cache cache) {
+    cache.addToCache(this);
+  }
+
+  @Override
   public String toString() {
     return "Top three artists for genre " + genre
             + " and user " + userID
