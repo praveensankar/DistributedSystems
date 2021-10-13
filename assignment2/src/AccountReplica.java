@@ -69,6 +69,12 @@ public class AccountReplica {
         replicaId = Integer.toString(random.nextInt());
         parseCommandLineArguments(args);
 
+        try {
+            setUpSpreadConstructs();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (fileName != null ){
             //parse file
         }
@@ -77,14 +83,12 @@ public class AccountReplica {
         while (!command.equals("exit")){
             //keep it running
         }
+
         try {
-            setUpSpreadConstructs();
             sendCommand("test command");
-        } catch (Exception e) {
+        } catch (SpreadException e) {
             e.printStackTrace();
         }
-
-
 
 
     }
