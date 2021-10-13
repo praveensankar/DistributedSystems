@@ -2,6 +2,7 @@ import spread.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -40,7 +41,7 @@ public class AccountReplica {
         if (args.length==4) {
             fileName = args[3];
         }
-        System.out.println(accountName);
+//        System.out.println(accountName);
 //        System.out.println(numberOfReplicas);
 //        System.out.println(serverAddress);
 //        System.out.println(fileName);
@@ -66,7 +67,8 @@ public class AccountReplica {
     public static void main(String[] args) {
 
         Random random = new Random();
-        replicaId = Integer.toString(random.nextInt());
+        replicaId = Integer.toString(random.nextInt(50));
+        System.out.println("replica id : "+replicaId);
         parseCommandLineArguments(args);
 
         try {
@@ -94,6 +96,38 @@ public class AccountReplica {
 
 
 
+
+    }
+
+    public double getQuickBalance(){
+        return 0.0;
+
+    }
+    public double getSyncedBalance(){
+        return 0.0;
+    }
+    public void deposit(int amount){
+
+    }
+    public List<Transaction> addInterest(double percent){
+        return null;
+    }
+    public void getHistory(){
+
+    }
+    public void checkTxStatus(String uniqueId){
+
+    }
+    public void cleanHistory(){
+
+    }
+    public String memberInfo(){
+        return null;
+    }
+    public void sleep(int duration){
+
+    }
+    public void exit(){
 
     }
 
