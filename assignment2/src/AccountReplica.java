@@ -87,7 +87,7 @@ public class AccountReplica {
         }
 
         try {
-            sendCommand("test command");
+            sendCommand(command);
         } catch (SpreadException e) {
             e.printStackTrace();
         }
