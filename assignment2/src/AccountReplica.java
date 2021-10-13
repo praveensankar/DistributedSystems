@@ -2,6 +2,7 @@ import spread.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -14,6 +15,9 @@ public class AccountReplica {
     3) replica.setUpSpreadConstructs();
      */
 
+    // ---------------------------------------------------
+    // spread related variables
+    // --------------------------------------------------
     private static int numberOfReplicas;
     private static String replicaId = "replica1";
     private static int port = 0;
@@ -23,6 +27,17 @@ public class AccountReplica {
 
     private static SpreadConnection connection;
     private static SpreadGroup group;
+
+
+    //---------------------------------------------------
+    // bank account state replicated machine related variables
+    //----------------------------------------------------
+    private static double balance = 0.0;
+    private static int orderCounter = 0;
+    private static int outstandingCounter = 0;
+    private static ArrayList<Transaction> executedList=new ArrayList<Transaction>();
+    private static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
+
 
     public static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
         connection = new SpreadConnection();
@@ -100,17 +115,17 @@ public class AccountReplica {
     }
 
     public double getQuickBalance(){
-        return 0.0;
+        return balance;
 
     }
     public double getSyncedBalance(){
         return 0.0;
     }
-    public void deposit(int amount){
-
+    public void deposit(double amount){
+    balance = balance + amount;
     }
-    public List<Transaction> addInterest(double percent){
-        return null;
+    public void addInterest(double percent){
+        balance  = balance + (balance*percent);
     }
     public void getHistory(){
 
