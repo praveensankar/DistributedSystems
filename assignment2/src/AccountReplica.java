@@ -2,6 +2,7 @@ import spread.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -94,6 +95,38 @@ public class AccountReplica {
 
 
 
+
+    }
+
+    public double getQuickBalance(){
+        return 0.0;
+
+    }
+    public double getSyncedBalance(){
+        return 0.0;
+    }
+    public void deposit(int amount){
+
+    }
+    public List<Transaction> addInterest(double percent){
+        return null;
+    }
+    public void getHistory(){
+
+    }
+    public void checkTxStatus(String uniqueId){
+
+    }
+    public void cleanHistory(){
+
+    }
+    public String memberInfo(){
+        return null;
+    }
+    public void sleep(int duration){
+
+    }
+    public void exit(){
 
     }
 
