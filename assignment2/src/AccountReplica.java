@@ -5,7 +5,7 @@ import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.Scanner;
 
-public class AccountReplica implements AdvancedMessageListener {
+public class AccountReplica {
     /*
     Flow:
     1) AccountReplica replica = new AccountReplica();
@@ -26,24 +26,11 @@ public class AccountReplica implements AdvancedMessageListener {
     public AccountReplica(String replicaId) {
         this.replicaId = replicaId;
     }
-    @Override
-    public void regularMessageReceived(SpreadMessage spreadMessage) {
-        try {
-            System.out.println("test message received");
-            System.out.println(spreadMessage.getObject().toString());
-        } catch (SpreadException e) {
-            e.printStackTrace();
-        }
-    }
 
-    @Override
-    public void membershipMessageReceived(SpreadMessage spreadMessage) {
-        System.out.println(spreadMessage.getMembershipInfo().getGroup());
-    }
 
     public void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
         connection = new SpreadConnection();
-        connection.add(this);
+        connection.add(new Listener());
         connection.connect(InetAddress.getByName(serverAddress), port, replicaId, false, true);
 
         group = new SpreadGroup();
@@ -82,7 +69,7 @@ public class AccountReplica implements AdvancedMessageListener {
     // filename - String eg:- testfile
 
     public static void main(String[] args) {
-        
+
         Random random = new Random();
         int replicaId1 = random.nextInt();
         int replicaId2 = random.nextInt();
