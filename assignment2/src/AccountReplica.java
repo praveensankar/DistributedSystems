@@ -78,10 +78,12 @@ public class AccountReplica {
         if (fileName != null ){
             //parse file
         }
-        Scanner input = new Scanner(System.in);
-        String command = input.next();;
+
+        String command = "";
         while (!command.equals("exit")){
             //keep it running
+            Scanner input = new Scanner(System.in);
+            command = input.nextLine();
         }
 
         try {
