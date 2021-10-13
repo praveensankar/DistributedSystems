@@ -84,13 +84,15 @@ public class AccountReplica {
             //keep it running
             Scanner input = new Scanner(System.in);
             command = input.nextLine();
+
+            try {
+                sendCommand(command);
+            } catch (SpreadException e) {
+                e.printStackTrace();
+            }
         }
 
-        try {
-            sendCommand(command);
-        } catch (SpreadException e) {
-            e.printStackTrace();
-        }
+
 
 
     }
