@@ -90,6 +90,14 @@ public class AccountReplica implements AdvancedMessageListener {
         AccountReplica replica2 = new AccountReplica(Integer.toString(replicaId2));
         replica1.parseCommandLineArguments(args);
         replica2.parseCommandLineArguments(args);
+        String command = null;
+        if (fileName != null ){
+            //parse file
+        }
+
+        while (!command.equals("exit")){
+            //keep it running
+        }
         try {
             replica1.setUpSpreadConstructs();
             replica2.setUpSpreadConstructs();
