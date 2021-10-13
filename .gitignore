@@ -2,5 +2,5 @@
 .DS_Store
 *.class
 /tests/*
-*.sh
+
 
