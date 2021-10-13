@@ -13,22 +13,17 @@ public class AccountReplica {
     3) replica.setUpSpreadConstructs();
      */
 
-    private int numberOfReplicas;
-    private String replicaId = "replica1";
-    private int port = 0;
-    private String serverAddress;
-    private String accountName;
-    private String fileName;
+    private static int numberOfReplicas;
+    private static String replicaId = "replica1";
+    private static int port = 0;
+    private static String serverAddress;
+    private static String accountName;
+    private static String fileName;
 
-    private SpreadConnection connection;
-    private SpreadGroup group;
+    private static SpreadConnection connection;
+    private static SpreadGroup group;
 
-    public AccountReplica(String replicaId) {
-        this.replicaId = replicaId;
-    }
-
-
-    public void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
+    public static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
         connection = new SpreadConnection();
         connection.add(new Listener());
         connection.connect(InetAddress.getByName(serverAddress), port, replicaId, false, true);
@@ -37,7 +32,7 @@ public class AccountReplica {
         group.join(connection, accountName);
     }
 
-    public void parseCommandLineArguments(String[] args) {
+    public static void parseCommandLineArguments(String[] args) {
         serverAddress = args[0];
         accountName = args[1];
         numberOfReplicas = Integer.parseInt(args[2]);
@@ -52,7 +47,7 @@ public class AccountReplica {
     }
 
 
-    public void sendCommand(String command) throws SpreadException {
+    public static void sendCommand(String command) throws SpreadException {
         SpreadMessage message = new SpreadMessage();
         message.addGroup(accountName);
         message.setReliable();
@@ -71,30 +66,25 @@ public class AccountReplica {
     public static void main(String[] args) {
 
         Random random = new Random();
-        int replicaId1 = random.nextInt();
-        int replicaId2 = random.nextInt();
-        AccountReplica replica1 = new AccountReplica(Integer.toString(replicaId1));
-        AccountReplica replica2 = new AccountReplica(Integer.toString(replicaId2));
-        replica1.parseCommandLineArguments(args);
-        replica2.parseCommandLineArguments(args);
-        String command = null;
+        replicaId = Integer.toString(random.nextInt());
+        parseCommandLineArguments(args);
+
         if (fileName != null ){
             //parse file
         }
-
+        Scanner input = new Scanner(System.in);
+        String command = input.next();;
         while (!command.equals("exit")){
             //keep it running
         }
         try {
-            replica1.setUpSpreadConstructs();
-            replica2.setUpSpreadConstructs();
-            replica1.sendCommand("test command");
+            setUpSpreadConstructs();
+            sendCommand("test command");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Scanner input = new Scanner(System.in);
-        input.next();
+
 
 
     }
