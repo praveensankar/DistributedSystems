@@ -74,9 +74,15 @@ public class AccountReplica implements AdvancedMessageListener {
         System.out.println("command : "+ command+" multicasted by : "+replicaId);
     }
 
+    //args:
+    // <server address> <account name> <number of replicas> <file name>
+    // server address - String eg:- 127.0.0.1
+    // account name - String eg:- testaccount
+    // number of replicas - int eg:- 3
+    // filename - String eg:- testfile
 
     public static void main(String[] args) {
-
+        
         Random random = new Random();
         int replicaId1 = random.nextInt();
         int replicaId2 = random.nextInt();
