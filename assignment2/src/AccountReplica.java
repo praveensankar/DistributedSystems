@@ -40,7 +40,7 @@ public class AccountReplica {
         if (args.length==4) {
             fileName = args[3];
         }
-        System.out.println(accountName);
+//        System.out.println(accountName);
 //        System.out.println(numberOfReplicas);
 //        System.out.println(serverAddress);
 //        System.out.println(fileName);
@@ -66,7 +66,8 @@ public class AccountReplica {
     public static void main(String[] args) {
 
         Random random = new Random();
-        replicaId = Integer.toString(random.nextInt());
+        replicaId = Integer.toString(random.nextInt(50));
+        System.out.println("replica id : "+replicaId);
         parseCommandLineArguments(args);
 
         try {
