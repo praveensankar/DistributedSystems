@@ -72,12 +72,61 @@ public class AccountReplica {
         System.out.println("command : "+ command+" multicasted by : "+replicaId);
     }
 
+    public static void parseCommand(String cmd)  {
+
+        if (cmd.equals("getQuickBalance")){
+            getQuickBalance();
+        }
+        else if(cmd.equals("getSyncedBalance")){
+            // Todo: Naive implementation : execute the transactions from the outstanding collection
+            getSyncedBalance();
+        }
+        else if(cmd.equals("getHistory")){
+            getHistory();
+        }
+        else if(cmd.equals("cleanHistory")){
+
+        }
+        else if(cmd.equals("memberInfo")){
+
+        }
+        else if(cmd.equals("exit")){
+
+        }
+        else if(cmd.startsWith("deposit")){
+            double amount = Double.parseDouble(cmd.split(" ")[1]);
+            // Todo: add transaction object in the oustanding collection and multicast it
+            addTransactionToOutstandingCollection(cmd);
+            // deposit(amount);
+        }
+        else if(cmd.startsWith("addInterest")){
+
+        }
+        else if(cmd.startsWith("checkTxStatus")){
+
+        }
+        else if(cmd.startsWith("sleep")){
+
+        }
+
+
+    }
+
+    public static void addTransactionToOutstandingCollection(String cmd){
+        String uniqueId = replicaId + outstandingCounter;
+        Transaction transaction = new Transaction(cmd, uniqueId);
+        outstandingCollection.add(transaction);
+        outstandingCounter += 1;
+    }
+
+
     //args:
     // <server address> <account name> <number of replicas> <file name>
     // server address - String eg:- 127.0.0.1
     // account name - String eg:- testaccount
     // number of replicas - int eg:- 3
     // filename - String eg:- testfile
+
 
     public static void main(String[] args) {
 
@@ -103,8 +152,9 @@ public class AccountReplica {
             command = input.nextLine();
 
             try {
-                sendCommand(command);
-            } catch (SpreadException e) {
+                parseCommand(command);
+                //  sendCommand(command);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -114,22 +164,36 @@ public class AccountReplica {
 
     }
 
-    public double getQuickBalance(){
-        return balance;
+    public static void getQuickBalance(){
+        System.out.println("balance : "+balance);
+    }
 
+    public static void getSyncedBalance(){
+        // Todo: do the sync part
+        System.out.println("synced balance : "+ balance);
     }
-    public double getSyncedBalance(){
-        return 0.0;
-    }
-    public void deposit(double amount){
+
+    public static void deposit(double amount){
     balance = balance + amount;
     }
-    public void addInterest(double percent){
+    public static void addInterest(double percent){
         balance  = balance + (balance*percent);
     }
-    public void getHistory(){
 
+    public static void getHistory(){
+        // print the execute list
+        System.out.println("executed list : ");
+        for(Transaction transaction : executedList) {
+            System.out.println(transaction.toString());
+        }
+        // print the outstanding collection
+        System.out.println("outstanding collection : ");
+        for(Transaction transaction : outstandingCollection)
+        {
+            System.out.println(transaction.toString());
+        }
     }
+
     public void checkTxStatus(String uniqueId){
 
     }

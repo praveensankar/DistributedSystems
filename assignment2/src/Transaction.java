@@ -23,4 +23,9 @@ public class Transaction {
     public void setUnique_id(String unique_id) {
         this.unique_id = unique_id;
     }
+
+    @Override
+    public String toString() {
+        return " Command : "+command+"\t unique id : "+unique_id;
+    }
 }
