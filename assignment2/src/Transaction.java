@@ -1,4 +1,6 @@
-public class Transaction {
+import java.io.Serializable;
+
+public class Transaction implements Serializable {
 
     String command;
     String unique_id;

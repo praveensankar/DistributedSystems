@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class AccountReplica {
     /*
@@ -36,7 +39,7 @@ public class AccountReplica {
     private static int orderCounter = 0;
     private static int outstandingCounter = 0;
     private static ArrayList<Transaction> executedList=new ArrayList<Transaction>();
-    private static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
+    private  static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
 
 
     public static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
@@ -63,13 +66,13 @@ public class AccountReplica {
     }
 
 
-    public static void sendCommand(String command) throws SpreadException {
+    public static void multicastTransaction(Transaction transaction) throws SpreadException {
         SpreadMessage message = new SpreadMessage();
         message.addGroup(accountName);
         message.setReliable();
-        message.setObject(command);
+        message.setObject(transaction);
         connection.multicast(message);
-        System.out.println("command : "+ command+" multicasted by : "+replicaId);
+        System.out.println("transaction : "+ transaction.toString()+" multicasted by : "+replicaId);
     }
 
     public static void parseCommand(String cmd)  {
@@ -109,13 +112,13 @@ public class AccountReplica {
 
         }
 
-
     }
 
     public static void addTransactionToOutstandingCollection(String cmd){
         String uniqueId = replicaId + outstandingCounter;
         Transaction transaction = new Transaction(cmd, uniqueId);
         outstandingCollection.add(transaction);
+     //   System.out.println(transaction.toString()+" is added to the outstanding collection");
         outstandingCounter += 1;
     }
 
@@ -141,19 +144,40 @@ public class AccountReplica {
             e.printStackTrace();
         }
 
+        // sending outstanding collections to other members in the group
+        Runnable sendOutstandingCollection = new Runnable() {
+            public void run() {
+                // Todo: send the outstanding collection
+                while(!outstandingCollection.isEmpty()) {
+                    Transaction transaction = outstandingCollection.remove(0);
+                        try {
+                            multicastTransaction(transaction);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                }
+
+            }
+        };
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(sendOutstandingCollection, 0, 10, TimeUnit.SECONDS);
+
         if (fileName != null ){
             //parse file
         }
 
         String command = "";
-        while (!command.equals("exit")){
+        while (true){
             //keep it running
             Scanner input = new Scanner(System.in);
             command = input.nextLine();
-
+            if(command.equals("exit")) {
+                break;
+            }
             try {
                 parseCommand(command);
-                //  sendCommand(command);
             } catch (Exception e) {
                 e.printStackTrace();
             }
