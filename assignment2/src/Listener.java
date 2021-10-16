@@ -15,6 +15,7 @@ public class Listener implements AdvancedMessageListener {
               double amount = Double.parseDouble(cmd.split(" ")[1]);
               // we are executing the transaction
               AccountReplica.deposit(amount);
+              AccountReplica.addTransactionToExecutedList(transaction);
               System.out.println("deposited amount : "+ amount);
               AccountReplica.getQuickBalance();
           }

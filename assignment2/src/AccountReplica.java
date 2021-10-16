@@ -132,7 +132,9 @@ public class AccountReplica {
     public static void addTransactionToOutstandingCollection(String cmd){
         String uniqueId = replicaId + outstandingCounter;
         Transaction transaction = new Transaction(cmd, uniqueId);
-        outstandingCollection.add(transaction);
+        synchronized(outstandingCollection) {
+            outstandingCollection.add(transaction);
+        }
      //   System.out.println(transaction.toString()+" is added to the outstanding collection");
         outstandingCounter += 1;
     }
@@ -163,15 +165,17 @@ public class AccountReplica {
         Runnable sendOutstandingCollection = new Runnable() {
             public void run() {
                 // Todo: send the outstanding collection
-                while(!outstandingCollection.isEmpty()) {
-                    Transaction transaction = outstandingCollection.remove(0);
+
+                    while (!outstandingCollection.isEmpty()) {
+                        Transaction transaction = removeTransactionFromOutstandingCollection();
                         try {
                             multicastTransaction(transaction);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
 
-                }
+                    }
+
 
             }
         };
@@ -205,11 +209,12 @@ public class AccountReplica {
     }
 
     public static void getQuickBalance(){
-        System.out.println("balance : "+balance);
+        System.out.println("quick balance : "+balance);
     }
 
     public static void getSyncedBalance(){
         // Todo: do the sync part
+
         System.out.println("synced balance : "+ balance);
     }
 
@@ -222,9 +227,12 @@ public class AccountReplica {
 
     public static void getHistory(){
         // print the execute list
+        System.out.println("-------------start history----------------");
         System.out.println("executed list : ");
+        int counter = orderCounter - executedList.size();
         for(Transaction transaction : executedList) {
-            System.out.println(transaction.toString());
+            System.out.println(counter + " : "+transaction.toString());
+            counter++;
         }
         // print the outstanding collection
         System.out.println("outstanding collection : ");
@@ -232,6 +240,7 @@ public class AccountReplica {
         {
             System.out.println(transaction.toString());
         }
+        System.out.println("-------------end history----------------");
     }
 
     public void checkTxStatus(String uniqueId){
@@ -249,5 +258,22 @@ public class AccountReplica {
     public void exit(){
 
     }
+
+
+
+    public static Transaction removeTransactionFromOutstandingCollection()
+    {
+        synchronized (outstandingCollection) {
+           return outstandingCollection.remove(0);
+        }
+    }
+    public static void addTransactionToExecutedList(Transaction transaction) {
+        synchronized (executedList) {
+            executedList.add(transaction);
+        }
+        orderCounter = orderCounter + 1;
+    }
+
+
 
 }
