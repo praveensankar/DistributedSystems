@@ -1,5 +1,7 @@
 import spread.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -66,6 +68,7 @@ public class AccountReplica {
     }
 
 
+
     public static void multicastTransaction(Transaction transaction) throws SpreadException {
         SpreadMessage message = new SpreadMessage();
         message.addGroup(accountName);
@@ -73,6 +76,18 @@ public class AccountReplica {
         message.setObject(transaction);
         connection.multicast(message);
         System.out.println("transaction : "+ transaction.toString()+" multicasted by : "+replicaId);
+    }
+
+    public static void parseFileArguments(String fileName) throws FileNotFoundException {
+
+        Scanner scanner = new Scanner(new File(fileName));
+        while (scanner.hasNextLine()){
+            //Read and execute command
+            String command = scanner.nextLine();
+            parseCommand(command);
+            //System.out.println("command: " + command);
+        }
+        scanner.close();
     }
 
     public static void parseCommand(String cmd)  {
@@ -131,7 +146,7 @@ public class AccountReplica {
     // filename - String eg:- testfile
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
 
         Random random = new Random();
         replicaId = Integer.toString(random.nextInt(50));
@@ -166,6 +181,7 @@ public class AccountReplica {
 
         if (fileName != null ){
             //parse file
+            parseFileArguments(fileName);
         }
 
         String command = "";
