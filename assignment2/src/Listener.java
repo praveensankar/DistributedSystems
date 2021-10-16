@@ -18,10 +18,7 @@ public class Listener implements AdvancedMessageListener {
               double amount = Double.parseDouble(cmd.split(" ")[1]);
               // we are executing the transaction
               AccountReplica.deposit(amount);
-             // AccountReplica.removeTransactionFromOutstandingCollection(transaction.getUnique_id());
 
-          //    System.out.println("deposited amount : "+ amount);
-           //   AccountReplica.getQuickBalance();
           }
           else if(cmd.startsWith("addInterest")){
               double interestRate = Double.parseDouble(cmd.split(" ")[1]);
@@ -42,14 +39,6 @@ public class Listener implements AdvancedMessageListener {
 
   @Override
   public void membershipMessageReceived(SpreadMessage message) {
-      //System.out.println("new membership message received");
-      //System.out.println("getGroup: " + message.getMembershipInfo().getGroup());
-      //System.out.println("getMembers length: " + message.getMembershipInfo().getMembers().length);
-
       AccountReplica.updateMembers(message.getMembershipInfo().getMembers());
-
-      //System.out.println("members: " + AccountReplica.members);
-
-      //System.out.println(message.getMembershipInfo().getGroup());
   }
 }

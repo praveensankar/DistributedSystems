@@ -85,7 +85,7 @@ public class AccountReplica {
 
     public static void parseFileArguments(String fileName) throws FileNotFoundException {
 
-        Scanner scanner = new Scanner(new File("input/"+fileName));
+        Scanner scanner = new Scanner(new File(fileName));
         while (scanner.hasNextLine()){
             //Read and execute command
             String command = scanner.nextLine();
@@ -159,6 +159,9 @@ public class AccountReplica {
         System.out.println("replica id : "+replicaId);
         parseCommandLineArguments(args);
 
+
+
+
         if (fileName != null ){
             //parse file
             replicaId = "primary";
@@ -169,6 +172,8 @@ public class AccountReplica {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
 
 
         // sending outstanding collections to other members in the group
@@ -192,6 +197,17 @@ public class AccountReplica {
         };
         executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(sendOutstandingCollection, 0, 1, TimeUnit.SECONDS);
+
+        do {
+          synchronized (members) {
+            if (members.size() >= numberOfReplicas) {
+              System.out.println("Members = ");
+              break;
+            }
+          }
+        } while (true);
+
+        System.out.println("After while");
 
         if (fileName != null ){
             //parse file
