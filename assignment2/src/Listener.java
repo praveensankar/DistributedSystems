@@ -14,23 +14,47 @@ public class Listener implements AdvancedMessageListener {
           // we are not going to add it in the outstanding collection
           Transaction transaction = (Transaction) message.getObject();
           String cmd = transaction.getCommand();
-          if(cmd.startsWith("deposit")){
+
+          if (cmd.equals("exit")) {
+            String id = message.getSender().toString().split("#")[1];
+            System.out.println("id = " + id);
+            if (AccountReplica.replicaId.equals(id)) {
+              AccountReplica.removeTransactionFromOutstandingCollection();
+              AccountReplica.exit();
+            }
+          }
+          else if (cmd.equals("getSyncedBalance")) {
+
+            String id = message.getSender().toString().split("#")[1];
+
+            System.out.println("id = " + id);
+            if (AccountReplica.replicaId.equals(id)) {
+              AccountReplica.removeTransactionFromOutstandingCollection();
+              AccountReplica.getSyncedBalance();
+            }
+
+          }
+          else if(cmd.startsWith("deposit")){
               double amount = Double.parseDouble(cmd.split(" ")[1]);
               // we are executing the transaction
               AccountReplica.deposit(amount);
+
+              AccountReplica.removeTransactionFromOutstandingCollection();
+              AccountReplica.addTransactionToExecutedList(transaction);
 
           }
           else if(cmd.startsWith("addInterest")){
               double interestRate = Double.parseDouble(cmd.split(" ")[1]);
               AccountReplica.addInterest(interestRate);
+
+              AccountReplica.removeTransactionFromOutstandingCollection();
+              AccountReplica.addTransactionToExecutedList(transaction);
           }
           else
           {
               System.out.println("invalid command");
-              return;
           }
-          AccountReplica.removeTransactionFromOutstandingCollection();
-          AccountReplica.addTransactionToExecutedList(transaction);
+
 
       } catch (SpreadException e) {
           e.printStackTrace();

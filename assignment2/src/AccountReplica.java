@@ -24,7 +24,7 @@ public class AccountReplica {
     // spread related variables
     // --------------------------------------------------
     private static int numberOfReplicas;
-    private static String replicaId = "replica1";
+    public static String replicaId = "replica1";
     private static int port = 0;
     private static String serverAddress;
     private static String accountName;
@@ -37,6 +37,7 @@ public class AccountReplica {
     //---------------------------------------------------
     // bank account state replicated machine related variables
     //----------------------------------------------------
+    private static boolean naive = false;
     private static double balance = 0.0;
     private static volatile int orderCounter = 0;
     private static volatile  int outstandingCounter = 0;
@@ -45,113 +46,6 @@ public class AccountReplica {
     public static ArrayList<String> members = new ArrayList<>();
     private static ScheduledExecutorService executor;
 
-
-    public static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
-        connection = new SpreadConnection();
-        connection.add(new Listener());
-        connection.connect(InetAddress.getByName(serverAddress), port, replicaId, false, true);
-
-        group = new SpreadGroup();
-        group.join(connection, accountName);
-    }
-
-    public static void parseCommandLineArguments(String[] args) {
-        serverAddress = args[0];
-        accountName = args[1];
-        numberOfReplicas = Integer.parseInt(args[2]);
-
-        if (args.length==4) {
-            fileName = args[3];
-        }
-//        System.out.println(accountName);
-//        System.out.println(numberOfReplicas);
-//        System.out.println(serverAddress);
-//        System.out.println(fileName);
-    }
-
-
-
-    public static void multicastTransaction(Transaction transaction) throws SpreadException {
-        SpreadMessage message = new SpreadMessage();
-        message.addGroup(accountName);
-        //message.setReliable();
-        message.setFifo();
-        message.setObject(transaction);
-       // System.out.println("1 transaction : "+ transaction.toString()+" before multicasted by : "+replicaId);
-        connection.multicast(message);
-       // System.out.println("2 transaction : "+ transaction.toString()+" after multicasted by : "+replicaId);
-
-    }
-
-    public static void parseFileArguments(String fileName) throws FileNotFoundException {
-
-        Scanner scanner = new Scanner(new File(fileName));
-        while (scanner.hasNextLine()){
-            //Read and execute command
-            String command = scanner.nextLine();
-            parseCommand(command);
-          //  System.out.println("command: " + command);
-        }
-        scanner.close();
-    }
-
-    public static void parseCommand(String cmd)  {
-
-        if (cmd.equals("getQuickBalance")){
-            getQuickBalance();
-        }
-        else if(cmd.equals("getSyncedBalance")){
-            // Todo: Naive implementation : execute the transactions from the outstanding collection
-            getSyncedBalance();
-        }
-        else if(cmd.equals("getHistory")){
-            getHistory();
-        }
-        else if(cmd.equals("cleanHistory")){
-            cleanHistory();
-        }
-        else if(cmd.equals("memberInfo")){
-            memberInfo();
-        }
-        else if(cmd.equals("exit")){
-            exit();
-        }
-        else if(cmd.startsWith("deposit") || cmd.startsWith("addInterest")){
-            //double amount = Double.parseDouble(cmd.split(" ")[1]);
-            addTransactionToOutstandingCollection(cmd);
-            // deposit(amount);
-        }
-        else if(cmd.startsWith("checkTxStatus")){
-            String uniqueId = cmd.split(" ")[1];
-            checkTxStatus(uniqueId);
-        }
-        else if(cmd.startsWith("sleep")){
-            int duration = Integer.parseInt(cmd.split(" ")[1]);
-            sleep(duration);
-        }
-
-    }
-
-    public static void addTransactionToOutstandingCollection(String cmd){
-        String uniqueId = replicaId + outstandingCounter;
-        Transaction transaction = new Transaction(cmd, uniqueId);
-        synchronized(outstandingCollection) {
-            outstandingCollection.add(transaction);
-        }
-
-        System.out.println(transaction.toString()+" is added to the outstanding collection");
-        outstandingCounter += 1;
-    }
-
-
-    //args:
-    // <server address> <account name> <number of replicas> <file name>
-    // server address - String eg:- 127.0.0.1
-    // account name - String eg:- testaccount
-    // number of replicas - int eg:- 3
-    // filename - String eg:- testfile
-
-
     public static void main(String[] args) throws FileNotFoundException {
 
         Random random = new Random();
@@ -159,11 +53,7 @@ public class AccountReplica {
         System.out.println("replica id : "+replicaId);
         parseCommandLineArguments(args);
 
-
-
-
-        if (fileName != null ){
-            //parse file
+        if (fileName != null ) {
             replicaId = "primary";
         }
 
@@ -173,30 +63,26 @@ public class AccountReplica {
             e.printStackTrace();
         }
 
-
-
-
-        // sending outstanding collections to other members in the group
+      // sending outstanding collections to other members in the group
         Runnable sendOutstandingCollection = new Runnable() {
             public void run() {
-                // Todo: send the outstanding collection
+                System.out.println("Sending outstanding collection");
+                //multicastOutstandingCollection();
+                for (Transaction transaction: outstandingCollection) {
 
-                    for (Transaction transaction: outstandingCollection) {
+                    try {
+                      multicastTransaction(transaction);
 
-                        try {
-                            multicastTransaction(transaction);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
+                    } catch (Exception e) {
+                      e.printStackTrace();
                     }
 
-
+                  }
             }
         };
+
         executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(sendOutstandingCollection, 0, 1, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(sendOutstandingCollection, 0, 5, TimeUnit.SECONDS);
 
         do {
           synchronized (members) {
@@ -231,6 +117,150 @@ public class AccountReplica {
         }
 
     }
+
+    private static void multicastOutstandingCollection() {
+      //synchronized (outstandingCollection) {
+
+        for (Transaction transaction: outstandingCollection) {
+
+          try {
+            multicastTransaction(transaction);
+
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+
+        }
+      //}
+    }
+
+    public static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
+        connection = new SpreadConnection();
+        connection.add(new Listener());
+        connection.connect(InetAddress.getByName(serverAddress), port, replicaId, false, true);
+
+        group = new SpreadGroup();
+        group.join(connection, accountName);
+    }
+
+    public static void parseCommandLineArguments(String[] args) {
+        serverAddress = args[0];
+        accountName = args[1];
+        numberOfReplicas = Integer.parseInt(args[2]);
+
+        if (args.length==4) {
+            fileName = args[3];
+        }
+//        System.out.println(accountName);
+//        System.out.println(numberOfReplicas);
+//        System.out.println(serverAddress);
+//        System.out.println(fileName);
+    }
+
+
+
+    public static void multicastTransaction(Transaction transaction) throws SpreadException {
+        SpreadMessage message = new SpreadMessage();
+        message.addGroup(accountName);
+        message.setFifo();
+        message.setObject(transaction);
+       // System.out.println("1 transaction : "+ transaction.toString()+" before multicasted by : "+replicaId);
+        connection.multicast(message);
+       // System.out.println("2 transaction : "+ transaction.toString()+" after multicasted by : "+replicaId);
+
+    }
+
+    public static void parseFileArguments(String fileName) throws FileNotFoundException {
+
+        Scanner scanner = new Scanner(new File(fileName));
+        while (scanner.hasNextLine()){
+            //Read and execute command
+            String command = scanner.nextLine();
+            parseCommand(command);
+          //  System.out.println("command: " + command);
+        }
+        scanner.close();
+    }
+
+    public static void parseCommand(String cmd)  {
+
+        if (cmd.equals("getQuickBalance")){
+            getQuickBalance();
+        }
+        else if(cmd.equals("getSyncedBalance")){
+            // Todo: Naive implementation : execute the transactions from the outstanding collection
+
+            if (naive) {
+              getSyncedBalance();
+            } else {
+              // Advanced
+              addSyncedBalanceToOutstandingCollection(cmd);
+            }
+
+        }
+        else if(cmd.equals("getHistory")){
+            getHistory();
+        }
+        else if(cmd.equals("cleanHistory")){
+            cleanHistory();
+        }
+        else if(cmd.equals("memberInfo")){
+            memberInfo();
+        }
+        else if(cmd.equals("exit")){
+            addSyncedBalanceToOutstandingCollection(cmd);
+        }
+        else if(cmd.startsWith("deposit") || cmd.startsWith("addInterest")){
+            //double amount = Double.parseDouble(cmd.split(" ")[1]);
+            addTransactionToOutstandingCollection(cmd);
+            // deposit(amount);
+        }
+        else if(cmd.startsWith("checkTxStatus")){
+            String uniqueId = cmd.split(" ")[1];
+            checkTxStatus(uniqueId);
+        }
+        else if(cmd.startsWith("sleep")){
+            int duration = Integer.parseInt(cmd.split(" ")[1]);
+            sleep(duration);
+        }
+
+    }
+
+    public static void addTransactionToOutstandingCollection(String cmd){
+        String uniqueId = replicaId + outstandingCounter;
+        Transaction transaction = createTransaction(cmd, uniqueId);
+        synchronized(outstandingCollection) {
+            outstandingCollection.add(transaction);
+        }
+
+        System.out.println(transaction.toString()+" is added to the outstanding collection");
+        outstandingCounter += 1;
+    }
+
+    public static void addSyncedBalanceToOutstandingCollection(String cmd){
+        Transaction transaction = createTransaction(cmd, "");
+        synchronized(outstandingCollection) {
+            outstandingCollection.add(transaction);
+        }
+
+        System.out.println(transaction.toString()+" is added to the outstanding collection");
+    }
+
+
+
+    private static Transaction createTransaction(String cmd, String id) {
+      return new Transaction(cmd, id);
+    }
+
+
+    //args:
+    // <server address> <account name> <number of replicas> <file name>
+    // server address - String eg:- 127.0.0.1
+    // account name - String eg:- testaccount
+    // number of replicas - int eg:- 3
+    // filename - String eg:- testfile
+
+
 
     public static void getQuickBalance(){
         System.out.println("quick balance : "+balance);
@@ -330,7 +360,16 @@ public class AccountReplica {
         }
     }
     public static void exit(){
-        executor.shutdownNow();
+        do {
+          synchronized (outstandingCollection) {
+            if (outstandingCollection.isEmpty()) {
+              break;
+            }
+          }
+        } while (true);
+
+
+        executor.shutdown();
         System.exit(0);
 
     }
