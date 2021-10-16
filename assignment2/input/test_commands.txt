@@ -2,8 +2,9 @@ deposit 100
 addInterest 25
 getQuickBalance
 getSyncedBalance
-deposit 1
+deposit 10
 deposit 2
+checkTxStatus primary1
 addInterest 10
 getQuickBalance
 getSyncedBalance
