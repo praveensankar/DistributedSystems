@@ -11,3 +11,4 @@ getSyncedBalance
 cleanHistory
 memberInfo
 deposit 10
+exit

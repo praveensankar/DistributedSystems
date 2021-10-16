@@ -33,6 +33,7 @@ public class AccountReplica {
     private static SpreadGroup group;
 
 
+
     //---------------------------------------------------
     // bank account state replicated machine related variables
     //----------------------------------------------------
@@ -42,6 +43,8 @@ public class AccountReplica {
     private static ArrayList<Transaction> executedList=new ArrayList<Transaction>();
     private  static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
     public static ArrayList<String> members = new ArrayList<>();
+    private static ScheduledExecutorService executor;
+
 
     public static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
         connection = new SpreadConnection();
@@ -111,7 +114,7 @@ public class AccountReplica {
             memberInfo();
         }
         else if(cmd.equals("exit")){
-
+            exit();
         }
         else if(cmd.startsWith("deposit") || cmd.startsWith("addInterest")){
             //double amount = Double.parseDouble(cmd.split(" ")[1]);
@@ -123,7 +126,8 @@ public class AccountReplica {
             checkTxStatus(uniqueId);
         }
         else if(cmd.startsWith("sleep")){
-
+            int duration = Integer.parseInt(cmd.split(" ")[1]);
+            sleep(duration);
         }
 
     }
@@ -186,8 +190,7 @@ public class AccountReplica {
 
             }
         };
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(sendOutstandingCollection, 0, 1, TimeUnit.SECONDS);
 
         if (fileName != null ){
@@ -304,9 +307,15 @@ public class AccountReplica {
 
     }
     public static void sleep(int duration){
-
+        try {
+            Thread.sleep(duration* 1000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
     public static void exit(){
+        executor.shutdownNow();
+        System.exit(0);
 
     }
 
