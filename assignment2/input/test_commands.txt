@@ -9,4 +9,5 @@ addInterest 10
 getQuickBalance
 getSyncedBalance
 cleanHistory
+memberInfo
 deposit 10

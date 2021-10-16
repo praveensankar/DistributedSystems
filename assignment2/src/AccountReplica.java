@@ -41,7 +41,7 @@ public class AccountReplica {
     private static volatile  int outstandingCounter = 0;
     private static ArrayList<Transaction> executedList=new ArrayList<Transaction>();
     private  static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
-
+    public static ArrayList<String> members = new ArrayList<>();
 
     public static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
         connection = new SpreadConnection();
@@ -108,7 +108,7 @@ public class AccountReplica {
             cleanHistory();
         }
         else if(cmd.equals("memberInfo")){
-
+            memberInfo();
         }
         else if(cmd.equals("exit")){
 
@@ -211,9 +211,6 @@ public class AccountReplica {
             }
         }
 
-
-
-
     }
 
     public static void getQuickBalance(){
@@ -297,6 +294,14 @@ public class AccountReplica {
 
     }
     public static void memberInfo(){
+
+        //MembershipInfo msg.getMembershipInfo
+        //SpreadGroup[] memberShipInfo.getMembers
+        //sout members
+        synchronized (members){
+            System.out.println("Members: " + members);
+        }
+
     }
     public static void sleep(int duration){
 
@@ -305,6 +310,14 @@ public class AccountReplica {
 
     }
 
+    public static void updateMembers(SpreadGroup[] groups){
+        synchronized (members){
+            AccountReplica.members.clear();
+            for(SpreadGroup group : groups){
+                AccountReplica.members.add(group.toString());
+            }
+        }
+    }
 
 
     public static Transaction removeTransactionFromOutstandingCollection()

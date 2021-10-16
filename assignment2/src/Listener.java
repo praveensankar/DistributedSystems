@@ -1,5 +1,8 @@
 import spread.*;
 
+import java.sql.SQLOutput;
+import java.util.ArrayList;
+
 public class Listener implements AdvancedMessageListener {
   @Override
   public void regularMessageReceived(SpreadMessage message) {
@@ -39,7 +42,14 @@ public class Listener implements AdvancedMessageListener {
 
   @Override
   public void membershipMessageReceived(SpreadMessage message) {
-      System.out.println("new membership message received");
-     // System.out.println(spreadMessage.getMembershipInfo().getGroup());
+      //System.out.println("new membership message received");
+      //System.out.println("getGroup: " + message.getMembershipInfo().getGroup());
+      //System.out.println("getMembers length: " + message.getMembershipInfo().getMembers().length);
+
+      AccountReplica.updateMembers(message.getMembershipInfo().getMembers());
+
+      //System.out.println("members: " + AccountReplica.members);
+
+      //System.out.println(message.getMembershipInfo().getGroup());
   }
 }
