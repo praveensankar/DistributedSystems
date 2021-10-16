@@ -80,12 +80,12 @@ public class AccountReplica {
 
     public static void parseFileArguments(String fileName) throws FileNotFoundException {
 
-        Scanner scanner = new Scanner(new File(fileName));
+        Scanner scanner = new Scanner(new File("input/"+fileName));
         while (scanner.hasNextLine()){
             //Read and execute command
             String command = scanner.nextLine();
             parseCommand(command);
-            //System.out.println("command: " + command);
+          //  System.out.println("command: " + command);
         }
         scanner.close();
     }
