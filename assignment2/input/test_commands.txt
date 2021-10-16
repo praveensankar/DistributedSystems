@@ -1,4 +1,8 @@
-deposit 10
+deposit 100
+deposit 55
 getQuickBalance
 getSyncedBalance
-getHistory
+deposit 1
+deposit 2
+getQuickBalance
+getSyncedBalance

@@ -29,7 +29,6 @@ public class AccountReplica {
     private static String serverAddress;
     private static String accountName;
     private static String fileName;
-
     private static SpreadConnection connection;
     private static SpreadGroup group;
 
@@ -38,8 +37,8 @@ public class AccountReplica {
     // bank account state replicated machine related variables
     //----------------------------------------------------
     private static double balance = 0.0;
-    private static int orderCounter = 0;
-    private static int outstandingCounter = 0;
+    private static volatile int orderCounter = 0;
+    private static volatile  int outstandingCounter = 0;
     private static ArrayList<Transaction> executedList=new ArrayList<Transaction>();
     private  static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
 
@@ -72,10 +71,13 @@ public class AccountReplica {
     public static void multicastTransaction(Transaction transaction) throws SpreadException {
         SpreadMessage message = new SpreadMessage();
         message.addGroup(accountName);
-        message.setReliable();
+        //message.setReliable();
+        message.setFifo();
         message.setObject(transaction);
+       // System.out.println("1 transaction : "+ transaction.toString()+" before multicasted by : "+replicaId);
         connection.multicast(message);
-        System.out.println("transaction : "+ transaction.toString()+" multicasted by : "+replicaId);
+       // System.out.println("2 transaction : "+ transaction.toString()+" after multicasted by : "+replicaId);
+
     }
 
     public static void parseFileArguments(String fileName) throws FileNotFoundException {
@@ -135,7 +137,8 @@ public class AccountReplica {
         synchronized(outstandingCollection) {
             outstandingCollection.add(transaction);
         }
-     //   System.out.println(transaction.toString()+" is added to the outstanding collection");
+
+        System.out.println(transaction.toString()+" is added to the outstanding collection");
         outstandingCounter += 1;
     }
 
@@ -166,10 +169,11 @@ public class AccountReplica {
             public void run() {
                 // Todo: send the outstanding collection
 
-                    while (!outstandingCollection.isEmpty()) {
-                        Transaction transaction = removeTransactionFromOutstandingCollection();
+                    for (Transaction transaction: outstandingCollection) {
+
                         try {
                             multicastTransaction(transaction);
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -181,7 +185,7 @@ public class AccountReplica {
         };
 
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(sendOutstandingCollection, 0, 10, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(sendOutstandingCollection, 0, 1, TimeUnit.SECONDS);
 
         if (fileName != null ){
             //parse file
@@ -212,10 +216,25 @@ public class AccountReplica {
         System.out.println("quick balance : "+balance);
     }
 
-    public static void getSyncedBalance(){
+    public static void getSyncedBalance() {
         // Todo: do the sync part
+        // naive implementation: we are checking whether the outstanding collection is empty or not and running it in a
+        // infinite loop. once the outstanding collection is empty then we will print the balance
 
-        System.out.println("synced balance : "+ balance);
+        // corner case: after get synced balance is called, it blocks the current execution. so new deposits or
+        // add interest commands won't be added to the outstanding collection till the get synced balance is finished
+        System.out.println("synced balance is called");
+
+        do{
+            if(outstandingCounter == orderCounter){
+                break;
+            }
+        }while(true);
+
+        // System.out.println("outstanding counter : " + outstandingCounter + "\t order counter : " + orderCounter);
+        if (orderCounter == outstandingCounter) {
+            System.out.println("synced balance : " + balance);
+        }
     }
 
     public static void deposit(double amount){
@@ -264,9 +283,30 @@ public class AccountReplica {
     public static Transaction removeTransactionFromOutstandingCollection()
     {
         synchronized (outstandingCollection) {
-           return outstandingCollection.remove(0);
+            if(!outstandingCollection.isEmpty()) {
+                return outstandingCollection.remove(0);
+            }
         }
+        return null;
     }
+
+    public static boolean removeTransactionFromOutstandingCollection(String uniqueId)
+    {
+        // if replicas (other than primary) call this function then it returns false since replica won't add
+        // anything to the outstanding collection
+        synchronized (outstandingCollection) {
+            for(Transaction transaction: outstandingCollection)
+            {
+                if(transaction.getUnique_id().equals(uniqueId))
+                {
+                    outstandingCollection.remove(transaction);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static void addTransactionToExecutedList(Transaction transaction) {
         synchronized (executedList) {
             executedList.add(transaction);
