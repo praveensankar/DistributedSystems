@@ -119,7 +119,8 @@ public class AccountReplica {
             // deposit(amount);
         }
         else if(cmd.startsWith("checkTxStatus")){
-
+            String uniqueId = cmd.split(" ")[1];
+            checkTxStatus(uniqueId);
         }
         else if(cmd.startsWith("sleep")){
 
@@ -154,11 +155,17 @@ public class AccountReplica {
         System.out.println("replica id : "+replicaId);
         parseCommandLineArguments(args);
 
+        if (fileName != null ){
+            //parse file
+            replicaId = "primary";
+        }
+
         try {
             setUpSpreadConstructs();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         // sending outstanding collections to other members in the group
         Runnable sendOutstandingCollection = new Runnable() {
@@ -186,6 +193,7 @@ public class AccountReplica {
         if (fileName != null ){
             //parse file
             parseFileArguments(fileName);
+
         }
 
         String command = "";
@@ -258,8 +266,28 @@ public class AccountReplica {
         System.out.println("-------------end history----------------");
     }
 
-    public void checkTxStatus(String uniqueId){
-
+    public static void checkTxStatus(String uniqueId){
+        synchronized (outstandingCollection){
+            for(Transaction transaction: outstandingCollection)
+            {
+                if(transaction.getUnique_id().equals(uniqueId))
+                {
+                    System.out.println("Transaction is in outstandinCollection: " + uniqueId);
+                    return;
+                }
+            }
+        }
+        synchronized (executedList){
+            for(Transaction transaction: executedList)
+            {
+                if(transaction.getUnique_id().equals(uniqueId))
+                {
+                    System.out.println("Transaction is in executedList: " + uniqueId);
+                    return;
+                }
+            }
+        }
+        System.out.println("UniqueId isn't found: " + uniqueId);
     }
     public void cleanHistory(){
 
