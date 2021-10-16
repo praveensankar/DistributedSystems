@@ -8,3 +8,5 @@ checkTxStatus primary1
 addInterest 10
 getQuickBalance
 getSyncedBalance
+cleanHistory
+deposit 10

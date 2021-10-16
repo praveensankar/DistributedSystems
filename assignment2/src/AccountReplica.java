@@ -105,7 +105,7 @@ public class AccountReplica {
             getHistory();
         }
         else if(cmd.equals("cleanHistory")){
-
+            cleanHistory();
         }
         else if(cmd.equals("memberInfo")){
 
@@ -289,16 +289,19 @@ public class AccountReplica {
         }
         System.out.println("UniqueId isn't found: " + uniqueId);
     }
-    public void cleanHistory(){
+    public static void cleanHistory(){
+        synchronized (executedList){
+            executedList = new ArrayList<>();
+            System.out.println("executedList size: " + executedList.size());
+        }
 
     }
-    public String memberInfo(){
-        return null;
+    public static void memberInfo(){
     }
-    public void sleep(int duration){
+    public static void sleep(int duration){
 
     }
-    public  void exit(){
+    public static void exit(){
 
     }
 
