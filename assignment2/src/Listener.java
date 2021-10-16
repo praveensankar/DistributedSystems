@@ -16,18 +16,21 @@ public class Listener implements AdvancedMessageListener {
               // we are executing the transaction
               AccountReplica.deposit(amount);
              // AccountReplica.removeTransactionFromOutstandingCollection(transaction.getUnique_id());
-              AccountReplica.removeTransactionFromOutstandingCollection();
-              AccountReplica.addTransactionToExecutedList(transaction);
+
           //    System.out.println("deposited amount : "+ amount);
            //   AccountReplica.getQuickBalance();
           }
           else if(cmd.startsWith("addInterest")){
-
+              double interestRate = Double.parseDouble(cmd.split(" ")[1]);
+              AccountReplica.addInterest(interestRate);
           }
           else
           {
               System.out.println("invalid command");
+              return;
           }
+          AccountReplica.removeTransactionFromOutstandingCollection();
+          AccountReplica.addTransactionToExecutedList(transaction);
 
       } catch (SpreadException e) {
           e.printStackTrace();

@@ -1,8 +1,9 @@
 deposit 100
-deposit 55
+addInterest 25
 getQuickBalance
 getSyncedBalance
 deposit 1
 deposit 2
+addInterest 10
 getQuickBalance
 getSyncedBalance

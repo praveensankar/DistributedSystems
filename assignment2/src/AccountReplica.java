@@ -113,14 +113,10 @@ public class AccountReplica {
         else if(cmd.equals("exit")){
 
         }
-        else if(cmd.startsWith("deposit")){
-            double amount = Double.parseDouble(cmd.split(" ")[1]);
-            // Todo: add transaction object in the oustanding collection and multicast it
+        else if(cmd.startsWith("deposit") || cmd.startsWith("addInterest")){
+            //double amount = Double.parseDouble(cmd.split(" ")[1]);
             addTransactionToOutstandingCollection(cmd);
             // deposit(amount);
-        }
-        else if(cmd.startsWith("addInterest")){
-
         }
         else if(cmd.startsWith("checkTxStatus")){
 
@@ -241,7 +237,7 @@ public class AccountReplica {
     balance = balance + amount;
     }
     public static void addInterest(double percent){
-        balance  = balance + (balance*percent);
+        balance  = balance + ((balance*percent)/100);
     }
 
     public static void getHistory(){
@@ -274,7 +270,7 @@ public class AccountReplica {
     public void sleep(int duration){
 
     }
-    public void exit(){
+    public  void exit(){
 
     }
 
