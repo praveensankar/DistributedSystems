@@ -40,7 +40,7 @@ public class AccountReplica {
     //---------------------------------------------------
     // bank account state replicated machine related variables
     //----------------------------------------------------
-    private static boolean naive = false;
+    private static boolean naive = true;
     private static double balance = 0.0;
     private static int orderCounter = 0;
     private static int outstandingCounter = 0;
@@ -97,6 +97,8 @@ public class AccountReplica {
             while (members.size() < numberOfReplicas) {
                 System.out.println("Before wait.");
                 try {
+                    // This releases the lock associated
+                    // with the object on which wait is invoked.
                     members.wait();
                 } catch(Exception e) {
                     e.printStackTrace();
@@ -123,6 +125,9 @@ public class AccountReplica {
         System.out.println("synched balance : " + balance);
     }
 
+    // This assumes that outstandingCollection is only empty when they have been executed.
+    // This assumption is correct as we remove from outstanding in the listener
+    // only after the task has been executed.
     private static void getSyncedBalanceNaive() {
         // Todo: do the sync part
         // naive implementation: we are checking whether the outstanding collection is empty or not and running it in a
@@ -132,16 +137,33 @@ public class AccountReplica {
         // add interest commands won't be added to the outstanding collection till the get synced balance is finished
         System.out.println("synced balance is called");
 
-        do {
-            // This is the only place where order counter is changed
-            synchronized (executedList) {
-                if (outstandingCounter == orderCounter) {
-                    System.out.println("synced balance : " + balance);
-                    break;
+        // do {
+        //     // This is the only place where order counter is changed
+        //     synchronized (executedList) {
+        //         if (outstandingCounter == orderCounter) {
+        //             System.out.println("synced balance : " + balance);
+        //             break;
+        //         }
+        //     }
+        //
+        // } while(true);
+
+        // I think I can check if outstanding is empty. As it is just removed
+        // after the execution (in the listener)
+        synchronized (outstandingCollection) {
+
+            while (!outstandingCollection.isEmpty()) {
+                System.out.println("Before wait");
+                try {
+                    outstandingCollection.wait();
+                } catch(Exception e) {
+                    e.printStackTrace();
                 }
+                System.out.println("After wait");
             }
 
-        } while(true);
+            System.out.println("synced balance : " + balance);
+        }
     }
 
     public static void deposit(double amount){
@@ -274,25 +296,22 @@ public class AccountReplica {
    }
 
 
-    public static Transaction removeTransactionFromOutstandingCollection() {
+    public static void removeTransactionFromOutstandingCollection() {
         synchronized (outstandingCollection) {
             if (!outstandingCollection.isEmpty()) {
-                return outstandingCollection.remove(0);
+                outstandingCollection.remove(0);
+                System.out.println("Notifying");
+                outstandingCollection.notify();
             }
         }
-        return null;
     }
 
 
     // Might be that several threads that change this. Not sure how the listener is done
     public static void addTransactionToExecutedList(Transaction transaction) {
         synchronized (executedList) {
-                executedList.add(transaction);
-                orderCounter = orderCounter + 1;
-
-                if (orderCounter == outstandingCounter) {
-                    // finished = true;
-                }
+            executedList.add(transaction);
+            orderCounter = orderCounter + 1;
         }
     }
 

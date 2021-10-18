@@ -5,7 +5,7 @@ addInterest 25
 getHistory
 getQuickBalance
 getSyncedBalance
-sleep 10
+sleep 6
 getQuickBalance
 getHistory
 getSyncedBalance
