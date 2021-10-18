@@ -84,15 +84,11 @@ public class AccountReplica {
 
         setUpScheduledExecutor(5);
 
-
-        System.out.println("After while");
-
         if (fileName != null ) {
             parseFileArguments(fileName);
+        } else {
+            startAcceptingUserInput();
         }
-
-        startAcceptingUserInput();
-
     }
 
     private static void waitForAllReplicas() {
@@ -110,7 +106,6 @@ public class AccountReplica {
                 System.out.println("waitForAllReplicas: After wait.");
             }
         }
-
     }
 
 
@@ -133,24 +128,8 @@ public class AccountReplica {
     // This assumption is correct as we remove from outstanding in the listener
     // only after the task has been executed.
     private static void getSyncedBalanceNaive() {
-        // Todo: do the sync part
-        // naive implementation: we are checking whether the outstanding collection is empty or not and running it in a
-        // infinite loop. once the outstanding collection is empty then we will print the balance
 
-        // corner case: after get synced balance is called, it blocks the current execution. so new deposits or
-        // add interest commands won't be added to the outstanding collection till the get synced balance is finished
         System.out.println("synced balance is called");
-
-        // do {
-        //     // This is the only place where order counter is changed
-        //     synchronized (executedList) {
-        //         if (outstandingCounter == orderCounter) {
-        //             System.out.println("synced balance : " + balance);
-        //             break;
-        //         }
-        //     }
-        //
-        // } while(true);
 
         // I think I can check if outstanding is empty. As it is just removed
         // after the execution (in the listener)
@@ -170,6 +149,9 @@ public class AccountReplica {
         }
     }
 
+    //hm .. just realized that this might not be thread safe
+    // NOT SURE HOW MANY THREADS IS EXECUTING FROM DUE TO LISTENER
+    // If only one thread then it is thread safe
     public static void deposit(double amount){
         balance += amount;
     }
@@ -183,15 +165,21 @@ public class AccountReplica {
         System.out.println("\n-----------------start history-----------------\n");
         System.out.println("executed list : ");
 
-        int counter = orderCounter - executedList.size();
-        for(Transaction transaction : executedList) {
+        synchronized (executedList) {
+            int counter = orderCounter - executedList.size();
+            for(Transaction transaction : executedList) {
                 System.out.println(counter + " : " + transaction.toString());
                 counter++;
+            }
         }
+
         // print the outstanding collection
         System.out.println("\noutstanding collection : ");
-        for (Transaction transaction : outstandingCollection) {
+
+        synchronized (outstandingCollection) {
+            for (Transaction transaction : outstandingCollection) {
                 System.out.println(transaction.toString());
+            }
         }
 
         System.out.println("\n-----------------end history-----------------\n");
@@ -199,16 +187,17 @@ public class AccountReplica {
 
     public static void checkTxStatus(String uniqueId){
         synchronized (outstandingCollection) {
-            for(Transaction transaction: outstandingCollection) {
-                if(transaction.getUnique_id().equals(uniqueId)){
+            for (Transaction transaction: outstandingCollection) {
+                if (transaction.getUnique_id().equals(uniqueId)){
                     System.out.println("Transaction is in outstandinCollection: " + uniqueId);
                     return;
                 }
             }
         }
+
         synchronized (executedList) {
-            for(Transaction transaction: executedList) {
-                if(transaction.getUnique_id().equals(uniqueId)) {
+            for (Transaction transaction: executedList) {
+                if (transaction.getUnique_id().equals(uniqueId)) {
                     System.out.println("Transaction is in executedList: " + uniqueId);
                     return;
                 }
@@ -235,7 +224,7 @@ public class AccountReplica {
 
     public static void sleep(int duration) {
         try {
-            Thread.sleep(duration* 1000L);
+            Thread.sleep(duration * 1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -269,9 +258,11 @@ public class AccountReplica {
     public static void updateMembers(SpreadGroup[] groups) {
         synchronized (members) {
             AccountReplica.members.clear();
+
             for(SpreadGroup group : groups) {
                 AccountReplica.members.add(group.toString());
             }
+
             System.out.println("updateMembers: Notifying all (members)");
             members.notifyAll();
         }
@@ -294,7 +285,7 @@ public class AccountReplica {
 
         String uniqueId = replicaId;
 
-        if (!cmd.startsWith("getSyncedBalance") || cmd.equals("exit")) {
+        if (!cmd.startsWith("getSyncedBalance")) {
             uniqueId += outstandingCounter;
             outstandingCounter += 1; // only one thread changes this. (the scheduled)
         }
@@ -348,7 +339,7 @@ public class AccountReplica {
 
                     String cmd = transaction.getCommand();
 
-                    if (cmd.equals("getSyncedBalance") || cmd.equals("exit")) {
+                    if (cmd.equals("getSyncedBalance")) {
                         multicastTransaction(transaction, replicaId);
                     } else {
                         multicastTransaction(transaction, accountName);
@@ -395,7 +386,7 @@ public class AccountReplica {
         Runnable sendOutstandingCollection = new Runnable() {
 
             public void run() {
-                System.out.println("\nSending outstanding collection\n");
+                // System.out.println("\nSending outstanding collection\n");
                 multicastOutstandingCollection();
             }
 
@@ -441,7 +432,7 @@ public class AccountReplica {
         Scanner scanner = new Scanner(new File(fileName));
 
         while (scanner.hasNextLine()) {
-            executeCommand(scanner.nextLine(););
+            executeCommand(scanner.nextLine());
         }
 
         scanner.close();
@@ -476,7 +467,7 @@ public class AccountReplica {
 
         } else if (cmd.equals("exit")) {
 
-            addTransactionToOutstandingCollection(cmd);
+            exit();
 
         } else if (cmd.startsWith("deposit") || cmd.startsWith("addInterest")) {
 

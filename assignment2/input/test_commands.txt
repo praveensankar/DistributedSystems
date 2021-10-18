@@ -8,5 +8,6 @@ getSyncedBalance
 sleep 6
 getQuickBalance
 getHistory
+exit
 getSyncedBalance
 exit
