@@ -1,8 +1,5 @@
 import spread.*;
 
-import java.sql.SQLOutput;
-import java.util.ArrayList;
-
 public class Listener implements AdvancedMessageListener {
 
     @Override
@@ -15,13 +12,7 @@ public class Listener implements AdvancedMessageListener {
             Transaction transaction = (Transaction) message.getObject();
             String cmd = transaction.getCommand();
 
-            if (cmd.equals("exit")) {
-
-                System.out.println("\nEXITING\n");
-                AccountReplica.removeTransactionFromOutstandingCollection();
-                AccountReplica.exit();
-
-            } else if (cmd.equals("getSyncedBalance")) {
+            if (cmd.equals("getSyncedBalance")) {
 
                 AccountReplica.getSyncedBalance();
                 AccountReplica.removeTransactionFromOutstandingCollection();
@@ -43,7 +34,7 @@ public class Listener implements AdvancedMessageListener {
                 AccountReplica.addTransactionToExecutedList(transaction);
 
             } else {
-                System.out.println("invalid command");
+                System.out.println("INVALID COMMAND");
             }
 
         } catch (SpreadException e) {

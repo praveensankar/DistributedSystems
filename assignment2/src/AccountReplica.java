@@ -9,9 +9,7 @@ import spread.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -19,28 +17,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AccountReplica {
-    /*
-       Flow:
-       1) AccountReplica replica = new AccountReplica();
-       2) replica.parseCommandLineArguments(args);
-       3) replica.setUpSpreadConstructs();
-     */
 
     // ---------------------------------------------------
     // spread related variables
     // --------------------------------------------------
     private static int numberOfReplicas;
-    public static String replicaId = "replica1";
+    public static String replicaId;
     private static int port = 0;
     private static String privateGroupName;
     private static String serverAddress;
     private static String accountName;
     private static String fileName;
     private static SpreadConnection connection;
-    private static SpreadGroup groupMulticast;
-    private static SpreadGroup groupUnicast;
     private static Listener listener;
-
 
 
     //---------------------------------------------------
@@ -50,9 +39,9 @@ public class AccountReplica {
     private static double balance = 0.0;
     private static int orderCounter = 0;
     private static int outstandingCounter = 0;
-    private static ArrayList<Transaction> executedList=new ArrayList<Transaction>();
-    private static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
-    public static ArrayList<String> members = new ArrayList<>();
+    private static ArrayList<Transaction> executedList = new ArrayList<>();
+    private static ArrayList<Transaction> outstandingCollection = new ArrayList<>();
+    private static ArrayList<String> members = new ArrayList<>();
     private static ScheduledExecutorService executor;
 
     // Arguments:
@@ -61,11 +50,11 @@ public class AccountReplica {
     // account name - String eg:- testaccount
     // number of replicas - int eg:- 3
     // filename - String eg:- testfile
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
 
         Random random = new Random();
         replicaId = Integer.toString(random.nextInt(50));
-        System.out.println("replica id : "+replicaId);
+        System.out.println("replica id : " + replicaId);
 
         parseCommandLineArguments(args);
 
@@ -91,22 +80,6 @@ public class AccountReplica {
         }
     }
 
-    private static void waitForAllReplicas() {
-
-        synchronized (members) {
-            while (members.size() < numberOfReplicas) {
-                System.out.println("waitForAllReplicas: Before wait.");
-                try {
-                    // This releases the lock associated
-                    // with the object on which wait is invoked.
-                    members.wait();
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-                System.out.println("waitForAllReplicas: After wait.");
-            }
-        }
-    }
 
 
 
@@ -168,7 +141,7 @@ public class AccountReplica {
         synchronized (executedList) {
             int counter = orderCounter - executedList.size();
             for(Transaction transaction : executedList) {
-                System.out.println(counter + " : " + transaction.toString());
+                System.out.println(counter + " : " + transaction);
                 counter++;
             }
         }
@@ -178,7 +151,7 @@ public class AccountReplica {
 
         synchronized (outstandingCollection) {
             for (Transaction transaction : outstandingCollection) {
-                System.out.println(transaction.toString());
+                System.out.println(transaction);
             }
         }
 
@@ -231,6 +204,9 @@ public class AccountReplica {
     }
 
 
+    /* The exit method is used for exiting nicely.
+    It waits until all outstanding transactions are executed before exiting
+    the program. */
     public static void exit() {
         // not sure if this might lead to some troubles
         // I think not, as only one will get back the lock on the object
@@ -326,6 +302,24 @@ public class AccountReplica {
      *
      */
 
+     private static void waitForAllReplicas() {
+
+         synchronized (members) {
+             while (members.size() < numberOfReplicas) {
+                 System.out.println("waitForAllReplicas: Before wait.");
+                 try {
+                     // This releases the lock associated
+                     // with the object on which wait is invoked.
+                     members.wait();
+                 } catch(Exception e) {
+                     e.printStackTrace();
+                 }
+                 System.out.println("waitForAllReplicas: After wait.");
+             }
+         }
+     }
+
+
     /**
      *
      * Message sending
@@ -368,15 +362,19 @@ public class AccountReplica {
      * Set up methods
      *
      */
-    private static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
+    private static void setUpSpreadConstructs() throws Exception {
+
         listener = new Listener();
         connection = new SpreadConnection();
         connection.add(listener);
         connection.connect(InetAddress.getByName(serverAddress), port, replicaId, false, true);
-        groupMulticast = new SpreadGroup();
+
+        SpreadGroup groupMulticast = new SpreadGroup();
         groupMulticast.join(connection, accountName);
+
         SpreadGroup groupUnicast = new SpreadGroup();
         groupUnicast.join(connection, replicaId);
+
     }
 
     /* Sends outstanding collections to other members in the group every 'rate' seconds.
@@ -394,10 +392,12 @@ public class AccountReplica {
 
         executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(sendOutstandingCollection, 0, rate, TimeUnit.SECONDS);
+
     }
 
     /* Loops until the program is terminated. For example by exit. */
     private static void startAcceptingUserInput() {
+
         Scanner input = new Scanner(System.in);
 
         while (true) {
@@ -408,6 +408,7 @@ public class AccountReplica {
                 e.printStackTrace();
             }
         }
+
     }
 
 
@@ -417,6 +418,7 @@ public class AccountReplica {
      *
      */
     private static void parseCommandLineArguments(String[] args) {
+
         serverAddress = args[0];
         accountName = args[1];
         numberOfReplicas = Integer.parseInt(args[2]);
@@ -424,18 +426,26 @@ public class AccountReplica {
         if (args.length == 4) {
             fileName = args[3];
         }
+
     }
 
 
-    private static void parseFileArguments(String fileName) throws FileNotFoundException {
+    private static void parseFileArguments(String fileName) {
 
-        Scanner scanner = new Scanner(new File(fileName));
+        try {
 
-        while (scanner.hasNextLine()) {
-            executeCommand(scanner.nextLine());
+            Scanner scanner = new Scanner(new File(fileName));
+
+            while (scanner.hasNextLine()) {
+                executeCommand(scanner.nextLine());
+            }
+
+            scanner.close();
+
+        } catch(Exception e) {
+            e.printStackTrace();
         }
 
-        scanner.close();
     }
 
 
