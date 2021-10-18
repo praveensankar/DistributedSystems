@@ -48,8 +48,6 @@ public class AccountReplica {
     private static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
     public static ArrayList<String> members = new ArrayList<>();
     private static ScheduledExecutorService executor;
-    private static boolean finished;
-
 
     // Arguments:
     // <server address> <account name> <number of replicas> <file name>
@@ -95,7 +93,7 @@ public class AccountReplica {
 
         synchronized (members) {
             while (members.size() < numberOfReplicas) {
-                System.out.println("Before wait.");
+                System.out.println("waitForAllReplicas: Before wait.");
                 try {
                     // This releases the lock associated
                     // with the object on which wait is invoked.
@@ -103,7 +101,7 @@ public class AccountReplica {
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("After wait.");
+                System.out.println("waitForAllReplicas: After wait.");
             }
         }
 
@@ -153,13 +151,13 @@ public class AccountReplica {
         synchronized (outstandingCollection) {
 
             while (!outstandingCollection.isEmpty()) {
-                System.out.println("Before wait");
+                System.out.println("getSyncedBalanceNaive: Before wait");
                 try {
                     outstandingCollection.wait();
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("After wait");
+                System.out.println("getSyncedBalanceNaive: After wait");
             }
 
             System.out.println("synced balance : " + balance);
@@ -239,13 +237,30 @@ public class AccountReplica {
 
 
     public static void exit(){
-        do {
-            synchronized (outstandingCollection) {
-                if (outstandingCollection.isEmpty()) {
-                    break;
+        // do {
+        //     synchronized (outstandingCollection) {
+        //         if (outstandingCollection.isEmpty()) {
+        //             break;
+        //         }
+        //     }
+        // } while (true);
+
+        // not sure if this might lead to some troubles
+        // I think not, as only one will get back the lock on the object
+        // only when the lock is gotten will it check and then, if condition is
+        // met, wait.
+        synchronized (outstandingCollection) {
+            while (!outstandingCollection.isEmpty()) {
+                System.out.println("exit: Before wait");
+                try {
+                    outstandingCollection.wait();
+                } catch(Exception e) {
+                    e.printStackTrace();
                 }
+                System.out.println("exit: After wait");
             }
-        } while (true);
+        }
+
 
         // listener.close();
         executor.shutdown();
@@ -260,7 +275,7 @@ public class AccountReplica {
                 AccountReplica.members.add(group.toString());
             }
             System.out.println("Notifying");
-            members.notify();
+            members.notifyAll();
         }
     }
 
@@ -301,7 +316,7 @@ public class AccountReplica {
             if (!outstandingCollection.isEmpty()) {
                 outstandingCollection.remove(0);
                 System.out.println("Notifying");
-                outstandingCollection.notify();
+                outstandingCollection.notifyAll();
             }
         }
     }
