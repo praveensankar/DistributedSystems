@@ -1,5 +1,11 @@
-import spread.*;
+/**
+ * AccountReplica
+ *
+ *
+ */
 
+
+import spread.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.InetAddress;
@@ -227,7 +233,7 @@ public class AccountReplica {
     }
 
 
-    public static void sleep(int duration){
+    public static void sleep(int duration) {
         try {
             Thread.sleep(duration* 1000L);
         } catch (InterruptedException e) {
@@ -236,15 +242,7 @@ public class AccountReplica {
     }
 
 
-    public static void exit(){
-        // do {
-        //     synchronized (outstandingCollection) {
-        //         if (outstandingCollection.isEmpty()) {
-        //             break;
-        //         }
-        //     }
-        // } while (true);
-
+    public static void exit() {
         // not sure if this might lead to some troubles
         // I think not, as only one will get back the lock on the object
         // only when the lock is gotten will it check and then, if condition is
@@ -268,16 +266,17 @@ public class AccountReplica {
 
     }
 
-    public static void updateMembers(SpreadGroup[] groups){
+    public static void updateMembers(SpreadGroup[] groups) {
         synchronized (members) {
             AccountReplica.members.clear();
             for(SpreadGroup group : groups) {
                 AccountReplica.members.add(group.toString());
             }
-            System.out.println("Notifying");
+            System.out.println("updateMembers: Notifying all (members)");
             members.notifyAll();
         }
     }
+
 
 
     /**
@@ -291,7 +290,7 @@ public class AccountReplica {
     }
 
 
-    public static void addTransactionToOutstandingCollection(String cmd){
+    public static void addTransactionToOutstandingCollection(String cmd) {
 
         String uniqueId = replicaId;
 
@@ -315,7 +314,7 @@ public class AccountReplica {
         synchronized (outstandingCollection) {
             if (!outstandingCollection.isEmpty()) {
                 outstandingCollection.remove(0);
-                System.out.println("Notifying");
+                System.out.println("removeTransactionFromOutstandingCollection: Notifying all (outstandinCollection)");
                 outstandingCollection.notifyAll();
             }
         }
@@ -346,12 +345,11 @@ public class AccountReplica {
 
             for (Transaction transaction: outstandingCollection) {
                 try {
+
                     String cmd = transaction.getCommand();
 
                     if (cmd.equals("getSyncedBalance") || cmd.equals("exit")) {
-                        System.out.println("cmd = " + cmd);
                         multicastTransaction(transaction, replicaId);
-                        // multicastTransaction(transaction, accountName);
                     } else {
                         multicastTransaction(transaction, accountName);
                     }
@@ -369,9 +367,7 @@ public class AccountReplica {
         message.addGroup(groupName);
         message.setFifo();
         message.setObject(transaction);
-        // System.out.println("1 transaction : "+ transaction.toString()+" before multicasted by : "+replicaId);
         connection.multicast(message);
-        // System.out.println("2 transaction : "+ transaction.toString()+" after multicasted by : "+replicaId);
     }
 
 
@@ -397,10 +393,12 @@ public class AccountReplica {
     private static void setUpScheduledExecutor(int rate) {
 
         Runnable sendOutstandingCollection = new Runnable() {
+
             public void run() {
                 System.out.println("\nSending outstanding collection\n");
                 multicastOutstandingCollection();
             }
+
         };
 
         executor = Executors.newScheduledThreadPool(1);
@@ -414,12 +412,13 @@ public class AccountReplica {
         while (true) {
             try {
                 System.out.print("Please enter command: ");
-                parseCommand(input.nextLine());
+                executeCommand(input.nextLine());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
 
     /**
      *
@@ -438,47 +437,61 @@ public class AccountReplica {
 
 
     private static void parseFileArguments(String fileName) throws FileNotFoundException {
+
         Scanner scanner = new Scanner(new File(fileName));
+
         while (scanner.hasNextLine()) {
-            String command = scanner.nextLine();
-            parseCommand(command);
-            //  System.out.println("command: " + command);
+            executeCommand(scanner.nextLine(););
         }
+
         scanner.close();
     }
 
 
-    private static void parseCommand(String cmd)  {
+    private static void executeCommand(String cmd)  {
 
         if (cmd.equals("getQuickBalance")) {
+
             getQuickBalance();
+
         } else if(cmd.equals("getSyncedBalance")) {
-            // Todo: Naive implementation : execute the transactions from the outstanding collection
+
             if (naive) {
-                    getSyncedBalanceNaive();
+                getSyncedBalanceNaive();
             } else {
-                    // Advanced
-                    addTransactionToOutstandingCollection(cmd);
+                addTransactionToOutstandingCollection(cmd);
             }
 
-        } else if(cmd.equals("getHistory")) {
+        } else if (cmd.equals("getHistory")) {
+
             getHistory();
-        } else if(cmd.equals("cleanHistory")) {
+
+        } else if (cmd.equals("cleanHistory")) {
+
             cleanHistory();
-        } else if(cmd.equals("memberInfo")) {
+
+        } else if (cmd.equals("memberInfo")) {
+
             memberInfo();
-        } else if(cmd.equals("exit")) {
+
+        } else if (cmd.equals("exit")) {
+
             addTransactionToOutstandingCollection(cmd);
-        } else if(cmd.startsWith("deposit") || cmd.startsWith("addInterest")) {
-            //double amount = Double.parseDouble(cmd.split(" ")[1]);
+
+        } else if (cmd.startsWith("deposit") || cmd.startsWith("addInterest")) {
+
             addTransactionToOutstandingCollection(cmd);
-            // deposit(amount);
-        } else if(cmd.startsWith("checkTxStatus")) {
+
+        } else if (cmd.startsWith("checkTxStatus")) {
+
             String uniqueId = cmd.split(" ")[1];
             checkTxStatus(uniqueId);
-        } else if(cmd.startsWith("sleep")) {
-            int duration = Integer.parseInt(cmd.split(" ")[1]);
-            sleep(duration);
+
+        } else if (cmd.startsWith("sleep")) {
+
+            int seconds = Integer.parseInt(cmd.split(" ")[1]);
+            sleep(seconds);
+
         }
     }
 
