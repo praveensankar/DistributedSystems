@@ -40,7 +40,7 @@ public class AccountReplica {
     //---------------------------------------------------
     // bank account state replicated machine related variables
     //----------------------------------------------------
-    private static boolean naive = true;
+    private static boolean naive = false;
     private static double balance = 0.0;
     private static int orderCounter = 0;
     private static int outstandingCounter = 0;
@@ -79,7 +79,7 @@ public class AccountReplica {
         setUpScheduledExecutor(5);
 
 
-        System.out.println("After while");
+//        System.out.println("After while");
 
         if (fileName != null ) {
             parseFileArguments(fileName);
@@ -93,7 +93,8 @@ public class AccountReplica {
 
         synchronized (members) {
             while (members.size() < numberOfReplicas) {
-                System.out.println("waitForAllReplicas: Before wait.");
+                System.out.println("number of replicas: "+members.size());
+//                System.out.println("waitForAllReplicas: Before wait.");
                 try {
                     // This releases the lock associated
                     // with the object on which wait is invoked.
@@ -101,8 +102,9 @@ public class AccountReplica {
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("waitForAllReplicas: After wait.");
+//                System.out.println("waitForAllReplicas: After wait.");
             }
+            System.out.println("number of replicas: "+members.size());
         }
 
     }
@@ -133,7 +135,7 @@ public class AccountReplica {
 
         // corner case: after get synced balance is called, it blocks the current execution. so new deposits or
         // add interest commands won't be added to the outstanding collection till the get synced balance is finished
-        System.out.println("synced balance is called");
+       // System.out.println("synced balance is called");
 
         // do {
         //     // This is the only place where order counter is changed
@@ -151,13 +153,13 @@ public class AccountReplica {
         synchronized (outstandingCollection) {
 
             while (!outstandingCollection.isEmpty()) {
-                System.out.println("getSyncedBalanceNaive: Before wait");
+//                System.out.println("getSyncedBalanceNaive: Before wait");
                 try {
                     outstandingCollection.wait();
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("getSyncedBalanceNaive: After wait");
+//                System.out.println("getSyncedBalanceNaive: After wait");
             }
 
             System.out.println("synced balance : " + balance);
@@ -178,9 +180,11 @@ public class AccountReplica {
         System.out.println("executed list : ");
 
         int counter = orderCounter - executedList.size();
-        for(Transaction transaction : executedList) {
+        synchronized (executedList) {
+            for (Transaction transaction : executedList) {
                 System.out.println(counter + " : " + transaction.toString());
                 counter++;
+            }
         }
         // print the outstanding collection
         System.out.println("\noutstanding collection : ");
@@ -251,13 +255,13 @@ public class AccountReplica {
         // met, wait.
         synchronized (outstandingCollection) {
             while (!outstandingCollection.isEmpty()) {
-                System.out.println("exit: Before wait");
+//                System.out.println("exit: Before wait");
                 try {
                     outstandingCollection.wait();
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("exit: After wait");
+//                System.out.println("exit: After wait");
             }
         }
 
@@ -274,7 +278,7 @@ public class AccountReplica {
             for(SpreadGroup group : groups) {
                 AccountReplica.members.add(group.toString());
             }
-            System.out.println("Notifying");
+            System.out.println("group members updated");
             members.notifyAll();
         }
     }
@@ -314,8 +318,8 @@ public class AccountReplica {
     public static void removeTransactionFromOutstandingCollection() {
         synchronized (outstandingCollection) {
             if (!outstandingCollection.isEmpty()) {
-                outstandingCollection.remove(0);
-                System.out.println("Notifying");
+                Transaction transaction = outstandingCollection.remove(0);
+                System.out.println(transaction.toString()+" is removed from the outstanding collection");
                 outstandingCollection.notifyAll();
             }
         }
@@ -398,7 +402,9 @@ public class AccountReplica {
 
         Runnable sendOutstandingCollection = new Runnable() {
             public void run() {
-                System.out.println("\nSending outstanding collection\n");
+                if(!outstandingCollection.isEmpty()){
+                    System.out.println("\nSending outstanding collection\n");
+                }
                 multicastOutstandingCollection();
             }
         };

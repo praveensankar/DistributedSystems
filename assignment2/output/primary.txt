@@ -1,0 +1,148 @@
+replica id : 41
+number of replicas: 0
+group members updated
+number of replicas: 1
+group members updated
+number of replicas: 1
+group members updated
+number of replicas: 2
+group members updated
+number of replicas: 3
+Members: [#30#localhost, #35#localhost, #primary#localhost]
+Adding to outstandingCollection: (getSyncedBalance, primary)
+quick balance : 0.0
+Adding to outstandingCollection: (deposit 100, primary0)
+Transaction is in outstandinCollection: primary0
+Adding to outstandingCollection: (getSyncedBalance, primary)
+quick balance : 0.0
+Adding to outstandingCollection: (deposit 100, primary1)
+quick balance : 0.0
+
+Sending outstanding collection
+
+cmd = getSyncedBalance
+cmd = getSyncedBalance
+message : (getSyncedBalance, primary)	 sent by replica : #primary#localhost
+synched balance : 0.0
+(getSyncedBalance, primary) is removed from the outstanding collection
+message : (deposit 100, primary0)	 sent by replica : #primary#localhost
+(deposit 100, primary0) is removed from the outstanding collection
+message : (getSyncedBalance, primary)	 sent by replica : #primary#localhost
+synched balance : 100.0
+(getSyncedBalance, primary) is removed from the outstanding collection
+message : (deposit 100, primary1)	 sent by replica : #primary#localhost
+(deposit 100, primary1) is removed from the outstanding collection
+Adding to outstandingCollection: (getSyncedBalance, primary)
+Adding to outstandingCollection: (addInterest 10, primary2)
+Adding to outstandingCollection: (getSyncedBalance, primary)
+Adding to outstandingCollection: (deposit 100, primary3)
+Adding to outstandingCollection: (deposit 50, primary4)
+Adding to outstandingCollection: (deposit 40, primary5)
+Adding to outstandingCollection: (deposit 30, primary6)
+Adding to outstandingCollection: (deposit 20, primary7)
+Adding to outstandingCollection: (deposit 10, primary8)
+Adding to outstandingCollection: (addInterest 10, primary9)
+Adding to outstandingCollection: (getSyncedBalance, primary)
+quick balance : 200.0
+Adding to outstandingCollection: (deposit 100, primary10)
+Adding to outstandingCollection: (deposit 100, primary11)
+Adding to outstandingCollection: (addInterest 20, primary12)
+UniqueId isn't found: primary13
+Members: [#30#localhost, #35#localhost, #primary#localhost]
+
+-----------------start history-----------------
+
+executed list : 
+0 : (deposit 100, primary0)
+1 : (deposit 100, primary1)
+
+outstanding collection : 
+(getSyncedBalance, primary)
+(addInterest 10, primary2)
+(getSyncedBalance, primary)
+(deposit 100, primary3)
+(deposit 50, primary4)
+(deposit 40, primary5)
+(deposit 30, primary6)
+(deposit 20, primary7)
+(deposit 10, primary8)
+(addInterest 10, primary9)
+(getSyncedBalance, primary)
+(deposit 100, primary10)
+(deposit 100, primary11)
+(addInterest 20, primary12)
+
+-----------------end history-----------------
+
+executedList size: 0
+Adding to outstandingCollection: (deposit 100, primary13)
+
+Sending outstanding collection
+
+cmd = getSyncedBalance
+cmd = getSyncedBalance
+cmd = getSyncedBalance
+message : (getSyncedBalance, primary)	 sent by replica : #primary#localhost
+synched balance : 200.0
+(getSyncedBalance, primary) is removed from the outstanding collection
+message : (addInterest 10, primary2)	 sent by replica : #primary#localhost
+(addInterest 10, primary2) is removed from the outstanding collection
+message : (getSyncedBalance, primary)	 sent by replica : #primary#localhost
+synched balance : 220.00000000000003
+(getSyncedBalance, primary) is removed from the outstanding collection
+message : (deposit 100, primary3)	 sent by replica : #primary#localhost
+(deposit 100, primary3) is removed from the outstanding collection
+message : (deposit 50, primary4)	 sent by replica : #primary#localhost
+(deposit 50, primary4) is removed from the outstanding collection
+message : (deposit 40, primary5)	 sent by replica : #primary#localhost
+(deposit 40, primary5) is removed from the outstanding collection
+message : (deposit 30, primary6)	 sent by replica : #primary#localhost
+(deposit 30, primary6) is removed from the outstanding collection
+message : (deposit 20, primary7)	 sent by replica : #primary#localhost
+(deposit 20, primary7) is removed from the outstanding collection
+message : (deposit 10, primary8)	 sent by replica : #primary#localhost
+(deposit 10, primary8) is removed from the outstanding collection
+message : (addInterest 10, primary9)	 sent by replica : #primary#localhost
+(addInterest 10, primary9) is removed from the outstanding collection
+message : (getSyncedBalance, primary)	 sent by replica : #primary#localhost
+synched balance : 517.0
+(getSyncedBalance, primary) is removed from the outstanding collection
+message : (deposit 100, primary10)	 sent by replica : #primary#localhost
+(deposit 100, primary10) is removed from the outstanding collection
+message : (deposit 100, primary11)	 sent by replica : #primary#localhost
+(deposit 100, primary11) is removed from the outstanding collection
+message : (addInterest 20, primary12)	 sent by replica : #primary#localhost
+(addInterest 20, primary12) is removed from the outstanding collection
+message : (deposit 100, primary13)	 sent by replica : #primary#localhost
+(deposit 100, primary13) is removed from the outstanding collection
+Adding to outstandingCollection: (getSyncedBalance, primary)
+quick balance : 960.4
+
+-----------------start history-----------------
+
+executed list : 
+2 : (addInterest 10, primary2)
+3 : (deposit 100, primary3)
+4 : (deposit 50, primary4)
+5 : (deposit 40, primary5)
+6 : (deposit 30, primary6)
+7 : (deposit 20, primary7)
+8 : (deposit 10, primary8)
+9 : (addInterest 10, primary9)
+10 : (deposit 100, primary10)
+11 : (deposit 100, primary11)
+12 : (addInterest 20, primary12)
+13 : (deposit 100, primary13)
+
+outstanding collection : 
+(getSyncedBalance, primary)
+
+-----------------end history-----------------
+
+Please enter command: 
+Sending outstanding collection
+
+cmd = getSyncedBalance
+message : (getSyncedBalance, primary)	 sent by replica : #primary#localhost
+synched balance : 960.4
+(getSyncedBalance, primary) is removed from the outstanding collection
