@@ -67,17 +67,6 @@ public class AccountReplica {
             e.printStackTrace();
         }
 
-        // sending outstanding collections to other members in the group
-        Runnable sendOutstandingCollection = new Runnable() {
-            public void run() {
-                System.out.println("Sending outstanding collection");
-                multicastOutstandingCollection();
-            }
-        };
-
-        executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(sendOutstandingCollection, 0, 5, TimeUnit.SECONDS);
-
         do {
             synchronized (members) {
                 if (members.size() >= numberOfReplicas) {
@@ -87,22 +76,15 @@ public class AccountReplica {
             }
         } while (true);
 
+        setUpScheduledExecutor(5);
+
         System.out.println("After while");
 
         if (fileName != null ) {
             parseFileArguments(fileName);
         }
 
-        Scanner input = new Scanner(System.in);
-
-        while (true) {
-            try {
-                System.out.print("Please enter command: ");
-                parseCommand(input.nextLine());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        startAcceptingUserInput();
 
     }
 
@@ -357,6 +339,34 @@ public class AccountReplica {
         groupMulticast.join(connection, accountName);
         SpreadGroup groupUnicast = new SpreadGroup();
         groupUnicast.join(connection, replicaId);
+    }
+
+    // sending outstanding collections to other members in the group every s seconds
+    private static void setUpScheduledExecutor(int rate) {
+
+        Runnable sendOutstandingCollection = new Runnable() {
+            public void run() {
+                System.out.println("\nSending outstanding collection\n");
+                multicastOutstandingCollection();
+            }
+        };
+
+        executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(sendOutstandingCollection, 0, rate, TimeUnit.SECONDS);
+    }
+
+    /* Loops until the program is terminated. For example by exit. */
+    private static void startAcceptingUserInput() {
+        Scanner input = new Scanner(System.in);
+
+        while (true) {
+            try {
+                System.out.print("Please enter command: ");
+                parseCommand(input.nextLine());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
