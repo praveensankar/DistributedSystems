@@ -42,21 +42,30 @@ public class AccountReplica {
     //----------------------------------------------------
     private static boolean naive = false;
     private static double balance = 0.0;
-    private static volatile int orderCounter = 0;
-    private static volatile int outstandingCounter = 0;
+    private static int orderCounter = 0;
+    private static int outstandingCounter = 0;
     private static ArrayList<Transaction> executedList=new ArrayList<Transaction>();
     private static ArrayList<Transaction> outstandingCollection=new ArrayList<Transaction>();
     public static ArrayList<String> members = new ArrayList<>();
     private static ScheduledExecutorService executor;
     private static boolean finished;
 
+
+    // Arguments:
+    // <server address> <account name> <number of replicas> <file name>
+    // server address - String eg:- 127.0.0.1
+    // account name - String eg:- testaccount
+    // number of replicas - int eg:- 3
+    // filename - String eg:- testfile
     public static void main(String[] args) throws FileNotFoundException {
 
         Random random = new Random();
         replicaId = Integer.toString(random.nextInt(50));
         System.out.println("replica id : "+replicaId);
+
         parseCommandLineArguments(args);
 
+        // Just for checkTxStatus
         if (fileName != null ) {
             replicaId = "primary";
         }
@@ -67,16 +76,10 @@ public class AccountReplica {
             e.printStackTrace();
         }
 
-        do {
-            synchronized (members) {
-                if (members.size() >= numberOfReplicas) {
-                    System.out.println("Members = ");
-                    break;
-                }
-            }
-        } while (true);
+        waitForAllReplicas();
 
         setUpScheduledExecutor(5);
+
 
         System.out.println("After while");
 
@@ -88,13 +91,22 @@ public class AccountReplica {
 
     }
 
+    private static void waitForAllReplicas() {
 
-    //args:
-    // <server address> <account name> <number of replicas> <file name>
-    // server address - String eg:- 127.0.0.1
-    // account name - String eg:- testaccount
-    // number of replicas - int eg:- 3
-    // filename - String eg:- testfile
+        synchronized (members) {
+            while (members.size() < numberOfReplicas) {
+                System.out.println("Before wait.");
+                try {
+                    members.wait();
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("After wait.");
+            }
+        }
+
+    }
+
 
 
     /**
@@ -108,6 +120,10 @@ public class AccountReplica {
     }
 
     public static void getSyncedBalance() {
+        System.out.println("synched balance : " + balance);
+    }
+
+    private static void getSyncedBalanceNaive() {
         // Todo: do the sync part
         // naive implementation: we are checking whether the outstanding collection is empty or not and running it in a
         // infinite loop. once the outstanding collection is empty then we will print the balance
@@ -178,7 +194,7 @@ public class AccountReplica {
 
     public static void cleanHistory(){
         synchronized (executedList) {
-            executedList = new ArrayList<>();
+            executedList.clear();
             System.out.println("executedList size: " + executedList.size());
         }
     }
@@ -221,6 +237,8 @@ public class AccountReplica {
             for(SpreadGroup group : groups) {
                 AccountReplica.members.add(group.toString());
             }
+            System.out.println("Notifying");
+            members.notify();
         }
     }
 
@@ -238,12 +256,10 @@ public class AccountReplica {
 
     public static void addTransactionToOutstandingCollection(String cmd){
 
-        String uniqueId;
+        String uniqueId = replicaId;
 
-        if (cmd.startsWith("getSyncedBalance") || cmd.equals("exit")) {
-            uniqueId = replicaId;
-        } else {
-            uniqueId = replicaId + outstandingCounter;
+        if (!cmd.startsWith("getSyncedBalance") || cmd.equals("exit")) {
+            uniqueId += outstandingCounter;
             outstandingCounter += 1; // only one thread changes this. (the scheduled)
         }
 
@@ -327,9 +343,10 @@ public class AccountReplica {
 
 
     /**
-     * Sets up spread
+     *
+     * Set up methods
+     *
      */
-    // TODO: Create listener outside and close it in exit
     private static void setUpSpreadConstructs() throws SpreadException, UnknownHostException {
         listener = new Listener();
         connection = new SpreadConnection();
@@ -341,7 +358,8 @@ public class AccountReplica {
         groupUnicast.join(connection, replicaId);
     }
 
-    // sending outstanding collections to other members in the group every s seconds
+    /* Sends outstanding collections to other members in the group every 'rate' seconds.
+    This is done on a separate thread */
     private static void setUpScheduledExecutor(int rate) {
 
         Runnable sendOutstandingCollection = new Runnable() {
@@ -403,7 +421,7 @@ public class AccountReplica {
         } else if(cmd.equals("getSyncedBalance")) {
             // Todo: Naive implementation : execute the transactions from the outstanding collection
             if (naive) {
-                    getSyncedBalance();
+                    getSyncedBalanceNaive();
             } else {
                     // Advanced
                     addTransactionToOutstandingCollection(cmd);

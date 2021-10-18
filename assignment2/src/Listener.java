@@ -23,7 +23,7 @@ public class Listener implements AdvancedMessageListener {
 
             } else if (cmd.equals("getSyncedBalance")) {
 
-                AccountReplica.getQuickBalance();
+                AccountReplica.getSyncedBalance();
                 AccountReplica.removeTransactionFromOutstandingCollection();
 
             } else if (cmd.startsWith("deposit")) {
