@@ -1,4 +1,4 @@
-replica id : 30
+replica id : 12
 number of replicas: 0
 group members updated
 number of replicas: 2
@@ -6,9 +6,20 @@ group members updated
 number of replicas: 1
 group members updated
 number of replicas: 3
-Please enter command: message : (deposit 100, primary0)	 sent by replica : #primary#localhost
+Please enter command: message : (getState, 0.0)	 sent by replica : #primary#localhost
+message : (getState, 0.0)	 sent by replica : #12#localhost
+group members updated
+message : (getState, 0.0)	 sent by replica : #20#localhost
+message : (getState, 0.0)	 sent by replica : #4#localhost
+message : (deposit 100, primary0)	 sent by replica : #primary#localhost
 message : (deposit 100, primary1)	 sent by replica : #primary#localhost
 message : (addInterest 10, primary2)	 sent by replica : #primary#localhost
+group members updated
+group members updated
+message : (getState, 0.0)	 sent by replica : #47#localhost
+message : (stateInfo, 220.00000000000003)	 sent by replica : #12#localhost
+message : (stateInfo, 220.00000000000003)	 sent by replica : #primary#localhost
+message : (stateInfo, 220.00000000000003)	 sent by replica : #20#localhost
 message : (deposit 100, primary3)	 sent by replica : #primary#localhost
 message : (deposit 50, primary4)	 sent by replica : #primary#localhost
 message : (deposit 40, primary5)	 sent by replica : #primary#localhost
@@ -20,5 +31,22 @@ message : (deposit 100, primary10)	 sent by replica : #primary#localhost
 message : (deposit 100, primary11)	 sent by replica : #primary#localhost
 message : (addInterest 20, primary12)	 sent by replica : #primary#localhost
 message : (deposit 100, primary13)	 sent by replica : #primary#localhost
-quick balance : 960.4
+group members updated
+group members updated
+message : (deposit 10, primary14)	 sent by replica : #primary#localhost
+message : (deposit 10, primary15)	 sent by replica : #primary#localhost
+group members updated
+group members updated
+message : (getState, 0.0)	 sent by replica : #47#localhost
+message : (stateInfo, 980.4)	 sent by replica : #20#localhost
+message : (stateInfo, 980.4)	 sent by replica : #12#localhost
+message : (stateInfo, 980.4)	 sent by replica : #primary#localhost
+message : (addInterest 5, primary16)	 sent by replica : #primary#localhost
+quick balance : 1029.42
 Please enter command: group members updated
+group members updated
+message : (getState, 0.0)	 sent by replica : #35#localhost
+message : (stateInfo, 1029.42)	 sent by replica : #primary#localhost
+message : (stateInfo, 1029.42)	 sent by replica : #20#localhost
+message : (stateInfo, 1029.42)	 sent by replica : #12#localhost
+message : (deposit 100000, primary17)	 sent by replica : #primary#localhost

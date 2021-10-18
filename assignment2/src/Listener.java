@@ -2,6 +2,7 @@ import spread.*;
 
 import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.function.DoubleBinaryOperator;
 
 public class Listener implements AdvancedMessageListener {
 
@@ -21,7 +22,12 @@ public class Listener implements AdvancedMessageListener {
                 AccountReplica.removeTransactionFromOutstandingCollection();
                 AccountReplica.exit();
 
-            } else if (cmd.equals("getSyncedBalance")) {
+            } else if(cmd.equals("getState")){
+                AccountReplica.multicastState();
+            } else if(cmd.equals("stateInfo")){
+                double balance =Double.parseDouble(transaction.getUnique_id());
+                AccountReplica.setState(balance);
+            }else if (cmd.equals("getSyncedBalance")) {
 
                 AccountReplica.getSyncedBalance();
                 AccountReplica.removeTransactionFromOutstandingCollection();

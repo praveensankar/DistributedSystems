@@ -40,7 +40,7 @@ public class AccountReplica {
     //---------------------------------------------------
     // bank account state replicated machine related variables
     //----------------------------------------------------
-    private static boolean naive = false;
+    private static boolean naive = true;
     private static double balance = 0.0;
     private static int orderCounter = 0;
     private static int outstandingCounter = 0;
@@ -105,6 +105,11 @@ public class AccountReplica {
 //                System.out.println("waitForAllReplicas: After wait.");
             }
             System.out.println("number of replicas: "+members.size());
+
+            if(balance==0)
+            {
+                getState();
+            }
         }
 
     }
@@ -378,6 +383,39 @@ public class AccountReplica {
         // System.out.println("2 transaction : "+ transaction.toString()+" after multicasted by : "+replicaId);
     }
 
+    // use getState as cmd and multicast the request to others
+    public static  void getState()
+    {
+        // cmd - getState
+        // uniqueId - balance
+        Transaction transaction = new Transaction("getState", String.valueOf(balance));
+        try {
+            if(balance==0) {
+                multicastTransaction(transaction, accountName);
+            }
+        } catch (SpreadException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void multicastState()
+    {
+        // cmd - state
+        // uniqueId - balance
+        Transaction transaction = new Transaction("stateInfo", String.valueOf(balance));
+        try {
+            if(balance>0){
+                multicastTransaction(transaction, accountName);
+            }
+        } catch (SpreadException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void setState(double bal)
+    {
+        if(balance < bal) {
+            balance = bal;
+        }
+    }
 
 
     /**
