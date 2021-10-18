@@ -1,14 +1,12 @@
+getHistory
 deposit 100
+getHistory
 addInterest 25
+getHistory
 getQuickBalance
 getSyncedBalance
-deposit 10
-deposit 2
-checkTxStatus primary1
-addInterest 10
+sleep 10
 getQuickBalance
+getHistory
 getSyncedBalance
-cleanHistory
-memberInfo
-deposit 10
 exit

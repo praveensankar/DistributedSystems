@@ -28,6 +28,6 @@ public class Transaction implements Serializable {
 
     @Override
     public String toString() {
-        return " Command : "+command+"\t unique id : "+unique_id;
+        return "(" + command + ", " + unique_id + ")";
     }
 }
