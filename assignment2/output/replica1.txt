@@ -1,4 +1,4 @@
-replica id : 48
+replica id : 46
 
 [SPREAD INFO] Setting up spread
 
@@ -8,27 +8,13 @@ replica id : 48
 		...number of replicas: 0
 
 [SPREAD INFO] Updating members
-
-[SPREAD INFO] All replicas have joined! Number of replicas: 2
-
-[SPREAD INFO] Getting state
-
-[SPREAD INFO] Setting up schedular to fire every 5 seconds
-
-[SPREAD INFO] Multicasting outstanding collection
-
-Please enter command: 
-[USER COMMAND] Depositing 100.0
-
-[SPREAD INFO] Multicasting outstanding collection
+		...number of replicas: 1
 
 [USER COMMAND] Depositing 100.0
 
-[SPREAD INFO] Multicasting outstanding collection
+[USER COMMAND] Depositing 100.0
 
 [USER COMMAND] Adding interest of 10.0%
-
-[SPREAD INFO] Multicasting outstanding collection
 
 [USER COMMAND] Depositing 100.0
 
@@ -44,8 +30,6 @@ Please enter command:
 
 [USER COMMAND] Adding interest of 10.0%
 
-[SPREAD INFO] Multicasting outstanding collection
-
 [USER COMMAND] Depositing 100.0
 
 [USER COMMAND] Depositing 100.0
@@ -54,10 +38,15 @@ Please enter command:
 
 [USER COMMAND] Depositing 100.0
 
-[SPREAD INFO] Multicasting outstanding collection
-
 [SPREAD INFO] Updating members
 
+[SPREAD INFO] All replicas have joined! Number of replicas: 2
+
+[SPREAD INFO] Setting up schedular to fire every 5 seconds
+
+[SPREAD INFO] Multicasting outstanding collection
+
+Please enter command: 
 [SPREAD INFO] Multicasting outstanding collection
 
 [SPREAD INFO] Multicasting outstanding collection
@@ -66,40 +55,9 @@ Please enter command:
 
 [SPREAD INFO] Multicasting outstanding collection
 
-[SPREAD INFO] Multicasting outstanding collection
+[USER COMMAND] Quick balance : 960.4
 
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
+Please enter command: 
 [SPREAD INFO] Multicasting outstanding collection
 
 [SPREAD INFO] Multicasting outstanding collection
