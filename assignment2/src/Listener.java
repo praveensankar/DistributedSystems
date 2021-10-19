@@ -11,8 +11,12 @@ public class Listener implements AdvancedMessageListener {
 
             Transaction transaction = (Transaction) message.getObject();
             String cmd = transaction.getCommand();
-
-            if (cmd.equals("getSyncedBalance")) {
+            if(cmd.equals("getState")){
+                AccountReplica.multicastState();
+            } else if(cmd.equals("stateInfo")){
+                double balance =Double.parseDouble(transaction.getUnique_id());
+                AccountReplica.setState(balance);
+            } else if (cmd.equals("getSyncedBalance")) {
 
                 AccountReplica.getSyncedBalance();
                 AccountReplica.removeTransactionFromOutstandingCollection();
