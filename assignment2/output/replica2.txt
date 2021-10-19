@@ -1,0 +1,33 @@
+replica id : 26
+number of replicas: 0
+group members updated
+number of replicas: 1
+group members updated
+number of replicas: 1
+group members updated
+number of replicas: 2
+group members updated
+number of replicas: 3
+message : (getState, 0.0)	 sent by replica : #26#localhost
+Please enter command: message : (getState, 0.0)	 sent by replica : #1#localhost
+message : (getState, 0.0)	 sent by replica : #primary#localhost
+group members updated
+group members updated
+message : (getState, 0.0)	 sent by replica : #primary#localhost
+message : (deposit -100, primary0)	 sent by replica : #primary#localhost
+message : (deposit -100, primary1)	 sent by replica : #primary#localhost
+message : (addInterest 10, primary2)	 sent by replica : #primary#localhost
+message : (deposit -100, primary3)	 sent by replica : #primary#localhost
+message : (deposit 50, primary4)	 sent by replica : #primary#localhost
+message : (deposit 40, primary5)	 sent by replica : #primary#localhost
+message : (deposit 30, primary6)	 sent by replica : #primary#localhost
+message : (deposit 20, primary7)	 sent by replica : #primary#localhost
+message : (deposit 10, primary8)	 sent by replica : #primary#localhost
+message : (addInterest 10, primary9)	 sent by replica : #primary#localhost
+message : (deposit -100, primary10)	 sent by replica : #primary#localhost
+message : (deposit -100, primary11)	 sent by replica : #primary#localhost
+message : (addInterest 20, primary12)	 sent by replica : #primary#localhost
+message : (deposit -100, primary13)	 sent by replica : #primary#localhost
+message : (deposit -300, primary14)	 sent by replica : #primary#localhost
+group members updated
+group members updated
