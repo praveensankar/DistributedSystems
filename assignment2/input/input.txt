@@ -23,7 +23,7 @@ getQuickBalance
 deposit 100
 deposit 100
 addInterest 20
-checkTxStatus primary13
+checkTxStatus primary12
 memberInfo
 getHistory
 cleanHistory

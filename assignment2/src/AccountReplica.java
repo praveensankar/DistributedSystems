@@ -35,7 +35,7 @@ public class AccountReplica {
     //---------------------------------------------------
     // bank account state replicated machine related variables
     //----------------------------------------------------
-    private static boolean naive = false;
+    private static boolean naive = true;
     private static double balance = 0.0;
     private static int orderCounter = 0;
     private static int outstandingCounter = 0;
@@ -81,6 +81,16 @@ public class AccountReplica {
         }
     }
 
+    public static void printSpreadInfo(String msg) {
+        System.out.println("\n[SPREAD INFO] " + msg);
+    }
+
+    public static void printCommandInfo(String msg) {
+        System.out.println("\n[USER COMMAND] " + msg);
+    }
+
+
+
 
 
 
@@ -90,12 +100,14 @@ public class AccountReplica {
      *
      */
 
-    public static void getQuickBalance(){
-        System.out.println("quick balance : " + balance);
+    public static void getQuickBalance() {
+        printCommandInfo("Quick balance : " + balance);
+        // System.out.println("quick balance : " + balance);
     }
 
-    public static void getSyncedBalance() {
-        System.out.println("synced balance : " + balance);
+    public static void getSyncedBalanceAdvanced() {
+        printCommandInfo("Synced balance (advanced): " + balance);
+        // System.out.println("synced balance : " + balance);
     }
 
     // This assumes that outstandingCollection is only empty when they have been executed.
@@ -117,7 +129,10 @@ public class AccountReplica {
 //                System.out.println("getSyncedBalanceNaive: After wait");
             }
 
-            System.out.println("synced balance : " + balance);
+            printCommandInfo("Synced balance (naive): " + balance);
+
+            // getSyncedBalance();
+
         }
     }
 
@@ -125,14 +140,18 @@ public class AccountReplica {
     // NOT SURE HOW MANY THREADS IS EXECUTING FROM DUE TO LISTENER
     // If only one thread then it is thread safe
     public static void deposit(double amount){
+        printCommandInfo("Depositing " + amount);
         balance += amount;
     }
 
-    public static void addInterest(double percent){
+    public static void addInterest(double percent) {
+        printCommandInfo("Adding interest of " + percent + "%");
         balance *= 1 + (percent/100);
     }
 
     public static void getHistory(){
+
+        printCommandInfo("Getting history");
         // print the execute list
         System.out.println("\n-----------------start history-----------------\n");
         System.out.println("executed list : ");
@@ -158,10 +177,13 @@ public class AccountReplica {
     }
 
     public static void checkTxStatus(String uniqueId){
+        printCommandInfo("Checking transaction status of transaction " + uniqueId + "...");
+
         synchronized (outstandingCollection) {
             for (Transaction transaction: outstandingCollection) {
-                if (transaction.getUnique_id().equals(uniqueId)){
-                    System.out.println("Transaction is in outstandinCollection: " + uniqueId);
+                if (transaction.getUnique_id().equals(uniqueId)) {
+                    // printCommandInfo("Transaction is in outstandingCollection: " + uniqueId);
+                    System.out.println("\t\t...Transaction is in outstandingCollection");
                     return;
                 }
             }
@@ -170,31 +192,34 @@ public class AccountReplica {
         synchronized (executedList) {
             for (Transaction transaction: executedList) {
                 if (transaction.getUnique_id().equals(uniqueId)) {
-                    System.out.println("Transaction is in executedList: " + uniqueId);
+                    // printCommandInfo("Transaction is in executedList: " + uniqueId);
+                    System.out.println("\t\t...Transaction is in executedList");
                     return;
                 }
             }
         }
-        System.out.println("UniqueId isn't found: " + uniqueId);
+        System.out.println("\t\t...Transaction not found");
     }
 
 
     public static void cleanHistory(){
+        printCommandInfo("Cleaning history");
         synchronized (executedList) {
             executedList.clear();
-            System.out.println("executedList size: " + executedList.size());
         }
     }
 
 
     public static void memberInfo(){
+        printCommandInfo("Printing memberInfo...");
         synchronized (members) {
-            System.out.println("Members: " + members);
+            System.out.println("\t\t...Members: " + members);
         }
     }
 
 
     public static void sleep(int duration) {
+        printCommandInfo("Sleeping for " + duration + " seconds");
         try {
             Thread.sleep(duration * 1000L);
         } catch (InterruptedException e) {
@@ -211,7 +236,7 @@ public class AccountReplica {
         // I think not, as only one will get back the lock on the object
         // only when the lock is gotten will it check and then, if condition is
         // met, wait.
-        System.out.println("EXITING");
+        printCommandInfo("EXITING");
         synchronized (outstandingCollection) {
             while (!outstandingCollection.isEmpty()) {
 //                System.out.println("exit: Before wait");
@@ -224,14 +249,13 @@ public class AccountReplica {
             }
         }
 
-
-        // listener.close();
         executor.shutdown();
         System.exit(0);
 
     }
 
     public static void updateMembers(SpreadGroup[] groups) {
+        printSpreadInfo("Updating members");
         synchronized (members) {
             AccountReplica.members.clear();
 
@@ -239,7 +263,7 @@ public class AccountReplica {
                 AccountReplica.members.add(group.toString());
             }
 
-            System.out.println("Group members updated");
+            // System.out.println("Group members updated");
             members.notifyAll();
         }
     }
@@ -272,7 +296,7 @@ public class AccountReplica {
             outstandingCollection.add(transaction);
         }
 
-        System.out.println("Adding to outstandingCollection: " + transaction.toString() );
+        // System.out.println("Adding to outstandingCollection: " + transaction.toString() );
 
    }
 
@@ -281,7 +305,7 @@ public class AccountReplica {
         synchronized (outstandingCollection) {
             if (!outstandingCollection.isEmpty()) {
                 Transaction transaction = outstandingCollection.remove(0);
-                System.out.println("Removed from outstandinCollection: " + transaction);
+                // System.out.println("Removed from outstandinCollection: " + transaction);
                 outstandingCollection.notifyAll();
             }
         }
@@ -304,9 +328,11 @@ public class AccountReplica {
 
     private static void waitForAllReplicas() {
 
+    printSpreadInfo("Waiting for all replicas to join...");
+
     synchronized (members) {
         while (members.size() < numberOfReplicas) {
-            System.out.println("number of replicas: " + members.size());
+            System.out.println("\t\t...number of replicas: " + members.size());
 
             try {
                 members.wait();
@@ -316,7 +342,7 @@ public class AccountReplica {
 
         }
 
-        System.out.println("number of replicas: " + members.size());
+        printSpreadInfo("All replicas have joined! Number of replicas: " + members.size());
 
         if (balance==0) {
             getState();
@@ -331,6 +357,8 @@ public class AccountReplica {
      *
      */
     private static void multicastOutstandingCollection() {
+        printSpreadInfo("Multicasting outstanding collection");
+
         synchronized (outstandingCollection) {
 
             for (Transaction transaction: outstandingCollection) {
@@ -361,13 +389,14 @@ public class AccountReplica {
     }
 
     // use getState as cmd and multicast the request to others
-    public static  void getState()
-    {
+    public static  void getState() {
+
         // cmd - getState
         // uniqueId - balance
         Transaction transaction = new Transaction("getState", String.valueOf(balance));
         try {
             if(balance==0) {
+                printSpreadInfo("Getting state");
                 multicastTransaction(transaction, accountName);
             }
         } catch (SpreadException e) {
@@ -381,6 +410,7 @@ public class AccountReplica {
         Transaction transaction = new Transaction("stateInfo", String.valueOf(balance));
         try {
             if(balance>0){
+                printSpreadInfo("Multicasting state");
                 multicastTransaction(transaction, accountName);
             }
         } catch (SpreadException e) {
@@ -390,6 +420,7 @@ public class AccountReplica {
     public static void setState(double bal)
     {
         if(balance == 0) {
+            printSpreadInfo("Setting state");
             balance = bal;
         }
     }
@@ -401,6 +432,8 @@ public class AccountReplica {
      *
      */
     private static void setUpSpreadConstructs() throws Exception {
+
+        printSpreadInfo("Setting up spread");
 
         listener = new Listener();
         connection = new SpreadConnection();
@@ -418,6 +451,8 @@ public class AccountReplica {
     /* Sends outstanding collections to other members in the group every 'rate' seconds.
     This is done on a separate thread */
     private static void setUpScheduledExecutor(int rate) {
+
+        printSpreadInfo("Setting up schedular to fire every " + rate + " seconds");
 
         Runnable sendOutstandingCollection = new Runnable() {
 
@@ -439,7 +474,7 @@ public class AccountReplica {
 
         while (true) {
             try {
-                System.out.print("Please enter command: ");
+                System.out.print("\nPlease enter command: ");
                 executeCommand(input.nextLine());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -530,6 +565,9 @@ public class AccountReplica {
             int seconds = Integer.parseInt(cmd.split(" ")[1]);
             sleep(seconds);
 
+        } else {
+            printCommandInfo("[ERROR] Invalid user command");
+            // System.out.println("[ERROR] Invalid user command.");
         }
     }
 

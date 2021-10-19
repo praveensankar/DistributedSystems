@@ -6,19 +6,23 @@ public class Listener implements AdvancedMessageListener {
     public void regularMessageReceived(SpreadMessage message) {
         try {
 
-            System.out.print("message : " + message.getObject().toString());
-            System.out.print("\t sent by replica : " + message.getSender().toString() + "\n");
+            // System.out.print("message : " + message.getObject().toString());
+            // System.out.print("\t sent by replica : " + message.getSender().toString() + "\n");
 
             Transaction transaction = (Transaction) message.getObject();
             String cmd = transaction.getCommand();
-            if(cmd.equals("getState")){
+
+            if (cmd.equals("getState")) {
                 AccountReplica.multicastState();
-            } else if(cmd.equals("stateInfo")){
+
+            } else if(cmd.equals("stateInfo")) {
+
                 double balance =Double.parseDouble(transaction.getUnique_id());
                 AccountReplica.setState(balance);
+                
             } else if (cmd.equals("getSyncedBalance")) {
 
-                AccountReplica.getSyncedBalance();
+                AccountReplica.getSyncedBalanceAdvanced();
                 AccountReplica.removeTransactionFromOutstandingCollection();
 
             } else if (cmd.startsWith("deposit")) {
