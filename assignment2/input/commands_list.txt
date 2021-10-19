@@ -6,5 +6,6 @@ getHistory
 checkTxStatus 123
 cleanHistory
 memberInfo
+getHistory
 sleep 5
 exit

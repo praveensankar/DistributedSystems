@@ -35,7 +35,7 @@ public class AccountReplica {
     //---------------------------------------------------
     // bank account state replicated machine related variables
     //----------------------------------------------------
-    private static boolean naive = true;
+    private static boolean naive = false;
     private static double balance = 0.0;
     private static int orderCounter = 0;
     private static int outstandingCounter = 0;
@@ -75,6 +75,7 @@ public class AccountReplica {
 
         if (fileName != null ) {
             parseFileArguments(fileName);
+            exit();
         } else {
             startAcceptingUserInput();
         }
@@ -94,7 +95,7 @@ public class AccountReplica {
     }
 
     public static void getSyncedBalance() {
-        System.out.println("synched balance : " + balance);
+        System.out.println("synced balance : " + balance);
     }
 
     // This assumes that outstandingCollection is only empty when they have been executed.
@@ -212,6 +213,7 @@ public class AccountReplica {
         // I think not, as only one will get back the lock on the object
         // only when the lock is gotten will it check and then, if condition is
         // met, wait.
+        System.out.println("EXITING");
         synchronized (outstandingCollection) {
             while (!outstandingCollection.isEmpty()) {
                 System.out.println("exit: Before wait");
@@ -262,8 +264,8 @@ public class AccountReplica {
         String uniqueId = replicaId;
 
         if (!cmd.startsWith("getSyncedBalance")) {
-            uniqueId += outstandingCounter;
-            outstandingCounter += 1; // only one thread changes this. (the scheduled)
+            uniqueId += outstandingCounter++;
+            // outstandingCounter += 1; // only one thread changes this. (the scheduled)
         }
 
         Transaction transaction = createTransaction(cmd, uniqueId);
