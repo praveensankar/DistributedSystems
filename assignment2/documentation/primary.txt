@@ -1,0 +1,145 @@
+replica id : 18
+
+[SPREAD INFO] Setting up spread
+
+[SPREAD INFO] Waiting for all replicas to join...
+
+[SPREAD INFO] Updating members
+		...number of replicas: 0
+		...number of replicas: 1
+
+[SPREAD INFO] Updating members
+		...number of replicas: 1
+
+[SPREAD INFO] Updating members
+
+[SPREAD INFO] All replicas have joined! Number of replicas: 2
+
+[SPREAD INFO] Getting state
+
+[SPREAD INFO] Setting up schedular to fire every 5 seconds
+
+[SPREAD INFO] Multicasting outstanding collection
+
+[USER COMMAND] Printing memberInfo...
+		...Members: [#32#localhost, #primary#localhost]
+
+[USER COMMAND] Synced balance (naive): 0.0
+
+[USER COMMAND] Quick balance : 0.0
+
+[USER COMMAND] Checking transaction status of transaction primary0...
+		...Transaction is in outstandingCollection
+
+[SPREAD INFO] Multicasting outstanding collection
+
+[USER COMMAND] Depositing 100.0
+
+[USER COMMAND] Synced balance (naive): 100.0
+
+[USER COMMAND] Quick balance : 100.0
+
+[USER COMMAND] Quick balance : 100.0
+
+[USER COMMAND] Sleeping for 5 seconds
+
+[SPREAD INFO] Multicasting outstanding collection
+
+[USER COMMAND] Depositing 100.0
+
+[USER COMMAND] Synced balance (naive): 200.0
+
+[SPREAD INFO] Multicasting outstanding collection
+
+[USER COMMAND] Adding interest of 10.0%
+
+[USER COMMAND] Synced balance (naive): 220.00000000000003
+
+[SPREAD INFO] Updating members
+
+[SPREAD INFO] Multicasting state
+
+[SPREAD INFO] Multicasting outstanding collection
+
+[USER COMMAND] Depositing 100.0
+
+[USER COMMAND] Depositing 50.0
+
+[USER COMMAND] Depositing 40.0
+
+[USER COMMAND] Depositing 30.0
+
+[USER COMMAND] Depositing 20.0
+
+[USER COMMAND] Depositing 10.0
+
+[USER COMMAND] Adding interest of 10.0%
+
+[USER COMMAND] Synced balance (naive): 517.0
+
+[USER COMMAND] Quick balance : 517.0
+
+[USER COMMAND] Checking transaction status of transaction primary12...
+		...Transaction is in outstandingCollection
+
+[USER COMMAND] Printing memberInfo...
+		...Members: [#14#localhost, #32#localhost, #primary#localhost]
+
+[USER COMMAND] Getting history
+
+-----------------start history-----------------
+
+executed list : 
+0 : (deposit 100, primary0)
+1 : (deposit 100, primary1)
+2 : (addInterest 10, primary2)
+3 : (deposit 100, primary3)
+4 : (deposit 50, primary4)
+5 : (deposit 40, primary5)
+6 : (deposit 30, primary6)
+7 : (deposit 20, primary7)
+8 : (deposit 10, primary8)
+9 : (addInterest 10, primary9)
+
+outstanding collection : 
+(deposit 100, primary10)
+(deposit 100, primary11)
+(addInterest 20, primary12)
+
+-----------------end history-----------------
+
+
+[USER COMMAND] Cleaning history
+
+[USER COMMAND] Sleeping for 5 seconds
+
+[SPREAD INFO] Multicasting outstanding collection
+
+[USER COMMAND] Depositing 100.0
+
+[USER COMMAND] Depositing 100.0
+
+[USER COMMAND] Adding interest of 20.0%
+
+[USER COMMAND] Depositing 100.0
+
+[USER COMMAND] Synced balance (naive): 960.4
+
+[USER COMMAND] Quick balance : 960.4
+
+[USER COMMAND] Getting history
+
+-----------------start history-----------------
+
+executed list : 
+10 : (deposit 100, primary10)
+11 : (deposit 100, primary11)
+12 : (addInterest 20, primary12)
+13 : (deposit 100, primary13)
+
+outstanding collection : 
+
+-----------------end history-----------------
+
+
+[USER COMMAND] EXITING
