@@ -103,20 +103,18 @@ public class AccountReplica {
     // only after the task has been executed.
     private static void getSyncedBalanceNaive() {
 
-        System.out.println("synced balance is called");
-
         // I think I can check if outstanding is empty. As it is just removed
         // after the execution (in the listener)
         synchronized (outstandingCollection) {
 
             while (!outstandingCollection.isEmpty()) {
-                System.out.println("getSyncedBalanceNaive: Before wait");
+//                System.out.println("getSyncedBalanceNaive: Before wait");
                 try {
                     outstandingCollection.wait();
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("getSyncedBalanceNaive: After wait");
+//                System.out.println("getSyncedBalanceNaive: After wait");
             }
 
             System.out.println("synced balance : " + balance);
@@ -216,13 +214,13 @@ public class AccountReplica {
         System.out.println("EXITING");
         synchronized (outstandingCollection) {
             while (!outstandingCollection.isEmpty()) {
-                System.out.println("exit: Before wait");
+//                System.out.println("exit: Before wait");
                 try {
                     outstandingCollection.wait();
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("exit: After wait");
+//                System.out.println("exit: After wait");
             }
         }
 
@@ -241,7 +239,7 @@ public class AccountReplica {
                 AccountReplica.members.add(group.toString());
             }
 
-            System.out.println("updateMembers: Notifying all (members)");
+            System.out.println("Group members updated");
             members.notifyAll();
         }
     }
@@ -282,8 +280,8 @@ public class AccountReplica {
     public static void removeTransactionFromOutstandingCollection() {
         synchronized (outstandingCollection) {
             if (!outstandingCollection.isEmpty()) {
-                outstandingCollection.remove(0);
-                System.out.println("removeTransactionFromOutstandingCollection: Notifying all (outstandinCollection)");
+                Transaction transaction = outstandingCollection.remove(0);
+                System.out.println("Removed from outstandinCollection: " + transaction);
                 outstandingCollection.notifyAll();
             }
         }
@@ -304,23 +302,28 @@ public class AccountReplica {
      *
      */
 
-     private static void waitForAllReplicas() {
+    private static void waitForAllReplicas() {
 
-         synchronized (members) {
-             while (members.size() < numberOfReplicas) {
-                 System.out.println("waitForAllReplicas: Before wait.");
-                 try {
-                     // This releases the lock associated
-                     // with the object on which wait is invoked.
-                     members.wait();
-                 } catch(Exception e) {
-                     e.printStackTrace();
-                 }
-                 System.out.println("waitForAllReplicas: After wait.");
-             }
-         }
-     }
+    synchronized (members) {
+        while (members.size() < numberOfReplicas) {
+            System.out.println("number of replicas: " + members.size());
 
+            try {
+                members.wait();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        System.out.println("number of replicas: " + members.size());
+
+        if (balance==0) {
+            getState();
+        }
+    }
+
+ }
 
     /**
      *
@@ -357,6 +360,39 @@ public class AccountReplica {
         connection.multicast(message);
     }
 
+    // use getState as cmd and multicast the request to others
+    public static  void getState()
+    {
+        // cmd - getState
+        // uniqueId - balance
+        Transaction transaction = new Transaction("getState", String.valueOf(balance));
+        try {
+            if(balance==0) {
+                multicastTransaction(transaction, accountName);
+            }
+        } catch (SpreadException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void multicastState()
+    {
+        // cmd - state
+        // uniqueId - balance
+        Transaction transaction = new Transaction("stateInfo", String.valueOf(balance));
+        try {
+            if(balance>0){
+                multicastTransaction(transaction, accountName);
+            }
+        } catch (SpreadException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void setState(double bal)
+    {
+        if(balance == 0) {
+            balance = bal;
+        }
+    }
 
 
     /**
@@ -386,7 +422,6 @@ public class AccountReplica {
         Runnable sendOutstandingCollection = new Runnable() {
 
             public void run() {
-                // System.out.println("\nSending outstanding collection\n");
                 multicastOutstandingCollection();
             }
 
