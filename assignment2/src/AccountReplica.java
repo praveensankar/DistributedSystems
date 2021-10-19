@@ -89,11 +89,6 @@ public class AccountReplica {
         System.out.println("\n[USER COMMAND] " + msg);
     }
 
-
-
-
-
-
     /**
      *
      * The commands
@@ -102,12 +97,10 @@ public class AccountReplica {
 
     public static void getQuickBalance() {
         printCommandInfo("Quick balance : " + balance);
-        // System.out.println("quick balance : " + balance);
     }
 
     public static void getSyncedBalanceAdvanced() {
         printCommandInfo("Synced balance (advanced): " + balance);
-        // System.out.println("synced balance : " + balance);
     }
 
     // This assumes that outstandingCollection is only empty when they have been executed.
@@ -115,30 +108,22 @@ public class AccountReplica {
     // only after the task has been executed.
     private static void getSyncedBalanceNaive() {
 
-        // I think I can check if outstanding is empty. As it is just removed
-        // after the execution (in the listener)
         synchronized (outstandingCollection) {
 
             while (!outstandingCollection.isEmpty()) {
-//                System.out.println("getSyncedBalanceNaive: Before wait");
                 try {
                     outstandingCollection.wait();
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-//                System.out.println("getSyncedBalanceNaive: After wait");
             }
 
             printCommandInfo("Synced balance (naive): " + balance);
 
-            // getSyncedBalance();
-
         }
     }
 
-    //hm .. just realized that this might not be thread safe
-    // NOT SURE HOW MANY THREADS IS EXECUTING FROM DUE TO LISTENER
-    // If only one thread then it is thread safe
+    /* Question: Is it thread safe? */
     public static void deposit(double amount){
         printCommandInfo("Depositing " + amount);
         balance += amount;
@@ -152,7 +137,7 @@ public class AccountReplica {
     public static void getHistory(){
 
         printCommandInfo("Getting history");
-        // print the execute list
+
         System.out.println("\n-----------------start history-----------------\n");
         System.out.println("executed list : ");
 
@@ -164,7 +149,6 @@ public class AccountReplica {
             }
         }
 
-        // print the outstanding collection
         System.out.println("\noutstanding collection : ");
 
         synchronized (outstandingCollection) {
@@ -182,7 +166,6 @@ public class AccountReplica {
         synchronized (outstandingCollection) {
             for (Transaction transaction: outstandingCollection) {
                 if (transaction.getUnique_id().equals(uniqueId)) {
-                    // printCommandInfo("Transaction is in outstandingCollection: " + uniqueId);
                     System.out.println("\t\t...Transaction is in outstandingCollection");
                     return;
                 }
@@ -192,7 +175,6 @@ public class AccountReplica {
         synchronized (executedList) {
             for (Transaction transaction: executedList) {
                 if (transaction.getUnique_id().equals(uniqueId)) {
-                    // printCommandInfo("Transaction is in executedList: " + uniqueId);
                     System.out.println("\t\t...Transaction is in executedList");
                     return;
                 }
@@ -232,20 +214,14 @@ public class AccountReplica {
     It waits until all outstanding transactions are executed before exiting
     the program. */
     public static void exit() {
-        // not sure if this might lead to some troubles
-        // I think not, as only one will get back the lock on the object
-        // only when the lock is gotten will it check and then, if condition is
-        // met, wait.
         printCommandInfo("EXITING");
         synchronized (outstandingCollection) {
             while (!outstandingCollection.isEmpty()) {
-//                System.out.println("exit: Before wait");
                 try {
                     outstandingCollection.wait();
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
-//                System.out.println("exit: After wait");
             }
         }
 
@@ -263,7 +239,6 @@ public class AccountReplica {
                 AccountReplica.members.add(group.toString());
             }
 
-            // System.out.println("Group members updated");
             members.notifyAll();
         }
     }
@@ -287,7 +262,6 @@ public class AccountReplica {
 
         if (!cmd.startsWith("getSyncedBalance")) {
             uniqueId += outstandingCounter++;
-            // outstandingCounter += 1; // only one thread changes this. (the scheduled)
         }
 
         Transaction transaction = createTransaction(cmd, uniqueId);
@@ -296,8 +270,6 @@ public class AccountReplica {
             outstandingCollection.add(transaction);
         }
 
-        // System.out.println("Adding to outstandingCollection: " + transaction.toString() );
-
    }
 
 
@@ -305,14 +277,12 @@ public class AccountReplica {
         synchronized (outstandingCollection) {
             if (!outstandingCollection.isEmpty()) {
                 Transaction transaction = outstandingCollection.remove(0);
-                // System.out.println("Removed from outstandinCollection: " + transaction);
                 outstandingCollection.notifyAll();
             }
         }
     }
 
 
-    // Might be that several threads that change this. Not sure how the listener is done
     public static void addTransactionToExecutedList(Transaction transaction) {
         synchronized (executedList) {
             executedList.add(transaction);
@@ -403,8 +373,9 @@ public class AccountReplica {
             e.printStackTrace();
         }
     }
-    public static void multicastState()
-    {
+
+
+    public static void multicastState() {
         // cmd - state
         // uniqueId - balance
         Transaction transaction = new Transaction("stateInfo", String.valueOf(balance));
@@ -417,8 +388,9 @@ public class AccountReplica {
             e.printStackTrace();
         }
     }
-    public static void setState(double bal)
-    {
+
+
+    public static void setState(double bal) {
         if(balance == 0) {
             printSpreadInfo("Setting state");
             balance = bal;
@@ -567,7 +539,6 @@ public class AccountReplica {
 
         } else {
             printCommandInfo("[ERROR] Invalid user command");
-            // System.out.println("[ERROR] Invalid user command.");
         }
     }
 
