@@ -1,8 +1,10 @@
-replica id : 32
+replica id : 48
 
 [SPREAD INFO] Setting up spread
 
 [SPREAD INFO] Waiting for all replicas to join...
+
+[SPREAD INFO] Updating members
 		...number of replicas: 0
 
 [SPREAD INFO] Updating members
@@ -10,8 +12,6 @@ replica id : 32
 [SPREAD INFO] All replicas have joined! Number of replicas: 2
 
 [SPREAD INFO] Getting state
-
-[SPREAD INFO] Updating members
 
 [SPREAD INFO] Setting up schedular to fire every 5 seconds
 
@@ -29,10 +29,6 @@ Please enter command:
 [USER COMMAND] Adding interest of 10.0%
 
 [SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Updating members
-
-[SPREAD INFO] Multicasting state
 
 [USER COMMAND] Depositing 100.0
 
@@ -61,110 +57,6 @@ Please enter command:
 [SPREAD INFO] Multicasting outstanding collection
 
 [SPREAD INFO] Updating members
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
-
-[SPREAD INFO] Multicasting outstanding collection
 
 [SPREAD INFO] Multicasting outstanding collection
 
