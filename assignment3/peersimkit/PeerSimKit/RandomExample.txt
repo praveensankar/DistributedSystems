@@ -23,7 +23,7 @@ init.wire WireKOut
 	k 50
 }
 
-control.degree peersim.reports.InDegreeObserver
+control.degree example.reports.InDegreeObserver
 {
 	protocol gossip
 

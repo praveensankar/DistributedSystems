@@ -1,4 +1,4 @@
-package peersim.reports;
+package example.reports;
 
 import java.util.HashMap;
 import java.util.Map;
