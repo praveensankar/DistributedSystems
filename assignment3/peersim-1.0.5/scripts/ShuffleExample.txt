@@ -1,4 +1,4 @@
-# This script build and overlay using one of the bootstrap topologies and run 
+# This script build and overlay using one of the bootstrap topologies and run
 # the basic shuffle protocol on top of it.
 
 SIZE 10000
@@ -20,7 +20,7 @@ protocol.tr UniformRandomTransport
 	maxdelay (CYCLE*MAXDELAY)/100
 }
 
-protocol.gossip example.gossip.BasicShuffle
+protocol.gossip p2p.gossip.BasicShuffle
 {
 	# the cache size should be set to 30 and to 50.
 	cacheSize 30
@@ -49,7 +49,7 @@ init.sch CDScheduler
 	protocol gossip
 }
 
-control.degree example.reports.InDegreeObserver
+control.degree p2p.reports.InDegreeObserver
 {
 	protocol gossip
 
