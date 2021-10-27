@@ -32,6 +32,13 @@ control.degree p2p.reports.InDegreeObserver
 	endtime 300000
 }
 
+control.cluster p2p.reports.ClusteringCoefficient
+{
+	protocol gossip
+
+	step CYCLE
+}
+
 control.graphPL GraphStats
 {
 	protocol gossip
