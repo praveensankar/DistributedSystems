@@ -1,0 +1,65 @@
+<project name="PeerToPeer" default="compile" basedir=".">
+
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="classes" />
+	<property name="doc" location="doc" />
+
+	<!-- The main class -->
+	<property name="main-class" value="peersim.Simulator" />
+
+	<!-- Packages to be included in the Javadoc generation -->
+	<property name="packages" value="peersim.*,example.*" />
+
+	<!-- Path for compilation -->
+	<path id="compile.path">
+		<pathelement location="jep-2.3.0.jar" />
+		<pathelement location="djep-1.0.0.jar" />
+	</path>
+
+	<target name="compile" depends="clean">
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac includeantruntime="false" srcdir="${src}" destdir="${build}" classpathref="compile.path" />
+	</target>
+
+	<target name="doc">
+		<!-- Create the doc directory structure used by javadoc -->
+		<mkdir dir="${doc}" />
+		<!-- Compile the javadoc from ${src} into ${doc} -->
+	    <javadoc sourcepath="${src}" destdir="${doc}" packagenames="${packages}" use="true" />
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} directory tree -->
+		<delete dir="${build}" />
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${basedir}/${ant.project.name}.jar" basedir="${build}" >
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- Alternative:
+	java -cp "me3.jar:jep-2.3.0.jar:djep-1.0.0.jar" peersim.Simulator scripts/RandomExample.txt
+	-->
+	<target name="run" depends="jar">
+		<!-- Setting default input file -->
+		<property name="config" value="scripts/RandomExample.txt" />
+		<!-- Specifying the class to execute -->
+		<java fork="true" classname="${main-class}">
+			<!-- Setting the input argument -->
+			<arg value="${config}" />
+			<!-- Setting the classpath -->
+			<classpath>
+				<path refid="compile.path"/>
+				<pathelement location="${basedir}/${ant.project.name}.jar" />
+			</classpath>
+		</java>
+	</target>
+
+</project>
