@@ -2,10 +2,10 @@
 # distribution, path length and clustering coefficient information.
 # Basically it produces the data used as baseline.
 
-SIZE 10000
+SIZE 100
 
-CYCLE 1000
-CYCLES 300
+CYCLE 100
+CYCLES 1
 
 random.seed 1234567890
 network.size SIZE
@@ -17,7 +17,13 @@ protocol.gossip IdleProtocol
 {
 }
 
-init.wire WireKOut
+#init.wire WireKOut
+#{
+#	protocol gossip
+#	k 5
+#}
+
+init.wire WireRingLattice
 {
 	protocol gossip
 	k 50
@@ -32,7 +38,7 @@ control.degree p2p.reports.InDegreeObserver
 	endtime 300000
 }
 
-control.cluster p2p.reports.ClusteringCoefficient
+control.nc p2p.reports.ClusteringCoefficient
 {
 	protocol gossip
 

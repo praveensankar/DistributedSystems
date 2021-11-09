@@ -15,7 +15,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-		
+
 package peersim.graph;
 
 import java.util.*;
@@ -58,7 +58,7 @@ public int[] d = null;
 * Collects nodes accessible from node "from" using depth-first search.
 * Works on the array {@link #color} which must be of the same length as
 * the size of the graph, and must contain values according to the
-* following semantics: 
+* following semantics:
 * WHITE (0): not seen yet, GREY (1): currently worked upon. BLACK
 * (other than 0 or 1): finished.
 * If a negative color is met, it is saved in the {@link #cluster} set
@@ -103,7 +103,7 @@ private void bfs( int from ) {
 
 	List<Integer> q = new LinkedList<Integer>();
 	int u, du;
-	
+
 	q.add(from);
 	q.add(0);
 	if( d != null ) d[from] = 0;
@@ -114,13 +114,13 @@ private void bfs( int from ) {
 	{
 		u = q.remove(0).intValue();
 		du = q.remove(0).intValue();
-		
+
 		for(int j:g.getNeighbours(u))
 		{
 			if( color[j]==WHITE )
 			{
 				color[j]=GREY;
-				
+
 				q.add(j);
 				q.add(du+1);
 				if( d != null ) d[j] = du+1;
@@ -143,7 +143,7 @@ private void tarjanVisit(int i) {
 	color[i]=counter++;
 	root[i]=i;
 	stack.push(i);
-	
+
 	for(int j:g.getNeighbours(i))
 	{
 		if( color[j]==WHITE )
@@ -210,7 +210,7 @@ public Map weaklyConnectedClusters( Graph g ) {
 		if( num == null ) ht.put(color[j],Integer.valueOf(1));
 		else ht.put(color[j],num+1);
 	}
-	
+
 	return ht;
 }
 
@@ -225,13 +225,13 @@ public void dist( Graph g, int i ) {
 	this.g=g;
 	if( d==null || d.length<g.size() ) d = new int[g.size()];
 	if( color==null || color.length<g.size() ) color = new int[g.size()];
-	
+
 	for(int j=0; j<g.size(); ++j)
 	{
 		color[j]=WHITE;
 		d[j] = -1;
 	}
-	
+
 	bfs(i);
 }
 
@@ -250,13 +250,13 @@ public static double clustering( Graph g, int i ) {
 
 	if( g.directed() ) throw new IllegalArgumentException(
 		"graph is directed");
-		
+
 	Object[] n = g.getNeighbours(i).toArray();
-	
+
 	if( n.length==1 ) return 1.0;
-	
+
 	int edges = 0;
-	
+
 	for(int j=0; j<n.length; ++j)
 	for(int k=j+1; k<n.length; ++k)
 		if( g.isEdge((Integer)n[j],(Integer)n[k]) ) ++edges;
@@ -284,7 +284,7 @@ public static void multicast( Graph g, int[] b, Random r ) {
 	c2[0]=c1[0]=BLACK;
 	Collection<Integer> neighbours=null;
 	int black=1;
-	
+
 	int k=0;
 	for(; k<b.length || black<g.size(); ++k)
 	{
@@ -295,7 +295,7 @@ public static void multicast( Graph g, int[] b, Random r ) {
 			for(int j=r.nextInt(neighbours.size()); j>0; --j)
 				it.next();
 			int randn = it.next();
-			
+
 			// push pull exchane with random neighbour
 			if( c1[i]==BLACK ) //c2[i] is black too
 			{
@@ -311,7 +311,7 @@ public static void multicast( Graph g, int[] b, Random r ) {
 		System.arraycopy(c2,0,c1,0,c1.length);
 		b[k]=black;
 	}
-	
+
 	for(; k<b.length; ++k) b[k]=g.size();
 }
 
@@ -346,14 +346,14 @@ public void flooding( Graph g, int[] b, int k ) {
 */
 //XXX implement a non-recursive version ASAP!!!
 public Map tarjan( Graph g ) {
-	
+
 	this.g=g;
 	stack.clear();
 	if( root==null || root.length<g.size() ) root = new int[g.size()];
 	if( color==null || color.length<g.size() ) color = new int[g.size()];
 	for( int i=0; i<g.size(); ++i) color[i]=WHITE;
 	counter = 1;
-	
+
 	// color is WHITE (0): not visited
 	// not WHITE, positive (c>1): visited as the c-th node
 	// color is negative (c<1): inComponent true
@@ -371,9 +371,8 @@ public Map tarjan( Graph g ) {
 			ht.put(j,color[j]);
 		}
 	}
-	
+
 	return ht;
 }
 
 }
-
