@@ -129,6 +129,9 @@ public class BasicShuffle  implements Linkable, EDProtocol, CDProtocol{
 		//	  - l is the length of the shuffle exchange
 		//    - Do not add Q to this subset	
 		this.subset = getNeighborsSubsetFromCache(Q);
+		if(this.subset.size()==l){
+			this.subset.remove(l-1);
+		}
 
 		// 6. Add P to the subset;
 		this.subset.add(new Entry(P));
@@ -302,29 +305,18 @@ public class BasicShuffle  implements Linkable, EDProtocol, CDProtocol{
 	// receiver - whoever receives the subset shouldn't be included in the subset
 	private List<Entry> getNeighborsSubsetFromCache(Node receiver) {
 		List<Entry> subset = new ArrayList<Entry>();
-		Set<Integer> indices = new TreeSet<Integer>();
-		int count=0;
 
-		while(count!=l-1){
-			int index = CommonState.r.nextInt(cache.size());
-			// 1st condition - checks whether the index is already added or not
-			// 2nd condition - checks whether the random index is same as node Q's index or not
-			if(indices.contains(Integer.valueOf(index)) || cache.contains(receiver)){
-				continue;
+		for(Entry node: cache) {
+			if(subset.size()==l){
+				break;
 			}
-			else{
-				indices.add(Integer.valueOf(index));
-				count++;
-			}
-		}
-
-		for(Integer index : indices){
-			if(cache.contains(getNeighbor(index))){
-				subset.add(new Entry(getNeighbor(index)));
+			if(receiver.getID()!=node.getNode().getID()) {
+				subset.add(node);
 			}
 		}
 		return subset;
 	}
+
 
 	// node updates it's cache from the subset of neighbors received in the shuffle reply or shuffle request
 	public void shuffleCache(List<Entry> subsetOfNeighborsReceived, List<Entry> subsetofNeighborsLocal){
@@ -349,10 +341,12 @@ public class BasicShuffle  implements Linkable, EDProtocol, CDProtocol{
 				continue;
 			}
 			//		 - If the cache is full, you can replace entries among the ones sent to P with the new ones
-			if(isCacheFull()==true){
-				removeNeighborFromCache(subSetTemp.get(0).getNode());
-				subSetTemp.remove(0);
-				addNeighbor(newNeighbor.getNode());
+			if(isCacheFull()==true) {
+				if (subSetTemp.size() > 0) {
+					removeNeighborFromCache(subSetTemp.get(0).getNode());
+					subSetTemp.remove(0);
+					addNeighbor(newNeighbor.getNode());
+				}
 			}
 		}
 	}

@@ -6,9 +6,6 @@ SIZE 10000
 CYCLE 1000
 CYCLES 300
 
-MINDELAY 10
-MAXDELAY 60
-
 random.seed 1234567890
 network.size SIZE
 simulation.endtime CYCLE*CYCLES
@@ -16,8 +13,8 @@ simulation.logtime CYCLE
 
 protocol.tr UniformRandomTransport
 {
-	mindelay (CYCLE*MINDELAY)/100
-	maxdelay (CYCLE*MAXDELAY)/100
+	mindelay 100
+	maxdelay 600
 }
 
 protocol.gossip example.gossip.BasicShuffle
@@ -41,7 +38,7 @@ protocol.gossip example.gossip.BasicShuffle
 init.wire WireRingLattice
 {
 	protocol gossip
-	k 1
+	k 10
 }
 
 init.sch CDScheduler
