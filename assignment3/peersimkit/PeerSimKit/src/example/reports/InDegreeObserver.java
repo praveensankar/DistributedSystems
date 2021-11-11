@@ -1,5 +1,8 @@
 package example.reports;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
@@ -72,20 +75,32 @@ public class InDegreeObserver implements Control
 			Long nodeId = Network.get(i).getID();
 			Integer degree = degreeCount.get(nodeId);
 			int value = 1;
+			if(degree!=null){
 			if(dist.containsKey(degree))
 				value = dist.get(degree) + 1;
 			dist.put(degree, value);
 		}
-		
-		// Sort the distribution and print the result
-		SortedSet<Integer> sortedKeys = new TreeSet<Integer>(dist.keySet());
-		for(int i = 0; i <= sortedKeys.last(); i++){
-			if(sortedKeys.contains(i))
-				System.out.println(dist.get(i));
-			else
-				System.out.println(0);
 		}
-
+		try {
+			FileWriter myWriter = null;
+			File file = new File("degree.txt");
+			FileWriter fr = new FileWriter(file, true);
+			// Sort the distribution and print the result
+			SortedSet<Integer> sortedKeys = new TreeSet<Integer>(dist.keySet());
+			for (int i = 0; i <= sortedKeys.last(); i++) {
+				if (sortedKeys.contains(i)) {
+					System.out.println("in-degree: " + i + "\t number of nodes : " + dist.get(i));
+					fr.write(String.valueOf(i) + "," + String.valueOf(dist.get(i)) + "\n");
+				} else {
+					//System.out.println("in-degree: " + i + "\t number of nodes : " + 0);
+					//fr.write(String.valueOf(i) + "," + String.valueOf(0) + "\n");
+				}
+			}
+			fr.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 		return false;
 	}
 

@@ -1,12 +1,21 @@
 package example.reports;
 
+
+
+import example.hot.InetCoordinates;
 import peersim.config.Configuration;
 
 import peersim.core.Control;
 import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.core.Network;
+import peersim.graph.Graph;
+import peersim.reports.GraphObserver;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -23,7 +32,7 @@ import java.util.HashMap;
 //     }
 // }
 
-public class ClusteringCoefficient implements Control {
+public class ClusteringCoefficient  extends GraphObserver {
 
     private static final String PAR_PID = "protocol";
 
@@ -31,6 +40,7 @@ public class ClusteringCoefficient implements Control {
 
     // Not really sure what the prefix is doing
     public ClusteringCoefficient(String prefix) {
+        super(prefix);
         this.pid = Configuration.getPid(prefix + "." + PAR_PID);
     }
 
@@ -56,7 +66,6 @@ public class ClusteringCoefficient implements Control {
     // 1. Sum up the connections to each other for all the neighboring nodes
     // 2. Divide by the total number of neighbors
     public boolean execute() {
-        System.out.println("\nExecuting\n");
 
         // The key is the relation (count of mutual neighbors)/(total neighbor count),
         // and the value is the number of nodes that have that specific value
@@ -64,13 +73,13 @@ public class ClusteringCoefficient implements Control {
         Map<Double, Integer> clustering = new HashMap<>();
 
         // int test = 0;
-
+        double totalCoefficient = 0;
         for (int i = 0; i < Network.size(); i++) {
 
             Node n = Network.get(i);
 
             if (n.isUp()) {
-                System.out.println();
+
                 Linkable nodeLink = (Linkable) n.getProtocol(pid);
 
                 int mutualNeighbors = 0;
@@ -116,20 +125,23 @@ public class ClusteringCoefficient implements Control {
                 }
 
                 int count = 1;
-                double clusteringCoefficient = (double) mutualNeighbors / (totalNeighbors * (totalNeighbors /*- 1 */));
-
+                double clusteringCoefficient = (double) mutualNeighbors / (totalNeighbors * (totalNeighbors));
+                totalCoefficient = totalCoefficient + clusteringCoefficient;
+              //  System.out.println("node : "+n.getID()+"\t coefficient : "+clusteringCoefficient);
                 if (clustering.containsKey(clusteringCoefficient))
                     count += clustering.get(clusteringCoefficient);
 
                 clustering.put(clusteringCoefficient, count);
 
             }
-
         }
 
         double averageClustering = average(clustering);
         // System.out.println("test = " + test);
-        System.out.println("ClusteringCoefficient = " + averageClustering);
+   //     System.out.println("Clustering Coefficient average :  " + totalCoefficient/Network.size());
+
+
+
 
         return false;
     }
@@ -144,11 +156,25 @@ public class ClusteringCoefficient implements Control {
             totalNodes += entry.getValue();
         }
 
-        System.out.println("clustering.size() = " + clustering.size());
-        System.out.println("totalNodes = " + totalNodes);
-        System.out.println("accumulatedCoefficient = " + accumulatedCoefficient);
+        //System.out.println("clustering.size() = " + clustering.size());
+        //System.out.println("totalNodes = " + totalNodes);
+        //System.out.println("accumulatedCoefficient = " + accumulatedCoefficient);
 
         // Average clustering coefficient
         return accumulatedCoefficient / totalNodes;
     }
+
+
 }
+
+//    public boolean execute() {
+//        updateGraph();
+//         double coefficient = 0.0;
+//         double average = 0.0;
+//        for (int i = 0; i < g.size(); i++) {
+//                coefficient = GraphAlgorithms.clustering(g,i);
+//                System.out.println("node : "+i +"\t coefficient : "+coefficient);
+//            }
+//        return true;
+//    }
+

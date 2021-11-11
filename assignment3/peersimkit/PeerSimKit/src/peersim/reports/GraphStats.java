@@ -19,8 +19,13 @@
 package peersim.reports;
 
 import peersim.config.Configuration;
+import peersim.core.Network;
 import peersim.graph.GraphAlgorithms;
 import peersim.util.IncrementalStats;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
 * Prints reports on the graph like average clustering and average path length,
@@ -103,7 +108,7 @@ public GraphStats(String name) {
 */
 public boolean execute() {
 	
-	System.out.print(name+": ");
+	//System.out.print(name+": ");
 	
 	IncrementalStats stats = new IncrementalStats();
 	updateGraph();
@@ -116,7 +121,16 @@ public boolean execute() {
 		{
 			stats.add(GraphAlgorithms.clustering(g,i));
 		}
-		System.out.print(stats.getAverage()+" ");
+		System.out.println("clustering coefficient "+stats.getAverage());
+		FileWriter myWriter = null;
+		try {
+			File file = new File("cluster.txt");
+			FileWriter fr = new FileWriter(file, true);
+			fr.write(String.valueOf(stats.getAverage())+"\n");
+			fr.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	if( nl != 0 )
@@ -139,10 +153,18 @@ public boolean execute() {
 					stats.add(ga.d[j]); 
 			}
 		}
-		System.out.print(stats.getAverage());
+		System.out.println("average shortest path : "+stats.getAverage());
+		FileWriter myWriter = null;
+		try {
+			File file = new File("path.txt");
+			FileWriter fr = new FileWriter(file, true);
+			fr.write(String.valueOf(stats.getAverage())+"\n");
+			fr.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	
-	System.out.println();
+
 	return false;
 }
 

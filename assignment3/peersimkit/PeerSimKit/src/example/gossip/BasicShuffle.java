@@ -1,9 +1,6 @@
 package example.gossip;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
@@ -305,13 +302,14 @@ public class BasicShuffle  implements Linkable, EDProtocol, CDProtocol{
 	// receiver - whoever receives the subset shouldn't be included in the subset
 	private List<Entry> getNeighborsSubsetFromCache(Node receiver) {
 		List<Entry> subset = new ArrayList<Entry>();
-
-		for(Entry node: cache) {
-			if(subset.size()==l){
-				break;
-			}
-			if(receiver.getID()!=node.getNode().getID()) {
-				subset.add(node);
+		List<Entry> cacheCopy = new ArrayList<Entry>();
+		for(Entry node: cache){
+			cacheCopy.add(node);
+		}
+		Collections.shuffle(cacheCopy);
+			for (Entry node : cacheCopy) {
+				if (receiver.getID() != node.getNode().getID()) {
+						subset.add(node);
 			}
 		}
 		return subset;

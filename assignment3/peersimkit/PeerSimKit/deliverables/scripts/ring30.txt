@@ -1,6 +1,5 @@
-# This script builds a randomly connected graph and prints in-degree 
-# distribution, path length and clustering coefficient information.
-# Basically it produces the data used as baseline.
+# This script build and overlay using one of the bootstrap topologies and run 
+# the basic shuffle protocol on top of it.
 
 SIZE 10000
 
@@ -33,10 +32,22 @@ protocol.gossip example.gossip.BasicShuffle
 	period CYCLE
 }
 
-init.wire WireKOut
+#init.wire WireStar
+#{
+#	protocol gossip
+#}
+
+# This initializes the topology as a ring. Use should also use WireStar to
+# initialize it as a star.
+init.wire WireRingLattice
 {
 	protocol gossip
-	k 50
+	k 1
+}
+
+init.sch CDScheduler
+{
+	protocol gossip
 }
 
 control.degree example.reports.InDegreeObserver
@@ -44,7 +55,14 @@ control.degree example.reports.InDegreeObserver
 	protocol gossip
 	step CYCLE
 	starttime (CYCLE*(CYCLES-1))
-    endtime (CYCLE*CYCLES)
+	endtime (CYCLE*CYCLES)
+}
+
+control.coefficient example.reports.ClusteringCoefficient
+{
+	protocol gossip
+	step CYCLE
+   undir true
 }
 
 control.graphPL GraphStats
@@ -52,6 +70,8 @@ control.graphPL GraphStats
 	protocol gossip
 	step CYCLE
 	undir true
+	# nl will produce path length information
 	nl 10
+	# uncomment the next line to produce clustering information
 	nc 1000
 }
