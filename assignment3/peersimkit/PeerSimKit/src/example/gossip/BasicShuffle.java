@@ -311,6 +311,9 @@ public class BasicShuffle  implements Linkable, EDProtocol, CDProtocol{
 				if (receiver.getID() != node.getNode().getID()) {
 						subset.add(node);
 			}
+				if(subset.size()==l){
+					break;
+				}
 		}
 		return subset;
 	}

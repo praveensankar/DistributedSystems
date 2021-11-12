@@ -68,6 +68,7 @@ def work():
     graph_cra50 =  GraphInfo("random",50,cycles, cluster_random_50)
     plot_graphs(graph_cr30,graph_cra30,graph_cr50, graph_cra50,"clustering coefficient","cycles","coefficient","cluster_coefficient_ring.png")
     plot_graphs(graph_cs30,graph_cra30,graph_cs50, graph_cra50,"clustering coefficient","cycles","coefficient","cluster_coefficient_star.png")
+    plot_graphs(graph_cr30,graph_cs30,graph_cr50, graph_cs50,"clustering coefficient","cycles","coefficient","cluster_coefficient_ring_star.png")
 
     path_cr30 =  GraphInfo("ring",30,cycles, path_ring_30)
     path_cr50 =  GraphInfo("ring",50,cycles, path_ring_50)
@@ -77,6 +78,7 @@ def work():
     path_cra50 =  GraphInfo("random",50,cycles, path_random_50)
     plot_graphs(path_cr30,path_cra30,path_cr50, path_cra50,"average path length","cycles","average path","average_path_length_ring.png")
     plot_graphs(path_cs30,path_cra30,path_cs50, path_cra50,"average path length","cycles","average path","average_path_length_star.png")
+    plot_graphs(path_cr30,path_cs30,path_cr50, path_cs50,"average path length","cycles","average path","average_path_length_ring_star.png")
 
     (degree_cr30_x, degree_cr30_y) = parse_in_degree(in_degree_ring_30)
     (degree_cr50_x, degree_cr50_y) = parse_in_degree(in_degree_ring_50)
@@ -93,6 +95,8 @@ def work():
     degree_cra50 =  GraphInfo("random",50, degree_cra50_x, degree_cra50_y)
     plot_graphs(degree_cr30,degree_cra30,degree_cr50, degree_cra50,"in degree distribution","in degree","node count","in_degree_distribution_ring.png")
     plot_graphs(degree_cs30,degree_cra30,degree_cs50, degree_cra50,"in degree distribution","in degree","node count","in_degree_distribution_star.png")
+    plot_graphs(degree_cr30,degree_cs30,degree_cr50, degree_cs50,"in degree distribution","in degree","node count","in_degree_distribution_ring_star.png")
+
 
 
 

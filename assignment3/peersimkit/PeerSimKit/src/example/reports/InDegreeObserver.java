@@ -74,6 +74,7 @@ public class InDegreeObserver implements Control
 		for (int i = 0; i < Network.size(); i++){
 			Long nodeId = Network.get(i).getID();
 			Integer degree = degreeCount.get(nodeId);
+			//System.out.println("node : " + nodeId + "\t in_degree : " +degree);
 			int value = 1;
 			if(degree!=null){
 			if(dist.containsKey(degree))
@@ -92,8 +93,8 @@ public class InDegreeObserver implements Control
 					System.out.println("in-degree: " + i + "\t number of nodes : " + dist.get(i));
 					fr.write(String.valueOf(i) + "," + String.valueOf(dist.get(i)) + "\n");
 				} else {
-					//System.out.println("in-degree: " + i + "\t number of nodes : " + 0);
-					//fr.write(String.valueOf(i) + "," + String.valueOf(0) + "\n");
+					System.out.println("in-degree: " + i + "\t number of nodes : " + 0);
+					fr.write(String.valueOf(i) + "," + String.valueOf(0) + "\n");
 				}
 			}
 			fr.close();

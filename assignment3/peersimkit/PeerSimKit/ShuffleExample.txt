@@ -1,7 +1,7 @@
 # This script build and overlay using one of the bootstrap topologies and run 
 # the basic shuffle protocol on top of it.
 
-SIZE 10000
+SIZE 100
 
 CYCLE 1000
 CYCLES 300
